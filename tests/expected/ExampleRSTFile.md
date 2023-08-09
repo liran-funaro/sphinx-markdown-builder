@@ -427,12 +427,14 @@ The empty cell is the second column in the first row of this table.
    :widths: 25 25 50
 
  * - Annotation Problem
+     (example annotation)
    -
    - Annotation problems ask students to respond to questions about a
      specific block of text. The question appears above the text when the
      student hovers the mouse over the highlighted text so that students can
      think about the question as they read.
  * - Example Poll
+     [another annotation]
    - Conditional Module
    - You can create a conditional module to control versions of content that
       groups of students see. For example, students who answer "Yes" to a
@@ -446,10 +448,10 @@ The empty cell is the second column in the first row of this table.
      tool directly into Studio.
 ```
 
-| Annotation Problem         |                    | Annotation problems ask students to respond to questions about a<br/>specific block of text. The question appears above the text when the<br/>student hovers the mouse over the highlighted text so that students can<br/>think about the question as they read.   |
-|----------------------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Example Poll               | Conditional Module | You can create a conditional module to control versions of content that<br/>groups of students see. For example, students who answer “Yes” to a<br/>poll question then see a different block of text from the students who<br/>answer “No” to that question.       |
-| Exampel JavaScript Problem | Custom JavaScript  | Custom JavaScript display and grading problems (also called *custom<br/>JavaScript problems* or *JS input problems*) allow you to create a<br/>custom problem or tool that uses JavaScript and then add the problem or<br/>tool directly into Studio.              |
+| Annotation Problem<br/>(example annotation)   |                    | Annotation problems ask students to respond to questions about a<br/>specific block of text. The question appears above the text when the<br/>student hovers the mouse over the highlighted text so that students can<br/>think about the question as they read.   |
+|-----------------------------------------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Example Poll<br/>[another annotation]         | Conditional Module | You can create a conditional module to control versions of content that<br/>groups of students see. For example, students who answer “Yes” to a<br/>poll question then see a different block of text from the students who<br/>answer “No” to that question.       |
+| Exampel JavaScript Problem                    | Custom JavaScript  | Custom JavaScript display and grading problems (also called *custom<br/>JavaScript problems* or *JS input problems*) allow you to create a<br/>custom problem or tool that uses JavaScript and then add the problem or<br/>tool directly into Studio.              |
 
 ### Example of a table with a header row
 

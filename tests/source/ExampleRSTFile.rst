@@ -534,12 +534,14 @@ The empty cell is the second column in the first row of this table.
      :widths: 25 25 50
 
    * - Annotation Problem
+       (example annotation)
      -
      - Annotation problems ask students to respond to questions about a
        specific block of text. The question appears above the text when the
        student hovers the mouse over the highlighted text so that students can
        think about the question as they read.
    * - Example Poll
+       [another annotation]
      - Conditional Module
      - You can create a conditional module to control versions of content that
         groups of students see. For example, students who answer "Yes" to a
@@ -556,12 +558,14 @@ The empty cell is the second column in the first row of this table.
    :widths: 25 25 50
 
    * - Annotation Problem
+       (example annotation)
      -
      - Annotation problems ask students to respond to questions about a
        specific block of text. The question appears above the text when the
        student hovers the mouse over the highlighted text so that students can
        think about the question as they read.
    * - Example Poll
+       [another annotation]
      - Conditional Module
      -  You can create a conditional module to control versions of content that
         groups of students see. For example, students who answer "Yes" to a

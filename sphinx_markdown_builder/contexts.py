@@ -10,7 +10,10 @@ from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type,
 
 from tabulate import tabulate
 
+from sphinx.util import logging
 from sphinx_markdown_builder.escape import escape_html_quote
+
+logger = logging.getLogger(__name__)
 
 
 class UniqueString(str):
@@ -185,7 +188,7 @@ class CommaSeparatedContext(SubContext):
         self.is_parameter = False
 
     @property
-    def content(self):
+    def content(self) -> List[str]:
         assert self.is_parameter, f"Is not a parameter: {self}"
         return self.body[-1]
 
@@ -210,9 +213,13 @@ class TableContext(SubContext):
         return self.body
 
     @property
-    def content(self):
-        assert self.is_entry, f"Is not an entry: {self}"
-        return self.active_output[-1][-1]
+    def content(self) -> List[str]:
+        content = self.active_output
+        logger.debug(f"active output: {content}")
+        if content and isinstance(content[-1], list) and isinstance(content[-1][-1], list):
+            return content[-1][-1]
+        else:
+            return []
 
     def enter_head(self):
         assert not self.is_header, f"Is a header: {self}"
