@@ -186,7 +186,7 @@ class CommaSeparatedContext(SubContext):
 
     @property
     def content(self):
-        assert self.is_parameter
+        assert self.is_parameter, f"Is not a parameter: {self}"
         return self.body[-1]
 
     def make(self):
@@ -211,39 +211,39 @@ class TableContext(SubContext):
 
     @property
     def content(self):
-        assert self.is_entry
+        assert self.is_entry, f"Is not an entry: {self}"
         return self.active_output[-1][-1]
 
     def enter_head(self):
-        assert not self.is_header
+        assert not self.is_header, f"Is a header: {self}"
         self.is_header = True
 
     def exit_head(self):
-        assert self.is_header
+        assert self.is_header, f"Is not a header: {self}"
         self.is_header = False
 
     def enter_body(self):
-        assert not self.is_header
+        assert not self.is_header, f"Is a header: {self}"
 
     def exit_body(self):
-        assert not self.is_header
+        assert not self.is_header, f"Is a header: {self}"
 
     def enter_row(self):
         self.active_output.append([])
         self.is_row = True
 
     def exit_row(self):
-        assert self.is_row
+        assert self.is_row, f"Is not a row: {self}"
         self.is_row = False
 
     def enter_entry(self):
-        assert self.is_row
+        assert self.is_row, f"Is not a row: {self}"
         self.is_entry = True
         self.active_output[-1].append([])
         self.ensure_eol_count = 0
 
     def exit_entry(self):
-        assert self.is_entry
+        assert self.is_entry, f"Is not an entry: {self}"
         self.is_entry = False
 
     @staticmethod

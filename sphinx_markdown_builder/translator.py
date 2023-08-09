@@ -110,9 +110,9 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint
 def pushing_context(method):
     """Marks method as pushing context"""
     match = VISIT_DEPART_PATTERN.fullmatch(method.__name__)
-    assert match is not None
+    assert match is not None, f"Match for method is none: {method.__name__}"
     state, _ = match.groups()
-    assert state == "visit"
+    assert state == "visit", f"State is not 'visit': {state}"
     setattr(method, "__pushing_context__", True)
     return method
 
@@ -177,7 +177,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def astext(self):
         """Return the final formatted document as a string."""
         self._pop_context(count=2**31)
-        assert len(self._ctx_queue) == 1
+        assert len(self._ctx_queue) == 1, f"Length of queue is not equal to 1: {self._ctx_queue}"
 
         ctx = SubContext()
         for sub_ctx in (self._doc_info, self._ctx_queue[0]):
@@ -589,7 +589,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @property
     def sep_ctx(self) -> CommaSeparatedContext:
         ctx = self.ctx
-        assert isinstance(ctx, CommaSeparatedContext)
+        assert isinstance(ctx, CommaSeparatedContext), f"Context is not comma separated: {ctx}"
         return ctx
 
     def visit_desc_parameter(self, _node):
@@ -639,7 +639,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @property
     def table_ctx(self) -> TableContext:
         ctx = self.ctx
-        assert isinstance(ctx, TableContext)
+        assert isinstance(ctx, TableContext), f"Context is not table: {ctx}"
         return ctx
 
     @pushing_context
