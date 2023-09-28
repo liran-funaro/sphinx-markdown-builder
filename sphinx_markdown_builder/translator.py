@@ -94,7 +94,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint
     compound=None,
     desc_addname=None,  # module pre-roll for class/method
     desc_content=None,  # the description of the class/method
-    desc_name=None,  # name of the class/method
     title_reference=None,
     autosummary_table=None,  # Sphinx autosummary
     # See https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html.
@@ -588,6 +587,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             # of a class method
             h_level = 4 if node.get("class", None) else 3
             self._push_context(TitleContext(h_level))
+
+    visit_desc_name = visit_literal
+    depart_desc_name = depart_literal
 
     @pushing_context
     def visit_desc_annotation(self, node):
