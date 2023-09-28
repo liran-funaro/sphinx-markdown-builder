@@ -64,7 +64,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint
     strong=StrongContext,
     subscript=SubscriptContext,
     superscript=SubscriptContext,
-    desc_annotation=ItalicContext,
     literal_strong=StrongContext,
     literal_emphasis=ItalicContext,
     field_name=PushContext(WrappedContext, "**", ":**"),  # e.g 'returns', 'parameters'
@@ -264,6 +263,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     ################################################################################
     # visit/depart handlers
     ################################################################################
+    @pushing_context
+    def visit_important(self, _node):
+        """Sphinx important directive."""
+        self._push_box("IMPORTANT")
 
     @pushing_context
     def visit_warning(self, _node):
@@ -577,11 +580,23 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             for anchor in node.get("ids", []):
                 self._add_anchor(anchor)
 
-        # We don't want methods to be at the same level as classes,
-        # If signature has a non-null class, that's means it is a signature
-        # of a class method
-        h_level = 4 if node.get("class", None) else 3
-        self._push_context(TitleContext(h_level))
+        if (parent := node.parent) and "attribute" in parent.get("classes", ""):
+            self.add("- ", prefix_eol=1)
+        else:
+            # We don't want methods to be at the same level as classes,
+            # If signature has a non-null class, that's means it is a signature
+            # of a class method
+            h_level = 4 if node.get("class", None) else 3
+            self._push_context(TitleContext(h_level))
+
+    @pushing_context
+    def visit_desc_annotation(self, node):
+        self.add(" ")
+        self._push_context(ItalicContext.create(node, "desc_annotation"))
+
+    def visit_desc_returns(self, node):
+        """Return type"""
+        self.add(" → ")
 
     def visit_desc_parameterlist(self, _node):
         self._push_context(WrappedContext("(", ")", wrap_empty=True))
