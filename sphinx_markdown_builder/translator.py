@@ -528,6 +528,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         # if the reference object itself has the url 
         # (such as for an intra-document heading reference)
         # use that url instead
+        ref_id = node.get("refid", None)
         if ref_id is not None and url == "":
             url = f"#{ref_id}"
         self._push_context(WrappedContext("[", f"]({url})"))
