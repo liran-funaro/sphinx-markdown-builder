@@ -81,6 +81,20 @@ class MarkdownBuilder(Builder):
             with open(out_filename, "w", encoding="utf-8") as file:
                 file.write(visitor.astext())
 
+    def copy_image_files(self) -> None:
+        if self.images:
+            for key in self.images.keys():
+                copy_asset_file(os.path.join(self.srcdir, key), self.outdir)
+
+    def write(
+        self,
+        build_docnames,
+        updated_docnames,
+        method: str = 'update',
+    ) -> None:
+        super().write(build_docnames, updated_docnames, method)
+        self.copy_image_files()
+
     def finish(self):
         for src_file_name, (_, dst_path) in self.env.dlfiles.items():
             source_path = os.path.join(self.srcdir, src_file_name)
