@@ -16,6 +16,7 @@ from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging
 from sphinx.util.nodes import NodeMatcher
 from sphinx.util.osutil import ensuredir, os_path
+from sphinx.util.fileutil import copy_asset_file
 
 from sphinx_markdown_builder.translator import MarkdownTranslator
 
