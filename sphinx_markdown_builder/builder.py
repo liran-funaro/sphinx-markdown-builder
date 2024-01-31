@@ -13,6 +13,7 @@ from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
+from sphinx.util.fileutil import copy_asset_file
 
 from sphinx_markdown_builder.translator import MarkdownTranslator
 from sphinx_markdown_builder.writer import MarkdownWriter
