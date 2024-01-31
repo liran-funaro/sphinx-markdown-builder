@@ -86,6 +86,7 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint
     document=None,
     container=None,
     inline=None,
+    Inline=None,
     definition_list=None,
     definition_list_item=None,
     glossary=None,
@@ -524,6 +525,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @pushing_context
     def visit_reference(self, node):
         url = self._fetch_ref_uri(node)
+        # if the reference object itself has the url 
+        # (such as for an intra-document heading reference)
+        # use that url instead
+        if ref_id is not None and url == "":
+            url = f"#{ref_id}"
         self._push_context(WrappedContext("[", f"]({url})"))
 
     @pushing_context
