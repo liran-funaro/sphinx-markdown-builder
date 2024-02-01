@@ -623,7 +623,14 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         # Insert anchors if enabled by the config
         if self.config.markdown_anchor_signatures:
             for anchor in node.get("ids", []):
-                self._add_anchor(anchor)
+                # only use v4 cpp anchors
+                if len(anchor) < 6:
+                    self._add_anchor(anchor)
+                elif anchor[0:5] == "_CPPv":
+                    if not (anchor[5:6] in ["2","3"]):
+                        self._add_anchor(anchor)
+                else:
+                    self._add_anchor(anchor)
 
         # We don't want methods to be at the same level as classes,
         # If signature has a non-null class, that's means it is a signature
