@@ -65,7 +65,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint
     strong=StrongContext,
     subscript=SubscriptContext,
     superscript=SubscriptContext,
-    desc_annotation=ItalicContext,
     literal_strong=StrongContext,
     literal_emphasis=ItalicContext,
     field_name=PushContext(WrappedContext, "**", ":**"),  # e.g 'returns', 'parameters'
@@ -96,7 +95,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint
     compound=None,
     desc_addname=None,  # module pre-roll for class/method
     desc_content=None,  # the description of the class/method
-    desc_name=None,  # name of the class/method
     title_reference=None,
     autosummary_table=None,  # Sphinx autosummary
     # See https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html.
@@ -301,6 +299,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     ################################################################################
     # visit/depart handlers
     ################################################################################
+    @pushing_context
+    def visit_important(self, _node):
+        """Sphinx important directive."""
+        self._push_box("IMPORTANT")
 
     @pushing_context
     def visit_warning(self, _node):
@@ -619,11 +621,26 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             for anchor in node.get("ids", []):
                 self._add_anchor(anchor)
 
-        # We don't want methods to be at the same level as classes,
-        # If signature has a non-null class, that's means it is a signature
-        # of a class method
-        h_level = 4 if node.get("class", None) else 3
-        self._push_context(TitleContext(h_level))
+        if (parent := node.parent) and "attribute" in parent.get("classes", ""):
+            self.add("- ", prefix_eol=1)
+        else:
+            # We don't want methods to be at the same level as classes,
+            # If signature has a non-null class, that's means it is a signature
+            # of a class method
+            h_level = 4 if node.get("class", None) else 3
+            self._push_context(TitleContext(h_level))
+
+    visit_desc_name = visit_literal
+    depart_desc_name = depart_literal
+
+    @pushing_context
+    def visit_desc_annotation(self, node):
+        self.add(" ")
+        self._push_context(ItalicContext.create(node, "desc_annotation"))
+
+    def visit_desc_returns(self, node):
+        """Return type"""
+        self.add(" → ")
 
     def visit_desc_parameterlist(self, _node):
         self._push_context(WrappedContext("(", ")", wrap_empty=True))
