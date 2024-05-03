@@ -56,6 +56,7 @@
       * [`deprecated_function()`](library/my_module.md#my_module.deprecated_function)
       * [`func1()`](library/my_module.md#my_module.func1)
       * [`func2()`](library/my_module.md#my_module.func2)
+      * [`func3()`](library/my_module.md#my_module.func3)
 * [Indices and tables](auto-summery.md#indices-and-tables)
 * [Math Example](blocks.md)
 * [Code Example](blocks.md#code-example)

@@ -81,6 +81,7 @@ class ContextStatus:
     list_marker: Optional[ListMarker] = None  # Current list marker
     desc_type: Optional[str] = None  # Current descriptor type
     default_ref_internal: bool = False  # Current default for internal reference
+    footnote: bool = False  # Current warped in footnote
 
 
 class SubContext:

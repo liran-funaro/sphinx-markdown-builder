@@ -48,3 +48,17 @@ def func2(param1: int, param2: int):
     :param param2: This is the second parameter.
     """
     pass
+
+
+def func3(param1: int, param2: int):
+    """This is a function with two parameters.
+
+    :param param1: This is the first parameter [1]_.
+    :param param2: This [2]_ is the second parameter.
+
+    References
+    ----------
+    .. [1] `Google <https://google.com>`_
+    .. [2] `Github <https://github.com>`_
+    """
+    pass

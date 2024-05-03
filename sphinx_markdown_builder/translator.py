@@ -344,13 +344,14 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_paragraph(self, _node):
-        if self.status.list_marker is None:
-            params = SubContextParams(2, 2)
-        else:
-            # Full paragraph spacing inside a list might trigger redundant spacing for some markdown compilers.
-            # So we will add double EOL after the paragraph only if the next element requires it (e.g., code block).
-            params = SubContextParams(2, 1)
-        self._push_context(SubContext(params))
+        if self.status.footnote is False:
+            if self.status.list_marker is None:
+                params = SubContextParams(2, 2)
+            else:
+                # Full paragraph spacing inside a list might trigger redundant spacing for some markdown compilers.
+                # So we will add double EOL after the paragraph only if the next element requires it (e.g., code block).
+                params = SubContextParams(2, 1)
+            self._push_context(SubContext(params))
 
     visit_compact_paragraph = visit_paragraph
 
@@ -715,3 +716,23 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def depart_entry(self, _node):
         self.table_ctx.exit_entry()  # workaround pylint: disable=no-member
+
+    def visit_footnote(self, _node):
+        self._push_status(footnote=True)
+
+    def depart_footnote(self, _node):
+        self._push_status(footnote=False)
+        self.ctx.ensure_eol(2)
+
+    def visit_footnote_reference(self, _node):
+        self.add("<sup>[")
+
+    def depart_footnote_reference(self, node):
+        content = node.astext()
+        self.add(f"](#ref{content})</sup>")
+
+    @pushing_context
+    def visit_label(self, node):
+        if self.status.footnote:
+            content = node.astext()
+            self._push_context(WrappedContext('<a id="ref', f'"></a>\n[{content}]\t'))
