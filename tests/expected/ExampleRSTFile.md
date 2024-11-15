@@ -56,6 +56,9 @@ text is surrounded by double asterisks. For example, **bold**.
 #### IMPORTANT
 This is an important message.
 
+#### HINT
+This is a hint message.
+
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.
 

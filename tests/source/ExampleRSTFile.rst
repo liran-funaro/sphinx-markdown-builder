@@ -57,6 +57,9 @@ own line number for commenting in reviews.
 .. important::
    This is an important message.
 
+.. hint::
+   This is a hint message.
+
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.
 
