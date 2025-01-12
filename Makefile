@@ -64,7 +64,7 @@ lint:
 			--max-complexity=10 --max-line-length=120 --statistics \
 			--exclude "venv*,.venv,.git"
 	@ echo "Lint with pylint"
-	pylint sphinx_markdown_builder --disable C0116,C0115
+	pylint sphinx_markdown_builder -v --disable C0116,C0115
 
 
 release:

@@ -288,7 +288,7 @@ class TableContext(SubContext):
 
 
 class IndentContext(SubContext):
-    def __init__(  # pylint: disable=too-many-positional-arguments
+    def __init__(
         self,
         prefix,
         only_first=False,

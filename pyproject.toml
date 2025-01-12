@@ -80,3 +80,4 @@ line-length = 120
 [tool.pylint.format]
 max-line-length = 120
 max-args = 6
+max-positional-arguments = 6
