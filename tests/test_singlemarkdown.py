@@ -48,7 +48,9 @@ def test_singlemarkdown_builder():
         # Check for content from different source files
         assert "Main Test File" in content, "Main content missing"
         assert "Example .rst File" in content, "ExampleRSTFile content missing"
-        assert "Using the Learner Engagement Report" in content, "Section_course_student content missing"
+        assert "Using the Learner Engagement Report" in content, (
+            "Section_course_student content missing"
+        )
 
 
 def test_singlemarkdown_update():
