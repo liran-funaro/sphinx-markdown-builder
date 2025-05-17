@@ -11,7 +11,11 @@ __docformat__ = "reStructuredText"
 
 def setup(app):
     app.add_builder(MarkdownBuilder)
+
+    # Register the single file markdown builder
     app.add_builder(SingleFileMarkdownBuilder)
+
+    # Add configuration values
     app.add_config_value("markdown_http_base", "", "html", str)
     app.add_config_value("markdown_uri_doc_suffix", ".md", "html", str)
     app.add_config_value("markdown_file_suffix", ".md", "html", str)
