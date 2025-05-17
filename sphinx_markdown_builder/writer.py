@@ -11,7 +11,7 @@ class MarkdownWriter(writers.Writer):
     supported = ("markdown",)
     """Formats this writer supports."""
 
-    output = None
+    output: str | None = None
     """Final translated form of `document`."""
 
     # Add configuration settings for additional Markdown flavours here.
