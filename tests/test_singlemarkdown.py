@@ -5,8 +5,9 @@
 import os
 import shutil
 import stat
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
+from typing import Callable
 from unittest import mock
 
 import pytest
@@ -42,8 +43,8 @@ SOURCE_FLAGS = [
     ],
 ]
 BUILD_PATH_OPTIONS = [
-    str(BUILD_PATH),
-    str(BUILD_PATH / "overrides"),
+    BUILD_PATH,
+    BUILD_PATH / "overrides",
 ]
 OPTIONS = list(zip(SOURCE_FLAGS, BUILD_PATH_OPTIONS))
 
@@ -61,11 +62,11 @@ def _touch_source_files():
             break
 
 
-def _chmod_output(build_path: str, apply_func):
-    if not os.path.exists(build_path):
+def _chmod_output(build_path: Path, apply_func: Callable[[int], int]) -> None:
+    if not build_path.exists():
         return
 
-    for root, dirs, files in os.walk(build_path):
+    for root, _dirs, files in os.walk(build_path):
         for file_name in files:
             _, ext = os.path.splitext(file_name)
             if ext == ".md":
@@ -73,9 +74,9 @@ def _chmod_output(build_path: str, apply_func):
                 p.chmod(apply_func(p.stat().st_mode))
 
 
-def run_sphinx_singlemarkdown(build_path: str = str(BUILD_PATH), *flags):
+def run_sphinx_singlemarkdown(build_path: Path = BUILD_PATH, *flags: str):
     """Runs sphinx with singlemarkdown builder and validates success"""
-    ret_code = main(["-M", "singlemarkdown", str(SOURCE_PATH), build_path, *flags])
+    ret_code = main(["-M", "singlemarkdown", str(SOURCE_PATH), str(build_path), *flags])
     assert ret_code == 0
 
 
@@ -111,7 +112,7 @@ def test_singlemarkdown_update():
 
 # Integration tests based on test_builder.py patterns
 @pytest.mark.parametrize(["flags", "build_path"], OPTIONS, ids=TEST_NAMES)
-def test_singlemarkdown_make_all(flags: Iterable[str], build_path: str):
+def test_singlemarkdown_make_all(flags: Iterable[str], build_path: Path):
     """Test building with -a flag (build all)"""
     run_sphinx_singlemarkdown(build_path, "-a", *flags)
 
@@ -126,7 +127,7 @@ def test_singlemarkdown_make_all(flags: Iterable[str], build_path: str):
 
 
 @pytest.mark.parametrize(["flags", "build_path"], OPTIONS, ids=TEST_NAMES)
-def test_singlemarkdown_make_updated(flags: Iterable[str], build_path: str):
+def test_singlemarkdown_make_updated(flags: Iterable[str], build_path: Path):
     """Test rebuilding after changes with different configuration options"""
     _touch_source_files()
     run_sphinx_singlemarkdown(build_path, *flags)
@@ -137,7 +138,7 @@ def test_singlemarkdown_make_updated(flags: Iterable[str], build_path: str):
 
 
 @pytest.mark.parametrize(["flags", "build_path"], OPTIONS, ids=TEST_NAMES)
-def test_singlemarkdown_make_missing(flags: Iterable[str], build_path: str):
+def test_singlemarkdown_make_missing(flags: Iterable[str], build_path: Path):
     """Test building when the build directory is missing"""
     # Clean the build path
     if os.path.exists(build_path):
@@ -151,7 +152,7 @@ def test_singlemarkdown_make_missing(flags: Iterable[str], build_path: str):
 
 
 @pytest.mark.parametrize(["flags", "build_path"], OPTIONS, ids=TEST_NAMES)
-def test_singlemarkdown_access_issue(flags: Iterable[str], build_path: str):
+def test_singlemarkdown_access_issue(flags: Iterable[str], build_path: Path):
     """Test building when files have permission issues"""
     _touch_source_files()
     flag = stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH
