@@ -175,7 +175,7 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
 
     def write_documents(self, _docnames: set[str]) -> None:
         # Prepare writer for output
-        self.writer: MarkdownWriter = MarkdownWriter(self)
+        self.writer: MarkdownWriter | None = MarkdownWriter(self)
 
         # Prepare for writing all documents
         self.prepare_writing(set(self.env.all_docs))
