@@ -1,24 +1,30 @@
-"""
-Custom translator for single markdown file output.
-"""
+"""Custom translator for single markdown file output."""
+
+# pyright: reportImplicitOverride=false
 
 import re
+from typing import TYPE_CHECKING, cast
+
+from docutils import nodes
 
 from sphinx_markdown_builder.translator import MarkdownTranslator
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sphinx_markdown_builder.singlemarkdown import SingleFileMarkdownBuilder
 
 
 class SingleMarkdownTranslator(MarkdownTranslator):
     """Translator that ensures proper content inclusion for a single markdown file."""
 
-    def __init__(self, document, builder):
+    def __init__(self, document: nodes.document, builder: "SingleFileMarkdownBuilder"):
         super().__init__(document, builder)
         # Keep track of document names we've seen to avoid duplications
         self._seen_docs: list[str] = []
 
-    def visit_section(self, node):
+    def visit_section(self, node: nodes.Element):
         """Capture section node visit to ensure proper handling."""
         # Add anchors for document sectioning
-        docname = node.get("docname")
+        docname: str = cast(str, node.get("docname"))
         if docname and docname not in self._seen_docs:
             self._seen_docs.append(docname)
             self.add(f'<a id="document-{docname}"></a>', prefix_eol=2)
