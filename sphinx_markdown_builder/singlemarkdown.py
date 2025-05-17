@@ -198,9 +198,14 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
+    """Setup the singlemarkdown builder extension.
+
+    This follows the pattern from Sphinx's own singlehtml.py.
+    """
+    # Setup the main extension first
     app.setup_extension("sphinx_markdown_builder")
 
-    app.add_builder(SingleFileMarkdownBuilder)
+    # No need to register the builder here as it's already registered in __init__.py
 
     return {
         "version": "builtin",
