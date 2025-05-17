@@ -47,7 +47,7 @@ class MarkdownBuilder(Builder):
 
     def __init__(self, app: Sphinx, env: BuildEnvironment = None):
         super().__init__(app, env)
-        self.writer = None
+        self.writer: MarkdownWriter | None = None
         self.sec_numbers = None
         self.current_doc_name = None
 
