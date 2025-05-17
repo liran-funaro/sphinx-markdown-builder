@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import os
-from io import StringIO
 from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
+from docutils.io import StringOutput
 from sphinx.environment.adapters.toctree import global_toctree_for_doc
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.docutils import new_document
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import ensuredir, os_path
 
@@ -50,6 +51,38 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
     def get_relative_uri(self, from_: str, to: str, typ: str | None = None) -> str:
         # Ignore source - all links are in the same document
         return self.get_target_uri(to, typ)
+
+    def render_partial(self, node: nodes.Node | None) -> dict[str, str]:
+        """Utility: Render a lone doctree node."""
+        if node is None:
+            return {"fragment": ""}
+
+        # Create a new writer for this partial rendering
+        writer = MarkdownWriter(self)
+
+        # Create a mini doctree containing only the node if it's not already a document
+        if not isinstance(node, nodes.document):
+            # Create a proper document with settings
+            doctree = new_document("", self.env.settings)
+            doctree.append(node)
+        else:
+            doctree = node
+
+        # Render to string
+        destination = StringOutput(encoding="utf-8")
+        writer.write(doctree, destination)
+
+        # Convert all return values to strings to match expected type
+        fragment = writer.output if writer.output is not None else ""
+
+        # Return required fragments with string values
+        return {
+            "fragment": fragment,
+            "title": "",
+            "css": "",
+            "js": "",
+            "script": "",
+        }
 
     def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
         if isinstance(includehidden := kwargs.get("includehidden"), str):
@@ -173,9 +206,9 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
                 # Get markdown writer output for this document
                 self.writer = MarkdownWriter(self)
 
-                destination = StringIO()
-                self.writer.write(doc, destination)  # Use StringIO as destination
-                content_parts.append(self.writer.output)
+                destination = StringOutput(encoding="utf-8")
+                self.writer.write(doc, destination)  # Use proper StringOutput as destination
+                content_parts.append(self.writer.output if self.writer.output is not None else "")
                 content_parts.append("\n\n")
 
             except Exception as e:
