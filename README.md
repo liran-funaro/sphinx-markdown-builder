@@ -21,10 +21,16 @@ extensions = [
 ]
 ```
 
-Build markdown files with `sphinx-build` command
+Build separate markdown files with `sphinx-build` command:
 ```sh
 sphinx-build -M markdown ./docs ./build
 ```
+
+Build a single consolidated markdown file with:
+```sh
+sphinx-build -M singlemarkdown ./docs ./build
+```
+This will generate a single markdown file containing all your documentation in one place.
 
 ## Configurations
 
