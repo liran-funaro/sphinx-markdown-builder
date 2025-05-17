@@ -27,9 +27,11 @@ requires-python = ">=3.7"
 
 [tool.poetry.plugins."sphinx.builders"]
 "markdown" = "sphinx_markdown_builder"
+"singlemarkdown" = "sphinx_markdown_builder.singlemarkdown"
 
 [project.entry-points."sphinx.builders"]
 "markdown" = "sphinx_markdown_builder"
+"singlemarkdown" = "sphinx_markdown_builder.singlemarkdown"
 
 [project.optional-dependencies]
 dev = [
