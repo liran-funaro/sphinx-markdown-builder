@@ -1,16 +1,19 @@
 """Single Markdown builder."""
 
+# pyright: reportIncompatibleMethodOverride=false, reportImplicitOverride=false
+
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.io import StringOutput
+from sphinx._cli.util.colour import darkgreen
 from sphinx.environment.adapters.toctree import global_toctree_for_doc
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.docutils import new_document
+from sphinx.util.docutils import SphinxTranslator, new_document
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import ensuredir, os_path
 
@@ -28,14 +31,14 @@ logger = logging.getLogger(__name__)
 class SingleFileMarkdownBuilder(MarkdownBuilder):
     """Builds the whole document tree as a single Markdown page."""
 
-    name = "singlemarkdown"
-    epilog = __("The Markdown page is in %(outdir)s.")
+    name: str = "singlemarkdown"
+    epilog: str = __("The Markdown page is in %(outdir)s.")
 
     # These are copied from SingleFileHTMLBuilder
-    copysource = False
+    copysource: bool = False
 
     # Use the custom translator for single file output
-    default_translator_class = SingleMarkdownTranslator
+    default_translator_class: type[SphinxTranslator] = SingleMarkdownTranslator
 
     def get_outdated_docs(self) -> str | list[str]:
         return "all documents"
@@ -52,7 +55,7 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
         # Ignore source - all links are in the same document
         return self.get_target_uri(to, typ)
 
-    def render_partial(self, node: nodes.Node | None) -> dict[str, str]:
+    def render_partial(self, node: nodes.Node | None) -> dict[str, str | bytes]:
         """Utility: Render a lone doctree node."""
         if node is None:
             return {"fragment": ""}
@@ -70,7 +73,7 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
 
         # Render to string
         destination = StringOutput(encoding="utf-8")
-        writer.write(doctree, destination)
+        _ = writer.write(doctree, destination)
 
         # Convert all return values to strings to match expected type
         fragment = writer.output if writer.output is not None else ""
@@ -84,21 +87,33 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
             "script": "",
         }
 
-    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
+    def _get_local_toctree(
+        self,
+        docname: str,
+        collapse: bool = True,
+        **kwargs: bool | int | str,
+    ) -> str:
         if isinstance(includehidden := kwargs.get("includehidden"), str):
             if includehidden.lower() == "false":
                 kwargs["includehidden"] = False
             elif includehidden.lower() == "true":
                 kwargs["includehidden"] = True
         if kwargs.get("maxdepth") == "":
-            kwargs.pop("maxdepth")
-        toctree = global_toctree_for_doc(self.env, docname, self, collapse=collapse, **kwargs)
-        return self.render_partial(toctree)["fragment"]
+            _ = kwargs.pop("maxdepth")
+        toctree = global_toctree_for_doc(
+            self.env,
+            docname,
+            self,
+            collapse=collapse,
+            **kwargs,  # pyright: ignore[reportArgumentType]
+        )
+        fragment = self.render_partial(toctree)["fragment"]
+        return str(fragment)
 
     def assemble_doctree(self) -> nodes.document:
-        master = self.config.root_doc
+        master = cast(str, self.config.root_doc)
         tree = self.env.get_doctree(master)
-        tree = inline_all_toctrees(self, set(), master, tree, logger.info, [master])
+        tree = inline_all_toctrees(self, set(), master, tree, darkgreen, [master])
         tree["docname"] = master
         self.env.resolve_references(tree, master, self)
         return tree
@@ -110,7 +125,8 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
                 alias = f"{docname}/{id_}"
                 new_secnumbers[alias] = secnum
 
-        return {self.config.root_doc: new_secnumbers}
+        root_doc = cast(str, self.config.root_doc)
+        return {root_doc: new_secnumbers}
 
     def assemble_toc_fignumbers(
         self,
@@ -119,20 +135,22 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
         for docname, fignumlist in self.env.toc_fignumbers.items():
             for figtype, fignums in fignumlist.items():
                 alias = f"{docname}/{figtype}"
-                new_fignumbers.setdefault(alias, {})
+                _ = new_fignumbers.setdefault(alias, {})
                 for id_, fignum in fignums.items():
                     new_fignumbers[alias][id_] = fignum
 
-        return {self.config.root_doc: new_fignumbers}
+        root_doc = cast(str, self.config.root_doc)
+        return {root_doc: new_fignumbers}
 
     def get_doc_context(
         self,
-        docname: str,  # pylint: disable=unused-argument
+        docname: str,  # pylint: disable=unused-argument  # pyright: ignore[reportUnusedParameter]
         body: str,
         metatags: str,
-    ) -> dict[str, Any]:
+    ) -> dict[str, str | bytes | bool | list[dict[str, str]] | None]:
         # no relation links...
-        toctree = global_toctree_for_doc(self.env, self.config.root_doc, self, collapse=False)
+        root_doc = cast(str, self.config.root_doc)
+        toctree = global_toctree_for_doc(self.env, root_doc, self, collapse=False)
         # if there is no toctree, toc is None
         if toctree:
             toc = self.render_partial(toctree)["fragment"]
@@ -145,7 +163,7 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
             "prev": None,
             "next": None,
             "docstitle": None,
-            "title": self.config.html_title,
+            "title": cast(str, self.config.html_title),
             "meta": None,
             "body": body,
             "metatags": metatags,
@@ -157,26 +175,28 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
 
     def write_documents(self, _docnames: set[str]) -> None:
         # Prepare writer for output
-        self.writer = MarkdownWriter(self)
+        self.writer: MarkdownWriter = MarkdownWriter(self)
 
         # Prepare for writing all documents
-        self.prepare_writing(self.env.all_docs)
+        self.prepare_writing(set(self.env.all_docs))
 
         # To store final output
-        content_parts = []
+        content_parts: list[str] = []
 
         # Add main header
-        content_parts.append(f"# {self.config.project} Documentation\n\n")
+        project = cast(str, self.config.project)
+        content_parts.append(f"# {project} Documentation\n\n")
 
         # Add table of contents
         content_parts.append("## Table of Contents\n\n")
 
         # The list of docnames to process - start with root doc and include all docnames
-        docnames = [self.config.root_doc] + list(self.env.found_docs - {self.config.root_doc})
+        root_doc = cast(str, self.config.root_doc)
+        docnames = [root_doc] + list(self.env.found_docs - {root_doc})
 
         # Add TOC entries
         for docname in docnames:
-            if docname == self.config.root_doc:
+            if docname == root_doc:
                 content_parts.append(f"* [Main Document](#{docname})\n")
             else:
                 title = docname.rsplit("/", 1)[-1].replace("_", " ").replace("-", " ").title()
@@ -196,7 +216,7 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
                 content_parts.append(f'\n<a id="{docname}"></a>\n\n')
 
                 # Generate title based on docname
-                if docname == self.config.root_doc:
+                if docname == root_doc:
                     title = "Main Document"
                 else:
                     title = docname.rsplit("/", 1)[-1].replace("_", " ").replace("-", " ").title()
@@ -207,25 +227,25 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
                 self.writer = MarkdownWriter(self)
 
                 destination = StringOutput(encoding="utf-8")
-                self.writer.write(doc, destination)  # Use proper StringOutput as destination
+                _ = self.writer.write(doc, destination)  # Use proper StringOutput as destination
                 content_parts.append(self.writer.output if self.writer.output is not None else "")
                 content_parts.append("\n\n")
 
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 logger.warning("Error adding content from %s: %s", docname, e)
 
         # Combine all content
         final_content = "".join(content_parts)
 
         # Write to output file
-        outfilename = os.path.join(self.outdir, os_path(self.config.root_doc) + self.out_suffix)
+        outfilename = os.path.join(self.outdir, os_path(root_doc) + self.out_suffix)
 
         # Ensure output directory exists
         ensuredir(os.path.dirname(outfilename))
 
         try:
             with open(outfilename, "w", encoding="utf-8") as f:
-                f.write(final_content)
+                _ = f.write(final_content)
         except OSError as err:
             logger.warning(__("error writing file %s: %s"), outfilename, err)
 
