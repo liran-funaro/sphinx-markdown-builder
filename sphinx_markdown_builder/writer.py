@@ -2,6 +2,8 @@
 Custom docutils writer for markdown.
 """
 
+from __future__ import annotations
+
 from docutils import frontend, writers
 
 from sphinx_markdown_builder.translator import MarkdownTranslator
