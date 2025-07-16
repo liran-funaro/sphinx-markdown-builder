@@ -27,10 +27,18 @@ doc-%:
 
 docs: doc-markdown
 
+doc-singlemarkdown:
+	@$(SPHINX_BUILD) -M singlemarkdown "$(SOURCE_DIR)" "$(BUILD_DIR)" $(SPHINX_OPTS) $(O) -a -t Partners
+
+docs-single: doc-singlemarkdown
+
 
 test-diff:
 	@echo "Building markdown..."
 	@$(SPHINX_BUILD) -M markdown "$(SOURCE_DIR)" "$(BUILD_DIR)" $(SPHINX_OPTS) $(O) -a -t Partners
+
+	@echo "Building singlemarkdown..."
+	@$(SPHINX_BUILD) -M singlemarkdown "$(SOURCE_DIR)" "$(BUILD_DIR)" $(SPHINX_OPTS) $(O) -a -t Partners
 
 	@echo "Building markdown with configuration overrides..."
 	@$(SPHINX_BUILD) -M markdown "$(SOURCE_DIR)" "$(BUILD_DIR)/overrides" $(SPHINX_OPTS) $(O) -a \

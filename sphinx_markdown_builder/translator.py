@@ -468,7 +468,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         raise nodes.SkipNode
 
     @pushing_status
-    def visit_section(self, node):
+    def visit_section(self, node: nodes.Element):
         self.ensure_eol(2)
         if self.config.markdown_anchor_sections:
             for anchor in node.get("ids", []):
