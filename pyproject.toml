@@ -21,7 +21,7 @@ classifiers = [
 ]
 keywords = ["sphinx", "sphinx-extension", "markdown", "docs", "documentation", "builder"]
 dependencies = ["sphinx>=5.1.0", "tabulate", "docutils"]
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 
 [tool.poetry.plugins] # Optional super table
 
