@@ -345,6 +345,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     # noinspection PyPep8Naming
     def visit_Text(self, node):  # pylint: disable=invalid-name
         text = node.astext().replace("\r", "")
+        # Replace line breaks with spaces to create single-line paragraphs
+        if self.config.markdown_flavor == "github":
+            text = text.replace("\n", " ")
         if self.status.escape_text:
             text = escape_markdown_chars(text)
         self.add(text)

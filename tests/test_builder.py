@@ -34,6 +34,8 @@ SOURCE_FLAGS = [
         "markdown_bullet=-",
         "-D",
         "markdown_file_suffix=.html.md",
+        "-D",
+        "markdown_flavor=github",
         "-j",
         "8",
     ],
