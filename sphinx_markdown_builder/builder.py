@@ -53,6 +53,7 @@ class MarkdownBuilder(Builder):
 
     def init(self):
         self.sec_numbers = {}
+        self.out_suffix = self.config.markdown_file_suffix
 
     def _get_source_mtime(self, doc_name: str):
         source_name = self.env.doc2path(doc_name)

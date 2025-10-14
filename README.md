@@ -36,6 +36,7 @@ You can add the following configurations to your `conf.py` file:
 * `markdown_docinfo`: Adds metadata to the top of each document containing author, copyright, and version.
 * `markdown_http_base`: If set, all references will link to this prefix address
 * `markdown_uri_doc_suffix`: If set, all references will link to documents with this suffix.
+* `markdown_file_suffix`: Sets the file extension for generated markdown files (default: `.md`).
 * `markdown_bullet`: Sets the bullet marker.
 
 For example, if your `conf.py` file have the following configuration:
