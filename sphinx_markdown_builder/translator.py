@@ -34,16 +34,16 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx_markdown_builder.contexts import (
     CommaSeparatedContext,
     ContextStatus,
-    DocInfoContext,
+    DOC_INFO_CONTEXT,
     IndentContext,
-    ItalicContext,
+    ITALIC_CONTEXT,
     ListMarker,
     MetaContext,
     PushContext,
-    StrongContext,
+    STRONG_CONTEXT,
     SubContext,
     SubContextParams,
-    SubscriptContext,
+    SUBSCRIPT_CONTEXT,
     TableContext,
     TitleContext,
     UniqueString,
@@ -63,18 +63,18 @@ DOC_INFO_FIELDS = "author", "contact", "copyright", "date", "organization", "rev
 # Defines context items, skip, or None (keep processing sub-tree).
 PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint: disable=use-dict-literal
     # Doctree elements for which Markdown element is <prefix><content><suffix>
-    emphasis=ItalicContext,
-    strong=StrongContext,
-    subscript=SubscriptContext,
-    superscript=SubscriptContext,
-    desc_annotation=ItalicContext,
-    literal_strong=StrongContext,
-    literal_emphasis=ItalicContext,
+    emphasis=ITALIC_CONTEXT,
+    strong=STRONG_CONTEXT,
+    subscript=SUBSCRIPT_CONTEXT,
+    superscript=SUBSCRIPT_CONTEXT,
+    desc_annotation=ITALIC_CONTEXT,
+    literal_strong=STRONG_CONTEXT,
+    literal_emphasis=ITALIC_CONTEXT,
     field_name=PushContext(WrappedContext, "**", ":**"),  # e.g 'returns', 'parameters'
     # Doc info elements
-    docinfo=DocInfoContext,
-    docinfo_item=DocInfoContext,
-    **dict.fromkeys(DOC_INFO_FIELDS, DocInfoContext),
+    docinfo=DOC_INFO_CONTEXT,
+    docinfo_item=DOC_INFO_CONTEXT,
+    **dict.fromkeys(DOC_INFO_FIELDS, DOC_INFO_CONTEXT),
     authors=None,  # not used: visit_author is called anyway for each author.
     # Doctree elements to skip subtree
     autosummary_toc=SKIP,

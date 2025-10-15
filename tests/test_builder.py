@@ -1,6 +1,7 @@
 """
 Integration tests for the markdown builder
 """
+
 import os
 import shutil
 import stat
@@ -98,6 +99,15 @@ def test_builder_access_issue(flags: Iterable[str], build_path: str):
         _chmod_output(build_path, lambda mode: mode | flag)
 
 
+def _has_suffix_in_path(path: str, suffix: str) -> bool:
+    """Checks that at least one file with the given suffix exists"""
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            if file.endswith(suffix):
+                return True
+    return False
+
+
 def test_custom_file_suffix():
     """Test that markdown_file_suffix configuration generates files with correct suffix"""
     build_path = os.path.join(BUILD_PATH, "test_suffix")
@@ -112,16 +122,7 @@ def test_custom_file_suffix():
     assert os.path.exists(markdown_dir), f"Markdown output directory not found: {markdown_dir}"
 
     # Check that at least one file with the custom suffix exists
-    found_custom_suffix = False
-    for root, dirs, files in os.walk(markdown_dir):
-        for file in files:
-            if file.endswith(suffix):
-                found_custom_suffix = True
-                break
-        if found_custom_suffix:
-            break
-
-    assert found_custom_suffix, f"No files with suffix '{suffix}' found in {markdown_dir}"
+    assert _has_suffix_in_path(markdown_dir, suffix), f"No files with suffix '{suffix}' found in {markdown_dir}"
 
     # Clean up
     _rm_build_path(build_path)
