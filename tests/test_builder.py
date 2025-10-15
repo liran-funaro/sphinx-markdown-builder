@@ -31,6 +31,8 @@ SOURCE_FLAGS = [
         "autodoc_typehints=signature",
         "-D",
         "markdown_bullet=-",
+        "-D",
+        "markdown_file_suffix=.html.md",
     ],
 ]
 BUILD_PATH_OPTIONS = [BUILD_PATH, os.path.join(BUILD_PATH, "overrides")]
@@ -56,8 +58,8 @@ def _chmod_output(build_path: str, apply_func):
 
     for root, dirs, files in os.walk(build_path):
         for file_name in files:
-            _, ext = os.path.splitext(file_name)
-            if ext == ".md":
+            # Check if file ends with .md
+            if file_name.endswith(".md"):
                 p = Path(root, file_name)
                 p.chmod(apply_func(p.stat().st_mode))
 
@@ -94,3 +96,32 @@ def test_builder_access_issue(flags: Iterable[str], build_path: str):
         run_sphinx(build_path, *flags)
     finally:
         _chmod_output(build_path, lambda mode: mode | flag)
+
+
+def test_custom_file_suffix():
+    """Test that markdown_file_suffix configuration generates files with correct suffix"""
+    build_path = os.path.join(BUILD_PATH, "test_suffix")
+    suffix = ".html.md"
+
+    # Clean and build
+    _rm_build_path(build_path)
+    run_sphinx(build_path, "-a", "-D", f"markdown_file_suffix={suffix}")
+
+    # Verify files have the correct suffix
+    markdown_dir = os.path.join(build_path, "markdown")
+    assert os.path.exists(markdown_dir), f"Markdown output directory not found: {markdown_dir}"
+
+    # Check that at least one file with the custom suffix exists
+    found_custom_suffix = False
+    for root, dirs, files in os.walk(markdown_dir):
+        for file in files:
+            if file.endswith(suffix):
+                found_custom_suffix = True
+                break
+        if found_custom_suffix:
+            break
+
+    assert found_custom_suffix, f"No files with suffix '{suffix}' found in {markdown_dir}"
+
+    # Clean up
+    _rm_build_path(build_path)
