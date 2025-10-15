@@ -41,7 +41,6 @@ intersphinx_mapping = {
     "data": (edx_rtd_url("devdata"), None),
     "partnercoursestaff": (edx_rtd_url("edx-partner-course-staff"), None),
     "insights": (edx_rtd_url("edx-insights"), None),
-    "xblockapi": (edx_rtd_url("xblock"), None),
     "xblocktutorial": (edx_rtd_url("xblock-tutorial"), None),
     "installation": (openedx_rtd_url("edx-installing-configuring-and-running"), None),
     "olx": (edx_rtd_url("edx-open-learning-xml"), None),

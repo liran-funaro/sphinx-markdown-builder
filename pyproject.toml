@@ -1,7 +1,7 @@
 # sphinx-markdown-builder
 
 [build-system]
-requires = ["setuptools>=61.0.0", "wheel"]
+requires = ["setuptools>=80.9.0", "wheel>=0.45.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -11,6 +11,7 @@ description = "A Sphinx extension to add markdown generation support."
 readme = "README.md"
 authors = [{ name = "Liran Funaro", email = "liran.funaro@gmail.com" }]
 license = "MIT"
+license-files = ["LICENCE"]
 classifiers = [
     "Framework :: Sphinx :: Extension",
     "Programming Language :: Python",
