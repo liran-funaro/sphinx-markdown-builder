@@ -2,8 +2,10 @@
 A Sphinx extension to add markdown generation support.
 """
 
-from sphinx_markdown_builder.builder import MarkdownBuilder
 from sphinx.util.typing import ExtensionMetadata
+
+from sphinx_markdown_builder.builder import MarkdownBuilder
+
 
 __version__ = "0.6.8"
 __docformat__ = "reStructuredText"

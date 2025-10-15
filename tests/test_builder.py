@@ -34,6 +34,8 @@ SOURCE_FLAGS = [
         "markdown_bullet=-",
         "-D",
         "markdown_file_suffix=.html.md",
+        "-j",
+        "8",
     ],
 ]
 BUILD_PATH_OPTIONS = [BUILD_PATH, os.path.join(BUILD_PATH, "overrides")]
