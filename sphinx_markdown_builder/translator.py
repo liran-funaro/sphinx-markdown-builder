@@ -89,6 +89,7 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint
     document=None,
     container=None,
     inline=None,
+    Inline=None,
     definition_list=None,
     definition_list_item=None,
     glossary=None,
@@ -338,6 +339,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         """Image directive."""
         uri = node["uri"]
         alt = node.attributes.get("alt", "image")
+        self.builder.images[uri] = uri
         # We don't need to add EOL before/after the image.
         # It will be handled by the visit/depart handlers of the paragraph.
         self.add(f"![{alt}]({uri})")
@@ -542,6 +544,12 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @pushing_context
     def visit_reference(self, node):
         url = self._fetch_ref_uri(node)
+        # if the reference object itself has the url 
+        # (such as for an intra-document heading reference)
+        # use that url instead
+        ref_id = node.get("refid", None)
+        if ref_id is not None and url == "":
+            url = f"#{ref_id}"
         self._push_context(WrappedContext("[", f"]({url})"))
 
     @pushing_context
@@ -635,7 +643,14 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         # Insert anchors if enabled by the config
         if self.config.markdown_anchor_signatures:
             for anchor in node.get("ids", []):
-                self._add_anchor(anchor)
+                # only use v4 cpp anchors
+                if len(anchor) < 6:
+                    self._add_anchor(anchor)
+                elif anchor[0:5] == "_CPPv":
+                    if not (anchor[5:6] in ["2","3"]):
+                        self._add_anchor(anchor)
+                else:
+                    self._add_anchor(anchor)
 
         # We don't want methods to be at the same level as classes,
         # If signature has a non-null class, that's means it is a signature
