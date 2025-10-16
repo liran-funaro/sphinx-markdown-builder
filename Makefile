@@ -36,7 +36,7 @@ test-diff:
 	@$(SPHINX_BUILD) -M markdown "$(SOURCE_DIR)" "$(BUILD_DIR)/overrides" $(SPHINX_OPTS) $(O) -a \
 			-D markdown_http_base="https://localhost" -D markdown_uri_doc_suffix=".html" \
 			-D markdown_docinfo=1 -D markdown_anchor_sections=1 -D markdown_anchor_signatures=1 \
-			-D autodoc_typehints=signature -D markdown_bullet=-
+			-D autodoc_typehints=signature -D markdown_bullet=- -D markdown_flavor=github
 
 	@# Copy just the files for verification
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-summery.md" "$(BUILD_DIR)/markdown/overrides-auto-summery.md"

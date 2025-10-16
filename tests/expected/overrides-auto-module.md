@@ -39,8 +39,7 @@ Deprecated since version 3.1: Use `other()` instead.
 
 ### func1(param1: [int](https://docs.python.org/3/library/functions.html#int)) → [int](https://docs.python.org/3/library/functions.html#int)
 
-This is a function with a single parameter.
-Thanks to github.com/remiconnesson.
+This is a function with a single parameter. Thanks to github.com/remiconnesson.
 
 * **Parameters:**
   **param1** – This is a single parameter.

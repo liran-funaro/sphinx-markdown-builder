@@ -20,6 +20,7 @@ def setup(app) -> ExtensionMetadata:
     app.add_config_value("markdown_anchor_signatures", False, "html", bool)
     app.add_config_value("markdown_docinfo", False, "html", bool)
     app.add_config_value("markdown_bullet", "*", "html", str)
+    app.add_config_value("markdown_flavor", "", "html", str)
 
     return {
         "version": __version__,
