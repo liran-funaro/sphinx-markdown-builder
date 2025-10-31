@@ -163,14 +163,14 @@ def test_singlemarkdown_access_issue(flags: Iterable[str], build_path: Path):
         _chmod_output(build_path, lambda mode: mode | flag)
 
 
-def test_singlemarkdown_builder_methods():
+def test_singlemarkdown_builder_methods(tmp_path):
     """Test SingleFileMarkdownBuilder methods directly"""
     # Create a mock app
     app = mock.MagicMock()
     app.srcdir = "src"
     app.confdir = "conf"
     app.outdir = "out"
-    app.doctreedir = "doctree"
+    app.doctreedir = str(tmp_path / "doctree")
     app.config.root_doc = "index"
 
     # Create a mock environment
@@ -191,8 +191,10 @@ def test_singlemarkdown_builder_methods():
     assert builder.get_relative_uri("source", "target") == "#target"
 
 
-def test_render_partial():
+def test_render_partial(tmp_path, monkeypatch):
     """Test render_partial method"""
+    monkeypatch.chdir(tmp_path)
+
     # Create mocks
     app = mock.MagicMock()
     env = mock.MagicMock()
@@ -230,8 +232,10 @@ def test_render_partial():
         assert "fragment" in result
 
 
-def test_get_local_toctree():
+def test_get_local_toctree(tmp_path, monkeypatch):
     """Test _get_local_toctree method"""
+    monkeypatch.chdir(tmp_path)
+
     # Create mocks
     app = mock.MagicMock()
     env = mock.MagicMock()
@@ -268,8 +272,10 @@ def test_get_local_toctree():
             assert "maxdepth" not in mock_toctree.call_args[1]
 
 
-def test_assemble_toc_secnumbers():
+def test_assemble_toc_secnumbers(tmp_path, monkeypatch):
     """Test assemble_toc_secnumbers method"""
+    monkeypatch.chdir(tmp_path)
+
     # Create mocks
     app = mock.MagicMock()
     env = mock.MagicMock()
@@ -293,8 +299,10 @@ def test_assemble_toc_secnumbers():
     assert result["index"]["doc2/id2"] == (3, 4)
 
 
-def test_assemble_toc_fignumbers():
+def test_assemble_toc_fignumbers(tmp_path, monkeypatch):
     """Test assemble_toc_fignumbers method"""
+    monkeypatch.chdir(tmp_path)
+
     # Create mocks
     app = mock.MagicMock()
     env = mock.MagicMock()
@@ -323,8 +331,10 @@ def test_assemble_toc_fignumbers():
     assert result["index"]["doc2/table"]["id2"] == (3, 4)
 
 
-def test_get_doc_context():
+def test_get_doc_context(tmp_path, monkeypatch):
     """Test get_doc_context method"""
+    monkeypatch.chdir(tmp_path)
+
     # Create mocks
     app = mock.MagicMock()
     env = mock.MagicMock()
@@ -361,8 +371,10 @@ def test_get_doc_context():
         assert result["toc"] == ""
 
 
-def test_write_documents():
+def test_write_documents(tmp_path, monkeypatch):
     """Test write_documents method with mocks"""
+    monkeypatch.chdir(tmp_path)
+
     # Create mocks
     app = mock.MagicMock()
     env = mock.MagicMock()
@@ -409,8 +421,10 @@ def test_write_documents():
         os.remove(expected_file)
 
 
-def test_write_documents_error_handling():
+def test_write_documents_error_handling(tmp_path, monkeypatch):
     """Test error handling in write_documents"""
+    monkeypatch.chdir(tmp_path)
+
     # Create mocks
     app = mock.MagicMock()
     env = mock.MagicMock()
@@ -448,8 +462,10 @@ def test_write_documents_error_handling():
     builder.write_documents(set())
 
 
-def test_write_documents_os_error():
+def test_write_documents_os_error(tmp_path, monkeypatch):
     """Test OS error handling in write_documents"""
+    monkeypatch.chdir(tmp_path)
+
     # Create mocks
     app = mock.MagicMock()
     env = mock.MagicMock()
