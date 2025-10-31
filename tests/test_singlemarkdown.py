@@ -3,6 +3,7 @@
 # pyright: reportAny=false, reportPrivateUsage=false, reportUnknownLambdaType=false
 
 import os
+import re
 import shutil
 import stat
 from collections.abc import Iterable
@@ -500,6 +501,76 @@ def test_write_documents_os_error(tmp_path, monkeypatch):
     with mock.patch("builtins.open") as mock_open:
         mock_open.side_effect = OSError("Test error")
         builder.write_documents(set())
+
+
+def test_heading_duplication_bug(tmp_path):
+    """Test for heading duplication bug with multiple heading levels"""
+    run_sphinx_singlemarkdown(tmp_path, "-a")
+    single_file = tmp_path / "singlemarkdown" / "index.md"
+    generated_content = single_file.read_text(encoding="utf-8")
+
+    # Extract just the changelog section from the generated content
+    # The changelog section starts with "## Changelog" and ends before the next anchor
+    changelog_pattern = r"(## Changelog\n\n.*?)(?=\n\n<a id=|\Z)"
+    changelog_match = re.search(changelog_pattern, generated_content, re.DOTALL)
+    changelog_section = changelog_match.group(1).strip()
+
+    expected_path = Path("tests/expected/changelog.md")
+    expected_content = expected_path.read_text(encoding="utf-8")
+
+    # This test will initially fail due to the heading duplication bug in singlemarkdown
+    # The bug causes headings to be generated with incorrect levels (duplicate headings)
+    assert changelog_section == expected_content, (
+        "Generated changelog section doesn't match expected output. "
+        "This may be due to heading level calculation issues in singlemarkdown mode."
+    )
+
+
+def test_heading_indentation_bug(tmp_path):
+    """Test for heading indentation bug - headings get progressively more indented"""
+    run_sphinx_singlemarkdown(tmp_path, "-a")
+    single_file = tmp_path / "singlemarkdown" / "index.md"
+    generated_content = single_file.read_text(encoding="utf-8")
+
+    # Extract just the changelog section from the generated content
+    changelog_pattern = r"(## Changelog\n\n.*?)(?=\n\n<a id=|\Z)"
+    changelog_match = re.search(changelog_pattern, generated_content, re.DOTALL)
+    changelog_section = changelog_match.group(1).strip()
+
+    # Check for the progressive indentation bug
+    lines = changelog_section.split("\n")
+    heading_lines = [line for line in lines if line.startswith("#")]
+
+    # Extract heading levels (number of # characters)
+    heading_levels = []
+    for line in heading_lines:
+        level = len(line) - len(line.lstrip("#"))
+        heading_levels.append(level)
+
+    # We expect all version headings to be at level 2 (##)
+    version_headings = [
+        line
+        for line in heading_lines
+        if any(version in line for version in ["0.7.0", "0.6.0", "0.5.3", "0.5.2", "0.5.1"])
+    ]
+
+    if len(version_headings) > 1:
+        # Get the levels for version headings only (skip the duplicate Changelog headings)
+        version_levels = []
+        for line in version_headings:
+            level = len(line) - len(line.lstrip("#"))
+            version_levels.append(level)
+
+        # Each subsequent version heading should not be deeper
+        for i in range(1, len(version_levels)):
+            current_level = version_levels[i]
+            previous_level = version_levels[i - 1]
+
+            assert current_level <= previous_level, (
+                f"Heading level increased from {previous_level} to {current_level} "
+                f"in version heading '{version_headings[i]}'. This indicates the "
+                f"progressive indentation bug where each heading gets one level deeper."
+            )
 
 
 if __name__ == "__main__":
