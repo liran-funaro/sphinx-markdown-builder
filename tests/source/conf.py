@@ -10,7 +10,7 @@ if mod_path not in sys.path:
 project = "sphinx_markdown_builder"
 copyright = "Copyright (c) 2023-2025, Liran Funaro."
 author = "Liran Funaro"
-version = "0.6.8"
+version = "0.6.9"
 
 extensions = [
     "sphinx.ext.autodoc",  # Core library for html generation from docstrings

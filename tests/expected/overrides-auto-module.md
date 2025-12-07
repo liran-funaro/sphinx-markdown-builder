@@ -1,6 +1,6 @@
 <meta name="author" content="Liran Funaro"/>
 <meta name="copyright" content="Copyright (c) 2023-2025, Liran Funaro."/>
-<meta name="version" content="0.6.8"/>
+<meta name="version" content="0.6.9"/>
 
 <a id="auto-module"></a>
 

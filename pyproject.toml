@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sphinx-markdown-builder"
-version = "0.6.8"
+version = "0.6.9"
 description = "A Sphinx extension to add markdown generation support."
 readme = "README.md"
 authors = [{ name = "Liran Funaro", email = "liran.funaro@gmail.com" }]
@@ -33,7 +33,7 @@ requires-python = ">=3.7"
 
 [project.optional-dependencies]
 dev = [
-    "sphinx>=5.3.0", # For development, we need a higher version for the tests' outputs to be identical.
+    "sphinx>=9.0.4", # For development, we need a higher version for the tests' outputs to be identical.
     "bumpver", "black", "isort", "flake8", "pylint", "pip-tools", "pytest", "pytest-cov", "coveralls",
     "sphinxcontrib-plantuml", "sphinxcontrib.httpdomain",
 ]
@@ -42,7 +42,7 @@ dev = [
 Homepage = "https://github.com/liran-funaro/sphinx-markdown-builder"
 
 [tool.bumpver]
-current_version = "0.6.8"
+current_version = "0.6.9"
 version_pattern = "MAJOR.MINOR.PATCH[-TAG]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true

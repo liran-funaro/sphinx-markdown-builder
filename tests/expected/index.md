@@ -65,6 +65,7 @@
   * [Referencing terms from a glossary](blocks.md#referencing-terms-from-a-glossary)
   * [Http domain directive](blocks.md#http-domain-directive)
   * [C domain](blocks.md#c-domain)
+    * [`PyType_GenericAlloc()`](blocks.md#c.PyType_GenericAlloc)
 * [Test Image With Target](image-target.md)
 * [Empty package](empty.md)
 * [Glossary test for multiple glossaries](glossaries.md)

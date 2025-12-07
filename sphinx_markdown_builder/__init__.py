@@ -7,7 +7,7 @@ from sphinx.util.typing import ExtensionMetadata
 from sphinx_markdown_builder.builder import MarkdownBuilder
 
 
-__version__ = "0.6.8"
+__version__ = "0.6.9"
 __docformat__ = "reStructuredText"
 
 
