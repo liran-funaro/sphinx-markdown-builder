@@ -7,6 +7,7 @@ TESTS_DIR         = tests
 SOURCE_DIR        = $(TESTS_DIR)/source
 BUILD_DIR         = $(TESTS_DIR)/docs-build
 EXPECTED_DIR      = $(TESTS_DIR)/expected
+DIST_DIR         ?= dist
 
 .PHONY: help clean test test-diff diff meld release
 
@@ -16,7 +17,7 @@ help:
 
 
 clean:
-	rm -rf "$(BUILD_DIR)" "$(SOURCE_DIR)/library"
+	rm -rf "$(BUILD_DIR)" "$(DIST_DIR)" "$(SOURCE_DIR)/library"
 
 
 # Catch-all target: route all unknown targets to Sphinx using the new "make mode" option.
@@ -67,7 +68,13 @@ lint:
 	pylint sphinx_markdown_builder -v --disable C0116,C0115
 
 
-release:
-	@rm -rf dist/*
-	python3 -m build || exit
+.PHONY: dist
+dist:
+	@mkdir -p "$(DIST_DIR)"
+	@rm -rf "$(DIST_DIR)/*"
+	python3 -m build
+
+
+.PHONY: release
+release: dist
 	python3 -m twine upload --repository sphinx-markdown-builder dist/*
