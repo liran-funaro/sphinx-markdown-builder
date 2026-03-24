@@ -185,6 +185,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self.add(f"{'#' * level} {title}", prefix_eol=2)
         self._push_context(SubContext(SubContextParams(1, 2)))
 
+    def _push_admonition(self, title: str):
+        level = self._title_level(5)
+        self._push_context(IndentContext("> ", empty=True, params=SubContextParams(1, 2)))
+        self.add(f"{'#' * level} {title}", prefix_eol=1, suffix_eol=1)
+
     @property
     def status(self) -> ContextStatus:
         return self._status_queue[-1]
@@ -317,35 +322,35 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @pushing_context
     def visit_important(self, _node):
         """Sphinx important directive."""
-        self._push_box("IMPORTANT")
+        self._push_admonition("IMPORTANT")
 
     @pushing_context
     def visit_warning(self, _node):
         """Sphinx warning directive."""
-        self._push_box("WARNING")
+        self._push_admonition("WARNING")
 
     @pushing_context
     def visit_note(self, _node):
         """Sphinx note directive."""
-        self._push_box("NOTE")
+        self._push_admonition("NOTE")
 
     @pushing_context
     def visit_seealso(self, _node):
         """Sphinx see also directive."""
-        self._push_box("SEE ALSO")
+        self._push_admonition("SEE ALSO")
 
     @pushing_context
     def visit_attention(self, _node):
-        self._push_box("ATTENTION")
+        self._push_admonition("ATTENTION")
 
     @pushing_context
     def visit_hint(self, _node):
         """Sphinx hint directive."""
-        self._push_box("HINT")
+        self._push_admonition("HINT")
 
     @pushing_context
     def visit_tip(self, _node):
-        self._push_box("TIP")
+        self._push_admonition("TIP")
 
     def visit_image(self, node):
         """Image directive."""
