@@ -159,7 +159,7 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
         self.prepare_writing(set(self.env.all_docs))
         project = cast(str, self.config.project)
         root_doc = cast(str, self.config.root_doc)
-        docnames = [root_doc] + list(self.env.found_docs - {root_doc})
+        docnames = [root_doc] + sorted(self.env.found_docs - {root_doc})
         content_parts: list[str] = [f"# {project} Documentation\n\n", "## Table of Contents\n\n"]
 
         for docname in docnames:

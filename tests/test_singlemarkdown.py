@@ -5,6 +5,7 @@
 import os
 import shutil
 import stat
+from difflib import unified_diff
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Callable, Optional
@@ -21,6 +22,7 @@ from sphinx_markdown_builder.singlemarkdown import SingleFileMarkdownBuilder, se
 # Base paths for integration tests
 BUILD_PATH = Path("./tests/docs-build/single")
 SOURCE_PATH = Path("./tests/source")
+EXPECTED_SINGLE_PATH = Path("./tests/expected/single.md")
 
 # Test configurations for integration tests
 TEST_NAMES = ["defaults", "overrides"]
@@ -125,6 +127,23 @@ def _assert_singlemarkdown_output_nonempty(build_path: Path) -> str:
     return content
 
 
+def _assert_matches_expected(actual: str, expected_path: Path) -> None:
+    expected = expected_path.read_text(encoding="utf-8")
+    if actual == expected:
+        return
+
+    diff = "\n".join(
+        unified_diff(
+            expected.splitlines(),
+            actual.splitlines(),
+            fromfile=str(expected_path),
+            tofile="generated singlemarkdown output",
+            lineterm="",
+        )
+    )
+    raise AssertionError(f"singlemarkdown output mismatch:\n{diff}")
+
+
 def _make_builder(
     root_doc: str = "index",
     html_title: str = "Test Title",
@@ -170,15 +189,13 @@ def _write_only_scenarios_project(base: Path) -> tuple[Path, Path]:
     return src, out
 
 
-def test_singlemarkdown_builder():
-    """Test that the builder runs successfully"""
+def test_singlemarkdown_expected_output():
+    """Test full singlemarkdown output against a golden expected file."""
     _clean_build_path()
-    run_sphinx_singlemarkdown()
+    run_sphinx_singlemarkdown(BUILD_PATH, "-a")
 
-    content = _assert_singlemarkdown_output_nonempty(BUILD_PATH)
-    assert "Main Test File" in content, "Main content missing"
-    assert "Example .rst File" in content, "ExampleRSTFile content missing"
-    assert "Using the Learner Engagement Report" in content, "Section_course_student content missing"
+    actual = _assert_singlemarkdown_output_nonempty(BUILD_PATH)
+    _assert_matches_expected(actual, EXPECTED_SINGLE_PATH)
 
 
 def test_singlemarkdown_update():
