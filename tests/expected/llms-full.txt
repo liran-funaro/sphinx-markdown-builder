@@ -659,174 +659,11 @@ To download a learner engagement report, follow these steps.
    date}.csv` file name. You might have to scroll down to find a specific
    file.
 
-## Auto Module
-
-Example module
-
-#### *class* Point(x, y)
-
-A Point
-
-### Attributes
-
-x: int
-: The x value
-
-y: str
-: The y value
-
-##### x *: int*
-
-X value
-
-##### y *: str*
-
-Y value
-
-* **Parameters:**
-  * **x** (*int*)
-  * **y** (*str*)
-
-#### deprecated_function()
-
-Some old function.
-
-##### Deprecated
-Deprecated since version 3.1: Use `other()` instead.
-
-#### func1(param1)
-
-This is a function with a single parameter.
-Thanks to github.com/remiconnesson.
-
-* **Parameters:**
-  **param1** (*int*) – This is a single parameter.
-* **Return type:**
-  int
-
-#### func2(param1, param2)
-
-This is a function with two parameters.
-
-* **Parameters:**
-  * **param1** (*int*) – This is the first parameter.
-  * **param2** (*int*) – This is the second parameter.
-* **Return type:**
-  str
-
-#### func3(param1, param2)
-
-This is a function with two parameters.
-
-* **Parameters:**
-  * **param1** (*int*) – Alice <sup>[1](#id3)</sup>.
-  * **param2** (*int*) – Bon <sup>[2](#id4)</sup>.
-
-### References
-
-* <a id='id3'>**[1]**</a> Alice is commonly used to describe the first actor.
-* <a id='id4'>**[2]**</a> Bob is commonly used to describe the second actor.
-
 ## Welcome to Sphinx-Markdown-Builder TocTree Test’s documentation!
 
 ### Documentation
 
 Some link to a class `my_module.module_class.ModuleClass`
-
-## Math Example
-
-Formula 1
-: Definition of the formula as inline math:
-  $\frac{ \sum_{t=0}^{N}f(t,k) }{N}$.
-  <br/>
-  Some more text related to the definition.
-
-Display math:
-
-$$
-\frac{ \sum_{t=0}^{N}f(t,k) }{N}
-$$
-
-## Code Example
-
-```pycon
->>> print("this is a Doctest block.")
-this is a Doctest block.
-```
-
-## Line Block
-
-text
-sub text
-<br/>
-more text
-<br/>
-<br/>
-<br/>
-
-### Other text
-
-other text
-
-### Referencing terms from a glossary
-
-Some other text that refers to Glossary2-Term2.
-
-### Http domain directive
-
-#### GET /users/(*int:* user_id)/posts/(tag)
-
-### C domain
-
-#### PyObject \*PyType_GenericAlloc(PyTypeObject \*type, Py_ssize_t nitems)
-
-## Empty package
-
-## Glossary test for multiple glossaries
-
-### Section for first glossary
-
-<a id="term-Glossary1-Term1"></a>
-
-Glossary1-Term1
-: Some random text for term 1 in glossary 1.
-
-<a id="term-Glossary1-Term2"></a>
-
-Glossary1-Term2
-: Some random text for term 2 in glossary 1. Referencing Glossary1-Term1.
-
-<a id="term-Glossary1-Term3"></a>
-
-Glossary1-Term3
-: Some random text for term 3 in glossary 1. Referencing Glossary3-Term1.
-
-### Section for second glossary
-
-<a id="term-Glossary2-Term1"></a>
-
-Glossary2-Term1
-: Some random text for term 1 in glossary 2.
-
-<a id="term-Glossary2-Term2"></a>
-
-Glossary2-Term2
-: Some random text for term 2 in glossary 2. Some reference for Glossary1-Term3.
-
-### Section for third glossary
-
-<a id="term-Glossary3-Term1"></a>
-
-Glossary3-Term1
-: Some random text for term 1 in glossary 3.
-
-## Test Image With Target
-
-[![image](static/markdown.png)](https://github.com/liran-funaro/sphinx-markdown-builder)
-
-Download [`this example image`](/static/markdown.png).
-
-![image](static/markdown.png)
 
 ## my_module
 
@@ -968,3 +805,166 @@ This is a dummy function that does not do anything.
   Nothing.
 * **Return type:**
   None
+
+## Math Example
+
+Formula 1
+: Definition of the formula as inline math:
+  $\frac{ \sum_{t=0}^{N}f(t,k) }{N}$.
+  <br/>
+  Some more text related to the definition.
+
+Display math:
+
+$$
+\frac{ \sum_{t=0}^{N}f(t,k) }{N}
+$$
+
+## Code Example
+
+```pycon
+>>> print("this is a Doctest block.")
+this is a Doctest block.
+```
+
+## Line Block
+
+text
+sub text
+<br/>
+more text
+<br/>
+<br/>
+<br/>
+
+### Other text
+
+other text
+
+### Referencing terms from a glossary
+
+Some other text that refers to Glossary2-Term2.
+
+### Http domain directive
+
+#### GET /users/(*int:* user_id)/posts/(tag)
+
+### C domain
+
+#### PyObject \*PyType_GenericAlloc(PyTypeObject \*type, Py_ssize_t nitems)
+
+## Test Image With Target
+
+[![image](static/markdown.png)](https://github.com/liran-funaro/sphinx-markdown-builder)
+
+Download [`this example image`](/static/markdown.png).
+
+![image](static/markdown.png)
+
+## Empty package
+
+## Glossary test for multiple glossaries
+
+### Section for first glossary
+
+<a id="term-Glossary1-Term1"></a>
+
+Glossary1-Term1
+: Some random text for term 1 in glossary 1.
+
+<a id="term-Glossary1-Term2"></a>
+
+Glossary1-Term2
+: Some random text for term 2 in glossary 1. Referencing Glossary1-Term1.
+
+<a id="term-Glossary1-Term3"></a>
+
+Glossary1-Term3
+: Some random text for term 3 in glossary 1. Referencing Glossary3-Term1.
+
+### Section for second glossary
+
+<a id="term-Glossary2-Term1"></a>
+
+Glossary2-Term1
+: Some random text for term 1 in glossary 2.
+
+<a id="term-Glossary2-Term2"></a>
+
+Glossary2-Term2
+: Some random text for term 2 in glossary 2. Some reference for Glossary1-Term3.
+
+### Section for third glossary
+
+<a id="term-Glossary3-Term1"></a>
+
+Glossary3-Term1
+: Some random text for term 1 in glossary 3.
+
+## Auto Module
+
+Example module
+
+#### *class* Point(x, y)
+
+A Point
+
+### Attributes
+
+x: int
+: The x value
+
+y: str
+: The y value
+
+##### x *: int*
+
+X value
+
+##### y *: str*
+
+Y value
+
+* **Parameters:**
+  * **x** (*int*)
+  * **y** (*str*)
+
+#### deprecated_function()
+
+Some old function.
+
+##### Deprecated
+Deprecated since version 3.1: Use `other()` instead.
+
+#### func1(param1)
+
+This is a function with a single parameter.
+Thanks to github.com/remiconnesson.
+
+* **Parameters:**
+  **param1** (*int*) – This is a single parameter.
+* **Return type:**
+  int
+
+#### func2(param1, param2)
+
+This is a function with two parameters.
+
+* **Parameters:**
+  * **param1** (*int*) – This is the first parameter.
+  * **param2** (*int*) – This is the second parameter.
+* **Return type:**
+  str
+
+#### func3(param1, param2)
+
+This is a function with two parameters.
+
+* **Parameters:**
+  * **param1** (*int*) – Alice <sup>[1](#id3)</sup>.
+  * **param2** (*int*) – Bon <sup>[2](#id4)</sup>.
+
+### References
+
+* <a id='id3'>**[1]**</a> Alice is commonly used to describe the first actor.
+* <a id='id4'>**[2]**</a> Bob is commonly used to describe the second actor.

@@ -5,17 +5,17 @@
 * [Main Document](#index)
 * [Examplerstfile](#ExampleRSTFile)
 * [Section Course Student](#Section_course_student)
-* [Auto Module](#auto-module)
+* [Links](#links)
 * [Auto Summery](#auto-summery)
-* [Blocks](#blocks)
-* [Empty](#empty)
-* [Glossaries](#glossaries)
-* [Image Target](#image-target)
 * [My Module](#library/my_module)
 * [My Module.Module Class](#library/my_module.module_class)
 * [My Module.Submodule](#library/my_module.submodule)
 * [My Module.Submodule.My Class](#library/my_module.submodule.my_class)
-* [Links](#links)
+* [Blocks](#blocks)
+* [Image Target](#image-target)
+* [Empty](#empty)
+* [Glossaries](#glossaries)
+* [Auto Module](#auto-module)
 
 
 <a id="index"></a>
@@ -743,75 +743,22 @@ To download a learner engagement report, follow these steps.
 
 
 
-<a id="auto-module"></a>
+<a id="links"></a>
 
-## Auto Module
+<!-- Taken from https://github.com/openedx/edx-documentation/blob/master/en_us/links/links.rst -->
+<!-- Include this file in any file that includes a non-doc link. -->
 
-Example module
+## Links
 
-#### *class* Point(x, y)
-
-A Point
-
-### Attributes
-
-x: int
-: The x value
-
-y: str
-: The y value
-
-##### x *: int*
-
-X value
-
-##### y *: str*
-
-Y value
-
-* **Parameters:**
-  * **x** (*int*)
-  * **y** (*str*)
-
-#### deprecated_function()
-
-Some old function.
-
-##### Deprecated
-Deprecated since version 3.1: Use `other()` instead.
-
-#### func1(param1)
-
-This is a function with a single parameter.
-Thanks to github.com/remiconnesson.
-
-* **Parameters:**
-  **param1** (*int*) – This is a single parameter.
-* **Return type:**
-  int
-
-#### func2(param1, param2)
-
-This is a function with two parameters.
-
-* **Parameters:**
-  * **param1** (*int*) – This is the first parameter.
-  * **param2** (*int*) – This is the second parameter.
-* **Return type:**
-  str
-
-#### func3(param1, param2)
-
-This is a function with two parameters.
-
-* **Parameters:**
-  * **param1** (*int*) – Alice <sup>[1](#id3)</sup>.
-  * **param2** (*int*) – Bon <sup>[2](#id4)</sup>.
-
-### References
-
-* <a id='id3'>**[1]**</a> Alice is commonly used to describe the first actor.
-* <a id='id4'>**[2]**</a> Bob is commonly used to describe the second actor.
+<!-- EdX Links -->
+<!-- GitHub Links -->
+<!-- EDX VMs -->
+<!-- EDX WIKI LINKS -->
+<!-- THIRD PARTY LINKS -->
+<!-- Release Notes -->
+<!-- Browsers -->
+<!-- Peer Instruction -->
+<!-- Video Catalog -->
 
 
 
@@ -839,122 +786,6 @@ Some link to a class `my_module.module_class.ModuleClass`
 * genindex
 * modindex
 * search
-
-
-
-<a id="blocks"></a>
-
-## Math Example
-
-Formula 1
-: Definition of the formula as inline math:
-  $\frac{ \sum_{t=0}^{N}f(t,k) }{N}$.
-  <br/>
-  Some more text related to the definition.
-
-Display math:
-
-$$
-\frac{ \sum_{t=0}^{N}f(t,k) }{N}
-$$
-
-## Code Example
-
-```pycon
->>> print("this is a Doctest block.")
-this is a Doctest block.
-```
-
-## Line Block
-
-text
-sub text
-<br/>
-more text
-<br/>
-<br/>
-<br/>
-
-### Other text
-
-other text
-
-### Referencing terms from a glossary
-
-Some other text that refers to Glossary2-Term2.
-
-### Http domain directive
-
-#### GET /users/(*int:* user_id)/posts/(tag)
-
-### C domain
-
-#### PyObject \*PyType_GenericAlloc(PyTypeObject \*type, Py_ssize_t nitems)
-
-
-
-<a id="empty"></a>
-
-<!-- Package documentation master file, created by
-sphinx-quickstart on Thu Sep  2 09:41:50 2021.
-You can adapt this file completely to your liking, but it should at least
-contain the root ``toctree`` directive. -->
-
-## Empty package
-
-
-
-<a id="glossaries"></a>
-
-## Glossary test for multiple glossaries
-
-### Section for first glossary
-
-<a id="term-Glossary1-Term1"></a>
-
-Glossary1-Term1
-: Some random text for term 1 in glossary 1.
-
-<a id="term-Glossary1-Term2"></a>
-
-Glossary1-Term2
-: Some random text for term 2 in glossary 1. Referencing Glossary1-Term1.
-
-<a id="term-Glossary1-Term3"></a>
-
-Glossary1-Term3
-: Some random text for term 3 in glossary 1. Referencing Glossary3-Term1.
-
-### Section for second glossary
-
-<a id="term-Glossary2-Term1"></a>
-
-Glossary2-Term1
-: Some random text for term 1 in glossary 2.
-
-<a id="term-Glossary2-Term2"></a>
-
-Glossary2-Term2
-: Some random text for term 2 in glossary 2. Some reference for Glossary1-Term3.
-
-### Section for third glossary
-
-<a id="term-Glossary3-Term1"></a>
-
-Glossary3-Term1
-: Some random text for term 1 in glossary 3.
-
-
-
-<a id="image-target"></a>
-
-## Test Image With Target
-
-[![image](static/markdown.png)](https://github.com/liran-funaro/sphinx-markdown-builder)
-
-Download [`this example image`](/static/markdown.png).
-
-![image](static/markdown.png)
 
 
 
@@ -1122,21 +953,190 @@ This is a dummy function that does not do anything.
 
 
 
-<a id="links"></a>
+<a id="blocks"></a>
 
-<!-- Taken from https://github.com/openedx/edx-documentation/blob/master/en_us/links/links.rst -->
-<!-- Include this file in any file that includes a non-doc link. -->
+## Math Example
 
-## Links
+Formula 1
+: Definition of the formula as inline math:
+  $\frac{ \sum_{t=0}^{N}f(t,k) }{N}$.
+  <br/>
+  Some more text related to the definition.
 
-<!-- EdX Links -->
-<!-- GitHub Links -->
-<!-- EDX VMs -->
-<!-- EDX WIKI LINKS -->
-<!-- THIRD PARTY LINKS -->
-<!-- Release Notes -->
-<!-- Browsers -->
-<!-- Peer Instruction -->
-<!-- Video Catalog -->
+Display math:
+
+$$
+\frac{ \sum_{t=0}^{N}f(t,k) }{N}
+$$
+
+## Code Example
+
+```pycon
+>>> print("this is a Doctest block.")
+this is a Doctest block.
+```
+
+## Line Block
+
+text
+sub text
+<br/>
+more text
+<br/>
+<br/>
+<br/>
+
+### Other text
+
+other text
+
+### Referencing terms from a glossary
+
+Some other text that refers to Glossary2-Term2.
+
+### Http domain directive
+
+#### GET /users/(*int:* user_id)/posts/(tag)
+
+### C domain
+
+#### PyObject \*PyType_GenericAlloc(PyTypeObject \*type, Py_ssize_t nitems)
+
+
+
+<a id="image-target"></a>
+
+## Test Image With Target
+
+[![image](static/markdown.png)](https://github.com/liran-funaro/sphinx-markdown-builder)
+
+Download [`this example image`](/static/markdown.png).
+
+![image](static/markdown.png)
+
+
+
+<a id="empty"></a>
+
+<!-- Package documentation master file, created by
+sphinx-quickstart on Thu Sep  2 09:41:50 2021.
+You can adapt this file completely to your liking, but it should at least
+contain the root ``toctree`` directive. -->
+
+## Empty package
+
+
+
+<a id="glossaries"></a>
+
+## Glossary test for multiple glossaries
+
+### Section for first glossary
+
+<a id="term-Glossary1-Term1"></a>
+
+Glossary1-Term1
+: Some random text for term 1 in glossary 1.
+
+<a id="term-Glossary1-Term2"></a>
+
+Glossary1-Term2
+: Some random text for term 2 in glossary 1. Referencing Glossary1-Term1.
+
+<a id="term-Glossary1-Term3"></a>
+
+Glossary1-Term3
+: Some random text for term 3 in glossary 1. Referencing Glossary3-Term1.
+
+### Section for second glossary
+
+<a id="term-Glossary2-Term1"></a>
+
+Glossary2-Term1
+: Some random text for term 1 in glossary 2.
+
+<a id="term-Glossary2-Term2"></a>
+
+Glossary2-Term2
+: Some random text for term 2 in glossary 2. Some reference for Glossary1-Term3.
+
+### Section for third glossary
+
+<a id="term-Glossary3-Term1"></a>
+
+Glossary3-Term1
+: Some random text for term 1 in glossary 3.
+
+
+
+<a id="auto-module"></a>
+
+## Auto Module
+
+Example module
+
+#### *class* Point(x, y)
+
+A Point
+
+### Attributes
+
+x: int
+: The x value
+
+y: str
+: The y value
+
+##### x *: int*
+
+X value
+
+##### y *: str*
+
+Y value
+
+* **Parameters:**
+  * **x** (*int*)
+  * **y** (*str*)
+
+#### deprecated_function()
+
+Some old function.
+
+##### Deprecated
+Deprecated since version 3.1: Use `other()` instead.
+
+#### func1(param1)
+
+This is a function with a single parameter.
+Thanks to github.com/remiconnesson.
+
+* **Parameters:**
+  **param1** (*int*) – This is a single parameter.
+* **Return type:**
+  int
+
+#### func2(param1, param2)
+
+This is a function with two parameters.
+
+* **Parameters:**
+  * **param1** (*int*) – This is the first parameter.
+  * **param2** (*int*) – This is the second parameter.
+* **Return type:**
+  str
+
+#### func3(param1, param2)
+
+This is a function with two parameters.
+
+* **Parameters:**
+  * **param1** (*int*) – Alice <sup>[1](#id3)</sup>.
+  * **param2** (*int*) – Bon <sup>[2](#id4)</sup>.
+
+### References
+
+* <a id='id3'>**[1]**</a> Alice is commonly used to describe the first actor.
+* <a id='id4'>**[2]**</a> Bob is commonly used to describe the second actor.
 
 

@@ -110,6 +110,24 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
         toctree = global_toctree_for_doc(self.env, docname, self, collapse=collapse)
         return str(self.render_partial(toctree)["fragment"]) if toctree else ""
 
+    def _ordered_docnames(self, root_doc: str) -> list[str]:
+        """Return documents in depth-first toctree order from the root document."""
+        docnames: list[str] = []
+        seen: set[str] = set()
+        raw_toctree_includes = getattr(self.env, "toctree_includes", None)
+        toctree_includes = raw_toctree_includes if isinstance(raw_toctree_includes, dict) else {}
+
+        def visit(docname: str) -> None:
+            if docname in seen:
+                return
+            seen.add(docname)
+            docnames.append(docname)
+            for child in toctree_includes.get(docname, []):
+                visit(child)
+
+        visit(root_doc)
+        return docnames
+
     def get_outdated_docs(self) -> Union[str, list[str]]:
         return "all documents"
 
@@ -220,7 +238,7 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
         self.prepare_writing(set(self.env.all_docs))
         project = cast(str, self.config.project)
         root_doc = cast(str, self.config.root_doc)
-        docnames = [root_doc] + sorted(self.env.found_docs - {root_doc})
+        docnames = self._ordered_docnames(root_doc)
         llm_cleanup_enabled = str(self.config.singlemarkdown_flavor).lower() == "llm"
         content_parts: list[str] = [f"# {project} Documentation\n\n"]
 

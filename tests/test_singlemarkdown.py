@@ -473,6 +473,41 @@ def test_write_documents(tmp_path, monkeypatch):
         os.remove(expected_file)
 
 
+def test_write_documents_uses_toctree_order(tmp_path, monkeypatch):
+    """Single markdown output should follow depth-first toctree order."""
+    monkeypatch.chdir(tmp_path)
+    builder, _, env = _make_builder(project="Order Test")
+    _configure_write_documents_builder(
+        builder,
+        env,
+        {
+            "index": None,
+            "z-last": None,
+            "a-first": None,
+            "mid": None,
+            "orphan": None,
+        },
+        {"index", "z-last", "a-first", "mid", "orphan"},
+    )
+
+    env.toctree_includes = {
+        "index": ["mid", "a-first"],
+        "mid": ["z-last"],
+    }
+
+    seen_docnames: list[str] = []
+
+    def get_doc(docname: str) -> nodes.document:
+        seen_docnames.append(docname)
+        return _new_test_document()
+
+    env.get_doctree.side_effect = get_doc
+
+    _run_write_documents(builder)
+
+    assert seen_docnames == ["index", "mid", "z-last", "a-first"]
+
+
 def test_write_documents_error_handling(tmp_path, monkeypatch):
     """Test error handling in write_documents"""
     monkeypatch.chdir(tmp_path)
