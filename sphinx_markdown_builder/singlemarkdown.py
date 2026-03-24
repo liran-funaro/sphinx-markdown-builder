@@ -18,7 +18,7 @@ from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import ensuredir, os_path
 
 from sphinx_markdown_builder.builder import MarkdownBuilder
-from sphinx_markdown_builder.singletranslator import SingleMarkdownTranslator
+from sphinx_markdown_builder.translator import MarkdownTranslator
 from sphinx_markdown_builder.writer import MarkdownWriter
 
 if TYPE_CHECKING:
@@ -37,8 +37,7 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
     # These are copied from SingleFileHTMLBuilder
     copysource: bool = False
 
-    # Use the custom translator for single file output
-    default_translator_class: type[SphinxTranslator] = SingleMarkdownTranslator
+    default_translator_class: type[SphinxTranslator] = MarkdownTranslator
 
     def get_outdated_docs(self) -> str | list[str]:
         return "all documents"
@@ -214,14 +213,6 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
 
                 # Add anchor for linking
                 content_parts.append(f'\n<a id="{docname}"></a>\n\n')
-
-                # Generate title based on docname
-                if docname == root_doc:
-                    title = "Main Document"
-                else:
-                    title = docname.rsplit("/", 1)[-1].replace("_", " ").replace("-", " ").title()
-
-                content_parts.append(f"## {title}\n\n")
 
                 # Get markdown writer output for this document
                 self.writer = MarkdownWriter(self)

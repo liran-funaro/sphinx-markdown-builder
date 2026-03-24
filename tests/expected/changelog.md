@@ -2,7 +2,7 @@
 
 ## 0.7.0
 
-- Add [`llms_txt_uri_template`](configuration-values.md#confval-llms_txt_uri_template) configuration option to control the link behavior in [`llms_txt_filename`](configuration-values.md#confval-llms_txt_filename).
+- Add `llms_txt_uri_template` configuration option to control the link behavior in `llms_txt_filename`.
   [#48](https://github.com/jdillard/sphinx-llms-txt/pull/48)
 
 ## 0.6.0
