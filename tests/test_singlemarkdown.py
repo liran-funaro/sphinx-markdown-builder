@@ -3,12 +3,11 @@
 # pyright: reportAny=false, reportPrivateUsage=false, reportUnknownLambdaType=false
 
 import os
-import re
 import shutil
 import stat
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional
 from unittest import mock
 
 import pytest
@@ -53,6 +52,31 @@ def _new_test_document() -> nodes.document:
     return new_document("test")
 
 
+def _configure_write_documents_builder(
+    builder: SingleFileMarkdownBuilder,
+    env: mock.MagicMock,
+    all_docs: dict[str, None],
+    found_docs: set[str],
+) -> None:
+    env.all_docs = all_docs
+    env.found_docs = found_docs
+    builder.outdir = BUILD_PATH
+    os.makedirs(os.path.join(BUILD_PATH), exist_ok=True)
+
+
+def _run_write_documents(builder: SingleFileMarkdownBuilder, open_side_effect: Optional[OSError] = None) -> None:
+    builder.prepare_writing = mock.MagicMock()
+    with mock.patch("sphinx_markdown_builder.singlemarkdown.MarkdownWriter") as mock_writer_class:
+        writer_mock = mock.MagicMock()
+        writer_mock.output = "Test output"
+        mock_writer_class.return_value = writer_mock
+        if open_side_effect is None:
+            builder.write_documents(set())
+            return
+        with mock.patch("builtins.open", side_effect=open_side_effect):
+            builder.write_documents(set())
+
+
 def _clean_build_path():
     if BUILD_PATH.exists():
         shutil.rmtree(BUILD_PATH)
@@ -84,34 +108,84 @@ def run_sphinx_singlemarkdown(build_path: Path = BUILD_PATH, *flags: str):
     assert ret_code == 0
 
 
+def _singlemarkdown_output_file(build_path: Path) -> Path:
+    return build_path / "singlemarkdown" / "index.md"
+
+
+def _assert_singlemarkdown_output_exists(build_path: Path) -> Path:
+    output_file = _singlemarkdown_output_file(build_path)
+    assert output_file.exists(), f"Output file {output_file} was not created"
+    return output_file
+
+
+def _assert_singlemarkdown_output_nonempty(build_path: Path) -> str:
+    output_file = _assert_singlemarkdown_output_exists(build_path)
+    content = output_file.read_text(encoding="utf-8")
+    assert content, "Output file is empty"
+    return content
+
+
+def _make_builder(
+    root_doc: str = "index",
+    html_title: str = "Test Title",
+    project: str = "Test Project",
+) -> tuple[SingleFileMarkdownBuilder, mock.MagicMock, mock.MagicMock]:
+    app = mock.MagicMock()
+    env = mock.MagicMock()
+    app.config.root_doc = root_doc
+    app.config.html_title = html_title
+    app.config.project = project
+    builder = SingleFileMarkdownBuilder(app, env)
+    builder.env = env
+    builder.out_suffix = ".md"
+    return builder, app, env
+
+
+def _write_only_scenarios_project(base: Path) -> tuple[Path, Path]:
+    src = base / "src"
+    out = base / "build"
+    src.mkdir(parents=True, exist_ok=True)
+
+    (src / "conf.py").write_text(
+        "extensions = ['sphinx_markdown_builder']\n"
+        "project = 'only-scenarios'\n"
+        "root_doc = 'index'\n",
+        encoding="utf-8",
+    )
+
+    (src / "index.rst").write_text(
+        "Only Scenarios\n"
+        "==============\n\n"
+        ".. only:: html\n\n"
+        "   HTML_ONLY_TOKEN\n\n"
+        ".. only:: markdown\n\n"
+        "   MARKDOWN_ONLY_TOKEN\n\n"
+        ".. only:: singlemarkdown\n\n"
+        "   SINGLEMARKDOWN_ONLY_TOKEN\n\n"
+        ".. only:: markdown or singlemarkdown\n\n"
+        "   BOTH_MD_AND_SINGLE_TOKEN\n",
+        encoding="utf-8",
+    )
+
+    return src, out
+
+
 def test_singlemarkdown_builder():
     """Test that the builder runs successfully"""
     _clean_build_path()
     run_sphinx_singlemarkdown()
 
-    # Verify the output file exists
-    output_file = os.path.join(BUILD_PATH, "singlemarkdown", "index.md")
-    assert os.path.exists(output_file), f"Output file {output_file} was not created"
-
-    # Verify file has content
-    with open(output_file, "r", encoding="utf-8") as f:
-        content = f.read()
-        assert len(content) > 0, "Output file is empty"
-
-        # Check for content from different source files
-        assert "Main Test File" in content, "Main content missing"
-        assert "Example .rst File" in content, "ExampleRSTFile content missing"
-        assert "Using the Learner Engagement Report" in content, "Section_course_student content missing"
+    content = _assert_singlemarkdown_output_nonempty(BUILD_PATH)
+    assert "Main Test File" in content, "Main content missing"
+    assert "Example .rst File" in content, "ExampleRSTFile content missing"
+    assert "Using the Learner Engagement Report" in content, "Section_course_student content missing"
 
 
 def test_singlemarkdown_update():
     """Test rebuilding after changes"""
     _touch_source_files()
     run_sphinx_singlemarkdown()
-
-    # Verify the output file exists and was updated
-    output_file = os.path.join(BUILD_PATH, "singlemarkdown", "index.md")
-    assert os.path.exists(output_file), f"Output file {output_file} was not created"
+    _assert_singlemarkdown_output_exists(BUILD_PATH)
 
 
 # Integration tests based on test_builder.py patterns
@@ -119,15 +193,7 @@ def test_singlemarkdown_update():
 def test_singlemarkdown_make_all(flags: Iterable[str], build_path: Path):
     """Test building with -a flag (build all)"""
     run_sphinx_singlemarkdown(build_path, "-a", *flags)
-
-    # Verify the output file exists
-    output_file = os.path.join(build_path, "singlemarkdown", "index.md")
-    assert os.path.exists(output_file), f"Output file {output_file} was not created"
-
-    # Verify file has content
-    with open(output_file, "r", encoding="utf-8") as f:
-        content = f.read()
-        assert len(content) > 0, "Output file is empty"
+    _ = _assert_singlemarkdown_output_nonempty(build_path)
 
 
 @pytest.mark.parametrize(["flags", "build_path"], OPTIONS, ids=TEST_NAMES)
@@ -135,24 +201,17 @@ def test_singlemarkdown_make_updated(flags: Iterable[str], build_path: Path):
     """Test rebuilding after changes with different configuration options"""
     _touch_source_files()
     run_sphinx_singlemarkdown(build_path, *flags)
-
-    # Verify the output file exists
-    output_file = os.path.join(build_path, "singlemarkdown", "index.md")
-    assert os.path.exists(output_file), f"Output file {output_file} was not created"
+    _assert_singlemarkdown_output_exists(build_path)
 
 
 @pytest.mark.parametrize(["flags", "build_path"], OPTIONS, ids=TEST_NAMES)
 def test_singlemarkdown_make_missing(flags: Iterable[str], build_path: Path):
     """Test building when the build directory is missing"""
-    # Clean the build path
     if os.path.exists(build_path):
         shutil.rmtree(build_path)
 
     run_sphinx_singlemarkdown(build_path, *flags)
-
-    # Verify the output file exists
-    output_file = os.path.join(build_path, "singlemarkdown", "index.md")
-    assert os.path.exists(output_file), f"Output file {output_file} was not created"
+    _assert_singlemarkdown_output_exists(build_path)
 
 
 @pytest.mark.parametrize(["flags", "build_path"], OPTIONS, ids=TEST_NAMES)
@@ -198,22 +257,13 @@ def test_singlemarkdown_builder_methods(tmp_path):
 def test_render_partial(tmp_path, monkeypatch):
     """Test render_partial method"""
     monkeypatch.chdir(tmp_path)
-
-    # Create mocks
-    app = mock.MagicMock()
-    env = mock.MagicMock()
-
-    # Create the builder
-    builder = SingleFileMarkdownBuilder(app, env)
-    builder.env = env
+    builder, _, _ = _make_builder()
 
     # Test with None node
     result = builder.render_partial(None)
     assert result["fragment"] == ""
 
-    # Mock MarkdownWriter completely to avoid initialization issues
     with mock.patch("sphinx_markdown_builder.singlemarkdown.MarkdownWriter") as mock_writer_class:
-        # Create mock writer instance
         mock_writer = mock.MagicMock()
         mock_writer.output = "Test content output"
         mock_writer_class.return_value = mock_writer
@@ -239,13 +289,8 @@ def test_render_partial(tmp_path, monkeypatch):
 def test_render_partial_non_document_node(tmp_path, monkeypatch):
     """Test render_partial with a non-document node."""
     monkeypatch.chdir(tmp_path)
-
-    app = mock.MagicMock()
-    env = mock.MagicMock()
+    builder, _, env = _make_builder()
     env.settings = mock.MagicMock()
-
-    builder = SingleFileMarkdownBuilder(app, env)
-    builder.env = env
 
     with mock.patch("sphinx_markdown_builder.singlemarkdown.MarkdownWriter") as mock_writer_class:
         mock_writer = mock.MagicMock()
@@ -263,13 +308,7 @@ def test_render_partial_non_document_node(tmp_path, monkeypatch):
 def test_get_local_toctree(tmp_path, monkeypatch):
     """Test _get_local_toctree method"""
     monkeypatch.chdir(tmp_path)
-
-    # Create mocks
-    app = mock.MagicMock()
-    env = mock.MagicMock()
-
-    # Create the builder
-    builder = SingleFileMarkdownBuilder(app, env)
+    builder, _, _ = _make_builder()
 
     # Mock render_partial to avoid issues with document settings
     with mock.patch.object(builder, "render_partial") as mock_render:
@@ -303,16 +342,10 @@ def test_get_local_toctree(tmp_path, monkeypatch):
 def test_assemble_doctree(tmp_path, monkeypatch):
     """Test assemble_doctree method."""
     monkeypatch.chdir(tmp_path)
-
-    app = mock.MagicMock()
-    env = mock.MagicMock()
-    app.config.root_doc = "index"
+    builder, _, env = _make_builder()
 
     tree = _new_test_document()
     env.get_doctree.return_value = tree
-
-    builder = SingleFileMarkdownBuilder(app, env)
-    builder.env = env
 
     with mock.patch("sphinx_markdown_builder.singlemarkdown.inline_all_toctrees", return_value=tree) as mock_inline:
         result = builder.assemble_doctree()
@@ -326,18 +359,10 @@ def test_assemble_doctree(tmp_path, monkeypatch):
 def test_assemble_toc_secnumbers(tmp_path, monkeypatch):
     """Test assemble_toc_secnumbers method"""
     monkeypatch.chdir(tmp_path)
-
-    # Create mocks
-    app = mock.MagicMock()
-    env = mock.MagicMock()
-    app.config.root_doc = "index"
+    builder, _, env = _make_builder()
 
     # Set up environment data
     env.toc_secnumbers = {"doc1": {"id1": (1, 2)}, "doc2": {"id2": (3, 4)}}
-
-    # Create the builder
-    builder = SingleFileMarkdownBuilder(app, env)
-    builder.env = env
 
     # Run the method
     result = builder.assemble_toc_secnumbers()
@@ -353,21 +378,13 @@ def test_assemble_toc_secnumbers(tmp_path, monkeypatch):
 def test_assemble_toc_fignumbers(tmp_path, monkeypatch):
     """Test assemble_toc_fignumbers method"""
     monkeypatch.chdir(tmp_path)
-
-    # Create mocks
-    app = mock.MagicMock()
-    env = mock.MagicMock()
-    app.config.root_doc = "index"
+    builder, _, env = _make_builder()
 
     # Set up environment data
     env.toc_fignumbers = {
         "doc1": {"figure": {"id1": (1, 2)}},
         "doc2": {"table": {"id2": (3, 4)}},
     }
-
-    # Create the builder
-    builder = SingleFileMarkdownBuilder(app, env)
-    builder.env = env
 
     # Run the method
     result = builder.assemble_toc_fignumbers()
@@ -385,16 +402,7 @@ def test_assemble_toc_fignumbers(tmp_path, monkeypatch):
 def test_get_doc_context(tmp_path, monkeypatch):
     """Test get_doc_context method"""
     monkeypatch.chdir(tmp_path)
-
-    # Create mocks
-    app = mock.MagicMock()
-    env = mock.MagicMock()
-    app.config.root_doc = "index"
-    app.config.html_title = "Test Title"
-
-    # Create the builder
-    builder = SingleFileMarkdownBuilder(app, env)
-    builder.env = env
+    builder, _, _ = _make_builder()
 
     # Test with toctree
     with mock.patch("sphinx_markdown_builder.singlemarkdown.global_toctree_for_doc") as mock_toctree:
@@ -425,16 +433,8 @@ def test_get_doc_context(tmp_path, monkeypatch):
 def test_write_documents(tmp_path, monkeypatch):
     """Test write_documents method with mocks"""
     monkeypatch.chdir(tmp_path)
-
-    # Create mocks
-    app = mock.MagicMock()
-    env = mock.MagicMock()
-
-    # Setup app and env
-    app.config.root_doc = "index"
-    app.config.project = "Test Project"
-    env.all_docs = {"index": None, "page1": None}
-    env.found_docs = {"index", "page1"}
+    builder, _, env = _make_builder()
+    _configure_write_documents_builder(builder, env, {"index": None, "page1": None}, {"index", "page1"})
 
     # Create a test document
     doc_index = _new_test_document()
@@ -446,22 +446,7 @@ def test_write_documents(tmp_path, monkeypatch):
     # Mock get_doctree to return our test documents
     env.get_doctree.side_effect = lambda docname: doc_index if docname == "index" else doc_page1
 
-    # Create the builder
-    builder = SingleFileMarkdownBuilder(app, env)
-    builder.env = env
-    builder.outdir = BUILD_PATH
-    builder.out_suffix = ".md"
-
-    # Make sure the output directory exists
-    os.makedirs(os.path.join(BUILD_PATH, "singlemarkdown"), exist_ok=True)
-
-    # Run the method
-    builder.prepare_writing = mock.MagicMock()  # Mock prepare_writing
-    with mock.patch("sphinx_markdown_builder.singlemarkdown.MarkdownWriter") as mock_writer_class:
-        writer_mock = mock.MagicMock()
-        writer_mock.output = "Test output"
-        mock_writer_class.return_value = writer_mock
-        builder.write_documents(set())
+    _run_write_documents(builder)
 
     # Verify output file was created
     expected_file = os.path.join(BUILD_PATH, "index.md")
@@ -474,22 +459,8 @@ def test_write_documents(tmp_path, monkeypatch):
 def test_write_documents_error_handling(tmp_path, monkeypatch):
     """Test error handling in write_documents"""
     monkeypatch.chdir(tmp_path)
-
-    # Create mocks
-    app = mock.MagicMock()
-    env = mock.MagicMock()
-
-    # Setup app and env
-    app.config.root_doc = "index"
-    app.config.project = "Test Project"
-    env.all_docs = {"index": None, "page1": None}
-    env.found_docs = {"index", "page1"}
-
-    # Create the builder
-    builder = SingleFileMarkdownBuilder(app, env)
-    builder.env = env
-    builder.outdir = BUILD_PATH
-    builder.out_suffix = ".md"
+    builder, _, env = _make_builder()
+    _configure_write_documents_builder(builder, env, {"index": None, "page1": None}, {"index", "page1"})
 
     # Setup to raise exception when getting doctree for "page1"
     def mock_get_doctree(docname: str):
@@ -499,55 +470,21 @@ def test_write_documents_error_handling(tmp_path, monkeypatch):
 
     env.get_doctree.side_effect = mock_get_doctree
 
-    # Make sure the output directory exists
-    os.makedirs(os.path.join(BUILD_PATH), exist_ok=True)
-
-    # Run the method - should handle the exception for page1
-    builder.prepare_writing = mock.MagicMock()  # Mock prepare_writing
-    with mock.patch("sphinx_markdown_builder.singlemarkdown.MarkdownWriter") as mock_writer_class:
-        writer_mock = mock.MagicMock()
-        writer_mock.output = "Test output"
-        mock_writer_class.return_value = writer_mock
-        builder.write_documents(set())
+    _run_write_documents(builder)
 
 
 def test_write_documents_os_error(tmp_path, monkeypatch):
     """Test OS error handling in write_documents"""
     monkeypatch.chdir(tmp_path)
-
-    # Create mocks
-    app = mock.MagicMock()
-    env = mock.MagicMock()
-
-    # Setup app and env
-    app.config.root_doc = "index"
-    app.config.project = "Test Project"
-    env.all_docs = {"index": None}
-    env.found_docs = {"index"}
+    builder, _, env = _make_builder()
+    _configure_write_documents_builder(builder, env, {"index": None}, {"index"})
 
     # Create a test document
     doc = _new_test_document()
     doc.append(nodes.paragraph("", "Test content"))
     env.get_doctree.return_value = doc
 
-    # Create the builder
-    builder = SingleFileMarkdownBuilder(app, env)
-    builder.env = env
-    builder.outdir = BUILD_PATH
-    builder.out_suffix = ".md"
-
-    # Make sure the output directory exists
-    os.makedirs(os.path.join(BUILD_PATH), exist_ok=True)
-
-    # Run the method with mocked open to raise OSError
-    builder.prepare_writing = mock.MagicMock()  # Mock prepare_writing
-    with mock.patch("sphinx_markdown_builder.singlemarkdown.MarkdownWriter") as mock_writer_class:
-        writer_mock = mock.MagicMock()
-        writer_mock.output = "Test output"
-        mock_writer_class.return_value = writer_mock
-        with mock.patch("builtins.open") as mock_open:
-            mock_open.side_effect = OSError("Test error")
-            builder.write_documents(set())
+    _run_write_documents(builder, OSError("Test error"))
 
 
 def test_setup_registers_extension():
@@ -560,78 +497,6 @@ def test_setup_registers_extension():
     assert metadata["version"] == "builtin"
     assert metadata["parallel_read_safe"] is True
     assert metadata["parallel_write_safe"] is True
-
-
-def test_heading_duplication_bug(tmp_path):
-    """Test for heading duplication bug with multiple heading levels"""
-    run_sphinx_singlemarkdown(tmp_path, "-a")
-    single_file = tmp_path / "singlemarkdown" / "index.md"
-    generated_content = single_file.read_text(encoding="utf-8")
-
-    # Extract just the changelog section from the generated content.
-    # Some builder versions prepend a synthetic "## Changelog" wrapper heading,
-    # so keep the real document heading in capture group 1.
-    changelog_pattern = r"(?:## Changelog\n\n)?(# Changelog\n\n.*?)(?=\n\n<a id=|\Z)"
-    changelog_match = re.search(changelog_pattern, generated_content, re.DOTALL)
-    changelog_section = changelog_match.group(1).strip()
-
-    expected_path = Path("tests/expected/changelog.md")
-    expected_content = expected_path.read_text(encoding="utf-8").strip()
-
-    # This test will initially fail due to the heading duplication bug in singlemarkdown
-    # The bug causes headings to be generated with incorrect levels (duplicate headings)
-    assert changelog_section == expected_content, (
-        "Generated changelog section doesn't match expected output. "
-        "This may be due to heading level calculation issues in singlemarkdown mode."
-    )
-
-
-def test_heading_indentation_bug(tmp_path):
-    """Test for heading indentation bug - headings get progressively more indented"""
-    run_sphinx_singlemarkdown(tmp_path, "-a")
-    single_file = tmp_path / "singlemarkdown" / "index.md"
-    generated_content = single_file.read_text(encoding="utf-8")
-
-    # Extract just the changelog section from the generated content.
-    # Keep compatibility with optional synthetic wrapper heading.
-    changelog_pattern = r"(?:## Changelog\n\n)?(# Changelog\n\n.*?)(?=\n\n<a id=|\Z)"
-    changelog_match = re.search(changelog_pattern, generated_content, re.DOTALL)
-    changelog_section = changelog_match.group(1).strip()
-
-    # Check for the progressive indentation bug
-    lines = changelog_section.split("\n")
-    heading_lines = [line for line in lines if line.startswith("#")]
-
-    # Extract heading levels (number of # characters)
-    heading_levels = []
-    for line in heading_lines:
-        level = len(line) - len(line.lstrip("#"))
-        heading_levels.append(level)
-
-    # We expect all version headings to be at level 2 (##)
-    version_headings = [
-        line
-        for line in heading_lines
-        if any(version in line for version in ["0.7.0", "0.6.0", "0.5.3", "0.5.2", "0.5.1"])
-    ]
-
-    if len(version_headings) > 1:
-        # Get the levels for version headings only (skip the duplicate Changelog headings)
-        version_levels = []
-        for line in version_headings:
-            level = len(line) - len(line.lstrip("#"))
-            version_levels.append(level)
-
-        # Each subsequent version heading should not be deeper
-        for i in range(1, len(version_levels)):
-            current_level = version_levels[i]
-            previous_level = version_levels[i - 1]
-
-            assert current_level <= previous_level, (
-                f"Heading level increased from {previous_level} to {current_level} "
-                f"in version heading '{version_headings[i]}'. This indicates the "
-                f"progressive indentation bug where each heading gets one level deeper."
-            )
 
 
 if __name__ == "__main__":

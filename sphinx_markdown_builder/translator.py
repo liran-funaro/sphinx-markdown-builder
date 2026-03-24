@@ -85,6 +85,8 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint
     index=SKIP,
     substitution_definition=SKIP,  # the doctree already contains the text with substitutions applied.
     runrole_reference=SKIP,
+    toctree=SKIP,
+    viewcode_anchor=SKIP,
     # Doctree elements to ignore
     document=None,
     container=None,
@@ -109,6 +111,7 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint
     colspec=None,
     tgroup=None,
     figure=None,
+    caption=None,
     desc_signature_line=None,
 )
 
@@ -337,7 +340,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_tip(self, _node):
-        """Sphinx tip directive."""
         self._push_box("TIP")
 
     def visit_image(self, node):
@@ -477,7 +479,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         raise nodes.SkipNode
 
     @pushing_status
-    def visit_section(self, node: nodes.Element):
+    def visit_section(self, node):
         self.ensure_eol(2)
         if self.config.markdown_anchor_sections:
             for anchor in node.get("ids", []):

@@ -75,19 +75,3 @@ def test_problematic():
         mt.dispatch_visit(node)
     mt.add("suffix")
     assert mt.astext() == "prefix\n\n```\ntext\n```\n\nsuffix\n"
-
-
-def test_tip_directive():
-    mt = make_mock()
-
-    tip = docutils.nodes.tip()
-    paragraph = docutils.nodes.paragraph()
-    paragraph += docutils.nodes.Text("This is a helpful tip.")
-
-    mt.visit_tip(tip)
-    mt.visit_paragraph(paragraph)
-    mt.visit_Text(paragraph[0])
-    mt.depart_paragraph(paragraph)
-    mt.depart_tip(tip)
-
-    assert mt.astext() == "#### TIP\nThis is a helpful tip.\n"

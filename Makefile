@@ -23,23 +23,15 @@ clean:
 # Catch-all target: route all unknown targets to Sphinx using the new "make mode" option.
 # $(O) is meant as a shortcut for $(SPHINX_OPTS).
 doc-%:
-	@$(SPHINX_BUILD) -M $* "$(SOURCE_DIR)" "$(BUILD_DIR)" $(SPHINX_OPTS) $(O) -a -t Partners
+	@$(SPHINX_BUILD) -M $* "$(SOURCE_DIR)" "$(BUILD_DIR)" $(SPHINX_OPTS) $(O) -a -t Partners -j 8
 
 
-docs: doc-markdown
-
-doc-singlemarkdown:
-	@$(SPHINX_BUILD) -M singlemarkdown "$(SOURCE_DIR)" "$(BUILD_DIR)" $(SPHINX_OPTS) $(O) -a -t Partners
-
-docs-single: doc-singlemarkdown
+docs: doc-markdown doc-singlemarkdown
 
 
 test-diff:
-	@echo "Building markdown..."
-	@$(SPHINX_BUILD) -M markdown "$(SOURCE_DIR)" "$(BUILD_DIR)" $(SPHINX_OPTS) $(O) -a -t Partners -j 8
-
-	@echo "Building singlemarkdown..."
-	@$(SPHINX_BUILD) -M singlemarkdown "$(SOURCE_DIR)" "$(BUILD_DIR)" $(SPHINX_OPTS) $(O) -a -t Partners
+	@echo "Building docs..."
+	@$(MAKE) docs
 
 	@echo "Building markdown with configuration overrides..."
 	@$(SPHINX_BUILD) -M markdown "$(SOURCE_DIR)" "$(BUILD_DIR)/overrides" $(SPHINX_OPTS) $(O) -a \

@@ -2,8 +2,6 @@
 Custom docutils writer for markdown.
 """
 
-from __future__ import annotations
-
 from docutils import frontend, writers
 
 from sphinx_markdown_builder.translator import MarkdownTranslator
@@ -13,7 +11,7 @@ class MarkdownWriter(writers.Writer):
     supported = ("markdown",)
     """Formats this writer supports."""
 
-    output: str | None = None
+    output = None
     """Final translated form of `document`."""
 
     # Add configuration settings for additional Markdown flavours here.

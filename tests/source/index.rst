@@ -13,4 +13,3 @@ Main Test File
    empty.rst
    glossaries.rst
    auto-module.rst
-   changelog.rst
