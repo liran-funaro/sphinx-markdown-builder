@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import os
+import re
 from typing import TYPE_CHECKING, Optional, Union, cast
 
 from docutils import nodes
@@ -37,7 +38,67 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
     # These are copied from SingleFileHTMLBuilder
     copysource: bool = False
 
+    _NAV_ARTIFACT_TEXTS = frozenset({"genindex", "modindex", "search"})
+
     default_translator_class: type[SphinxTranslator] = MarkdownTranslator
+
+    @classmethod
+    def _is_nav_artifact_list_item(cls, node: nodes.list_item) -> bool:
+        text = " ".join(node.astext().split()).strip().lower()
+        return text in cls._NAV_ARTIFACT_TEXTS
+
+    @staticmethod
+    def _remove_node(node: nodes.Node) -> None:
+        if node.parent is not None:
+            node.parent.remove(node)
+
+    @classmethod
+    def _prune_empty_containers(cls, doc: nodes.document) -> None:
+        changed = True
+        while changed:
+            changed = False
+
+            for bullet_list in list(doc.findall(nodes.bullet_list)):
+                if len(bullet_list.children) == 0:
+                    cls._remove_node(bullet_list)
+                    changed = True
+
+            for section in list(doc.findall(nodes.section)):
+                children_without_title = [child for child in section.children if not isinstance(child, nodes.title)]
+                if len(children_without_title) == 0:
+                    cls._remove_node(section)
+                    changed = True
+
+    @classmethod
+    def _remove_nav_artifact_lists(cls, doc: nodes.document) -> None:
+        for bullet_list in list(doc.findall(nodes.bullet_list)):
+            list_items = [child for child in bullet_list.children if isinstance(child, nodes.list_item)]
+            if list_items and all(cls._is_nav_artifact_list_item(item) for item in list_items):
+                cls._remove_node(bullet_list)
+
+    @staticmethod
+    def _prepare_doctree_for_llm(doc: nodes.document) -> nodes.document:
+        llm_doc = cast(nodes.document, doc.deepcopy())
+
+        for target in list(llm_doc.findall(nodes.target)):
+            SingleFileMarkdownBuilder._remove_node(target)
+
+        for transition in list(llm_doc.findall(nodes.transition)):
+            SingleFileMarkdownBuilder._remove_node(transition)
+
+        for comment in list(llm_doc.findall(nodes.comment)):
+            SingleFileMarkdownBuilder._remove_node(comment)
+
+        SingleFileMarkdownBuilder._remove_nav_artifact_lists(llm_doc)
+        SingleFileMarkdownBuilder._prune_empty_containers(llm_doc)
+
+        return llm_doc
+
+    def _cleanup_for_llm(self, content: str) -> str:
+        # Normalize whitespace while keeping paragraph breaks intact.
+        content = re.sub(r"[ \t]+\n", "\n", content)
+        content = re.sub(r"\n{3,}", "\n\n", content)
+        return content.strip() + "\n"
 
     def _render_doctree(self, doctree: nodes.document) -> str:
         writer = MarkdownWriter(self)
@@ -160,28 +221,36 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
         project = cast(str, self.config.project)
         root_doc = cast(str, self.config.root_doc)
         docnames = [root_doc] + sorted(self.env.found_docs - {root_doc})
-        content_parts: list[str] = [f"# {project} Documentation\n\n", "## Table of Contents\n\n"]
+        llm_cleanup_enabled = str(self.config.singlemarkdown_flavor).lower() == "llm"
+        content_parts: list[str] = [f"# {project} Documentation\n\n"]
 
-        for docname in docnames:
-            if docname == root_doc:
-                content_parts.append(f"* [Main Document](#{docname})\n")
-            else:
-                title = docname.rsplit("/", 1)[-1].replace("_", " ").replace("-", " ").title()
-                content_parts.append(f"* [{title}](#{docname})\n")
+        if not llm_cleanup_enabled:
+            content_parts.append("## Table of Contents\n\n")
+            for docname in docnames:
+                if docname == root_doc:
+                    content_parts.append(f"* [Main Document](#{docname})\n")
+                else:
+                    title = docname.rsplit("/", 1)[-1].replace("_", " ").replace("-", " ").title()
+                    content_parts.append(f"* [{title}](#{docname})\n")
+            content_parts.append("\n")
 
-        content_parts.append("\n")
         for docname in docnames:
             logger.info("Adding content from %s", docname)
 
             try:
                 doc = self.env.get_doctree(docname)
-                content_parts.append(f'\n<a id="{docname}"></a>\n\n')
+                if llm_cleanup_enabled:
+                    doc = self._prepare_doctree_for_llm(doc)
+                if not llm_cleanup_enabled:
+                    content_parts.append(f'\n<a id="{docname}"></a>\n\n')
                 content_parts.append(self._render_doctree(doc))
                 content_parts.append("\n\n")
 
             except Exception as e:  # pylint: disable=broad-exception-caught
                 logger.warning("Error adding content from %s: %s", docname, e)
         final_content = "".join(content_parts)
+        if llm_cleanup_enabled:
+            final_content = self._cleanup_for_llm(final_content)
         outfilename = os.path.join(self.outdir, os_path(root_doc) + self.out_suffix)
         ensuredir(os.path.dirname(outfilename))
 

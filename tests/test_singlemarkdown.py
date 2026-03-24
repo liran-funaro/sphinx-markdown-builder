@@ -106,7 +106,7 @@ def _chmod_output(build_path: Path, apply_func: Callable[[int], int]) -> None:
 
 def run_sphinx_singlemarkdown(build_path: Path = BUILD_PATH, *flags: str):
     """Runs sphinx with singlemarkdown builder and validates success"""
-    ret_code = main(["-M", "singlemarkdown", str(SOURCE_PATH), str(build_path), *flags])
+    ret_code = main(["-M", "singlemarkdown", str(SOURCE_PATH), str(build_path), "-t", "Partners", *flags])
     assert ret_code == 0
 
 

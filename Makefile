@@ -39,10 +39,15 @@ test-diff:
 			-D markdown_docinfo=1 -D markdown_anchor_sections=1 -D markdown_anchor_signatures=1 \
 			-D autodoc_typehints=signature -D markdown_bullet=- -D markdown_flavor=github
 
+	@echo "Building singlemarkdown llms-full output..."
+	@$(SPHINX_BUILD) -M singlemarkdown "$(SOURCE_DIR)" "$(BUILD_DIR)/llm" $(SPHINX_OPTS) $(O) -a \
+			-D singlemarkdown_flavor=llm
+
 	@# Copy just the files for verification
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-summery.md" "$(BUILD_DIR)/markdown/overrides-auto-summery.md"
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-module.md" "$(BUILD_DIR)/markdown/overrides-auto-module.md"
 	@cp "$(BUILD_DIR)/singlemarkdown/index.md" "$(BUILD_DIR)/markdown/single.md"
+	@cp "$(BUILD_DIR)/llm/singlemarkdown/index.md" "$(BUILD_DIR)/markdown/llms-full.txt"
 
 	@echo "Verifies outputs..."
 	@diff --recursive --color=always --side-by-side --text --suppress-common-lines \
