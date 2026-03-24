@@ -41,6 +41,7 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
     _NAV_ARTIFACT_TEXTS = frozenset({"genindex", "modindex", "search"})
 
     default_translator_class: type[SphinxTranslator] = MarkdownTranslator
+    heading_level_offset: int = 0
 
     @classmethod
     def _is_nav_artifact_list_item(cls, node: nodes.list_item) -> bool:
@@ -233,6 +234,29 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
             "display_toc": bool(toc),
         }
 
+    def _append_table_of_contents(self, content_parts: list[str], docnames: list[str], root_doc: str) -> None:
+        content_parts.append("## Table of Contents\n\n")
+        for docname in docnames:
+            if docname == root_doc:
+                content_parts.append(f"* [Main Document](#{docname})\n")
+                continue
+            title = docname.rsplit("/", 1)[-1].replace("_", " ").replace("-", " ").title()
+            content_parts.append(f"* [{title}](#{docname})\n")
+        content_parts.append("\n")
+
+    def _append_doc_content(self, content_parts: list[str], docname: str, llm_cleanup_enabled: bool) -> None:
+        logger.info("Adding content from %s", docname)
+        try:
+            doc = self.env.get_doctree(docname)
+            if llm_cleanup_enabled:
+                doc = self._prepare_doctree_for_llm(doc)
+            else:
+                content_parts.append(f'\n<a id="{docname}"></a>\n\n')
+            content_parts.append(self._render_doctree(doc))
+            content_parts.append("\n\n")
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.warning("Error adding content from %s: %s", docname, e)
+
     def write_documents(self, _docnames: set[str]) -> None:
         self.writer: Optional[MarkdownWriter] = MarkdownWriter(self)
         self.prepare_writing(set(self.env.all_docs))
@@ -249,29 +273,10 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
 
         try:
             if not llm_cleanup_enabled:
-                content_parts.append("## Table of Contents\n\n")
-                for docname in docnames:
-                    if docname == root_doc:
-                        content_parts.append(f"* [Main Document](#{docname})\n")
-                    else:
-                        title = docname.rsplit("/", 1)[-1].replace("_", " ").replace("-", " ").title()
-                        content_parts.append(f"* [{title}](#{docname})\n")
-                content_parts.append("\n")
+                self._append_table_of_contents(content_parts, docnames, root_doc)
 
             for docname in docnames:
-                logger.info("Adding content from %s", docname)
-
-                try:
-                    doc = self.env.get_doctree(docname)
-                    if llm_cleanup_enabled:
-                        doc = self._prepare_doctree_for_llm(doc)
-                    if not llm_cleanup_enabled:
-                        content_parts.append(f'\n<a id="{docname}"></a>\n\n')
-                    content_parts.append(self._render_doctree(doc))
-                    content_parts.append("\n\n")
-
-                except Exception as e:  # pylint: disable=broad-exception-caught
-                    logger.warning("Error adding content from %s: %s", docname, e)
+                self._append_doc_content(content_parts, docname, llm_cleanup_enabled)
         finally:
             if had_offset_attr:
                 self.heading_level_offset = previous_offset

@@ -549,8 +549,3 @@ def test_setup_registers_extension():
     assert metadata["version"] == "builtin"
     assert metadata["parallel_read_safe"] is True
     assert metadata["parallel_write_safe"] is True
-
-
-if __name__ == "__main__":
-    test_singlemarkdown_builder()
-    test_singlemarkdown_update()
