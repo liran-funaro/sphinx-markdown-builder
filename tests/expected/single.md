@@ -223,6 +223,11 @@ directive. You can add the conditional text as regular text or as a note.
 
 Make sure to indent the paragraph under the directive.
 
+Data about course enrollment is available from edX Insights. You can access
+Insights from the instructor dashboard for your live course: after you select
+**Instructor**, follow the link in the banner at the top of each page. For
+more information, see [Using edX Insights](http://edx.readthedocs.io/projects/edx-insights/en/latest/).
+
 To conditionalize more than a paragraph, use either the `only:: Partners` or
 the `only:: Open_edX` directive, and then use an `include::` directive
 indented under the only directive.

@@ -516,6 +516,14 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self.add("---", prefix_eol=2, suffix_eol=1)
         raise nodes.SkipNode
 
+    def visit_only(self, node):
+        expr = node.get("expr", "")
+        tags = getattr(self.builder, "tags", None)
+        if not expr or tags is None:
+            return
+        if not tags.eval_condition(expr):
+            raise nodes.SkipNode
+
     def _adjust_url(self, url: str):
         """Replace `refuri` in reference with HTTP address, if possible"""
         if not self.config.markdown_http_base:
