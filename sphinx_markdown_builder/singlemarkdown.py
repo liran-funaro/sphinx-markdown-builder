@@ -224,30 +224,41 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
         llm_cleanup_enabled = str(self.config.singlemarkdown_flavor).lower() == "llm"
         content_parts: list[str] = [f"# {project} Documentation\n\n"]
 
-        if not llm_cleanup_enabled:
-            content_parts.append("## Table of Contents\n\n")
+        had_offset_attr = hasattr(self, "heading_level_offset")
+        previous_offset = cast(int, getattr(self, "heading_level_offset", 0))
+        # Keep the synthetic documentation title as the only H1.
+        self.heading_level_offset = 1
+
+        try:
+            if not llm_cleanup_enabled:
+                content_parts.append("## Table of Contents\n\n")
+                for docname in docnames:
+                    if docname == root_doc:
+                        content_parts.append(f"* [Main Document](#{docname})\n")
+                    else:
+                        title = docname.rsplit("/", 1)[-1].replace("_", " ").replace("-", " ").title()
+                        content_parts.append(f"* [{title}](#{docname})\n")
+                content_parts.append("\n")
+
             for docname in docnames:
-                if docname == root_doc:
-                    content_parts.append(f"* [Main Document](#{docname})\n")
-                else:
-                    title = docname.rsplit("/", 1)[-1].replace("_", " ").replace("-", " ").title()
-                    content_parts.append(f"* [{title}](#{docname})\n")
-            content_parts.append("\n")
+                logger.info("Adding content from %s", docname)
 
-        for docname in docnames:
-            logger.info("Adding content from %s", docname)
+                try:
+                    doc = self.env.get_doctree(docname)
+                    if llm_cleanup_enabled:
+                        doc = self._prepare_doctree_for_llm(doc)
+                    if not llm_cleanup_enabled:
+                        content_parts.append(f'\n<a id="{docname}"></a>\n\n')
+                    content_parts.append(self._render_doctree(doc))
+                    content_parts.append("\n\n")
 
-            try:
-                doc = self.env.get_doctree(docname)
-                if llm_cleanup_enabled:
-                    doc = self._prepare_doctree_for_llm(doc)
-                if not llm_cleanup_enabled:
-                    content_parts.append(f'\n<a id="{docname}"></a>\n\n')
-                content_parts.append(self._render_doctree(doc))
-                content_parts.append("\n\n")
-
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                logger.warning("Error adding content from %s: %s", docname, e)
+                except Exception as e:  # pylint: disable=broad-exception-caught
+                    logger.warning("Error adding content from %s: %s", docname, e)
+        finally:
+            if had_offset_attr:
+                self.heading_level_offset = previous_offset
+            else:
+                delattr(self, "heading_level_offset")
         final_content = "".join(content_parts)
         if llm_cleanup_enabled:
             final_content = self._cleanup_for_llm(final_content)

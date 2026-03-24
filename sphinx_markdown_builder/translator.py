@@ -167,6 +167,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def _push_context(self, ctx: SubContext):
         self._ctx_queue.append(ctx)
 
+    def _title_level(self, base_level: int) -> int:
+        offset = int(getattr(self.builder, "heading_level_offset", 0))
+        return min(6, max(1, base_level + offset))
+
     def _pop_context(self, _node=None, count=1):
         for _ in range(count):
             if len(self._ctx_queue) <= 1:
@@ -177,7 +181,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             ctx.add(last_ctx.make(), last_ctx.params.prefix_eol, last_ctx.params.suffix_eol)
 
     def _push_box(self, title: str):
-        self.add(f"#### {title}", prefix_eol=2)
+        level = self._title_level(4)
+        self.add(f"{'#' * level} {title}", prefix_eol=2)
         self._push_context(SubContext(SubContextParams(1, 2)))
 
     @property
@@ -493,7 +498,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             level = 4
         else:
             level = self.status.section_level
-        self._push_context(TitleContext(level))
+        self._push_context(TitleContext(self._title_level(level)))
 
     @pushing_context
     @pushing_status
@@ -503,12 +508,12 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         However, we keep it here in case some future version will change this behaviour.
         """
         self._push_status(section_level=self.status.section_level + 1)
-        self._push_context(TitleContext(self.status.section_level))
+        self._push_context(TitleContext(self._title_level(self.status.section_level)))
 
     @pushing_context
     def visit_rubric(self, _node):
         """Sphinx Rubric, a heading without relation to the document sectioning"""
-        self._push_context(TitleContext(3))
+        self._push_context(TitleContext(self._title_level(3)))
 
     def visit_transition(self, _node):
         """Simply replace a transition by a horizontal rule."""
@@ -657,7 +662,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         # If signature has a non-null class, that's means it is a signature
         # of a class method
         h_level = 4 if node.get("class", None) else 3
-        self._push_context(TitleContext(h_level))
+        self._push_context(TitleContext(self._title_level(h_level)))
 
     def visit_desc_parameterlist(self, _node):
         self._push_context(WrappedContext("(", ")", wrap_empty=True))
