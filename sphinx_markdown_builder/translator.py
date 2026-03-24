@@ -89,6 +89,7 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint
     document=None,
     container=None,
     inline=None,
+    abbreviation=None,
     definition_list=None,
     definition_list_item=None,
     glossary=None,
@@ -333,6 +334,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def visit_hint(self, _node):
         """Sphinx hint directive."""
         self._push_box("HINT")
+
+    @pushing_context
+    def visit_tip(self, _node):
+        """Sphinx tip directive."""
+        self._push_box("TIP")
 
     def visit_image(self, node):
         """Image directive."""
