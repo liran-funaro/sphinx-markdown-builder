@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import os
 import re
-from typing import TYPE_CHECKING, Optional, Union, cast
+from typing import TYPE_CHECKING, Optional, Sequence, Union, cast
 
 from docutils import nodes
 from docutils.io import StringOutput
@@ -257,31 +257,7 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("Error adding content from %s: %s", docname, e)
 
-    def write(self, build_docnames, updated_docnames, method="update") -> None:  # type: ignore[override]
-        self.events.emit("write-started", self)
-
-        if build_docnames is None or build_docnames == ["__all__"]:
-            build_docnames = self.env.found_docs
-
-        if method == "update":
-            docnames = set(build_docnames) | set(updated_docnames)
-        else:
-            docnames = set(build_docnames)
-
-        for docname in list(docnames):
-            for tocdocname in self.env.files_to_rebuild.get(docname, set()):
-                if tocdocname in self.env.found_docs:
-                    docnames.add(tocdocname)
-
-        docnames.add(cast(str, self.config.root_doc))
-
-        self.prepare_writing(docnames)
-        self.copy_assets()
-        self.write_documents(docnames)
-
-    def write_documents(self, _docnames: set[str]) -> None:
-        self.writer: Optional[MarkdownWriter] = MarkdownWriter(self)
-        self.prepare_writing(set(self.env.all_docs))
+    def _write_single_markdown(self) -> None:
         project = cast(str, self.config.project)
         root_doc = cast(str, self.config.root_doc)
         docnames = self._ordered_docnames(root_doc)
@@ -315,6 +291,18 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
                 _ = f.write(final_content)
         except OSError as err:
             logger.warning(__("error writing file %s: %s"), outfilename, err)
+
+    # Sphinx >=8 uses write_documents() as the extension hook.
+    def write_documents(self, _docnames: set[str]) -> None:
+        self._write_single_markdown()
+
+    # Sphinx <=7 does not expose write_documents(), so route the legacy hooks
+    # to the same single-file generation path.
+    def _write_serial(self, _docnames: Sequence[str]) -> None:
+        self._write_single_markdown()
+
+    def _write_parallel(self, _docnames: Sequence[str], _nproc: int) -> None:
+        self._write_single_markdown()
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

@@ -271,13 +271,14 @@ def test_singlemarkdown_builder_methods(tmp_path):
     assert builder.get_relative_uri("source", "target") == "#target"
 
 
-def test_write_uses_single_file_generation_path(tmp_path):
-    """Singlemarkdown write() must delegate to write_documents()."""
+def test_write_uses_base_builder_pipeline(tmp_path):
+    """Singlemarkdown should rely on Builder.write() and delegate to write_documents()."""
     app = mock.MagicMock()
     env = mock.MagicMock(spec=BuildEnvironment)
     app.config.root_doc = "index"
     env.found_docs = {"index", "other"}
     env.files_to_rebuild = {}
+    env.toctree_includes = {}
 
     builder = SingleFileMarkdownBuilder(app, env)
     builder.prepare_writing = mock.MagicMock()
@@ -286,10 +287,38 @@ def test_write_uses_single_file_generation_path(tmp_path):
 
     builder.write(build_docnames={"other"}, updated_docnames=[], method="all")
 
+    builder.prepare_writing.assert_called_once_with({"other"})
+    builder.copy_assets.assert_called_once()
     builder.write_documents.assert_called_once()
     called_docnames = builder.write_documents.call_args.args[0]
-    assert "index" in called_docnames
+    assert called_docnames == {"other"}
     assert "other" in called_docnames
+
+
+def test_write_serial_uses_single_file_generation_path(tmp_path):
+    """Legacy _write_serial hook should generate the merged singlemarkdown output."""
+    app = mock.MagicMock()
+    env = mock.MagicMock(spec=BuildEnvironment)
+
+    builder = SingleFileMarkdownBuilder(app, env)
+    builder._write_single_markdown = mock.MagicMock()
+
+    builder._write_serial(["index", "other"])
+
+    builder._write_single_markdown.assert_called_once()
+
+
+def test_write_parallel_uses_single_file_generation_path(tmp_path):
+    """Legacy _write_parallel hook should generate one merged output file."""
+    app = mock.MagicMock()
+    env = mock.MagicMock(spec=BuildEnvironment)
+
+    builder = SingleFileMarkdownBuilder(app, env)
+    builder._write_single_markdown = mock.MagicMock()
+
+    builder._write_parallel(["index", "other"], 2)
+
+    builder._write_single_markdown.assert_called_once()
 
 
 def test_render_partial(tmp_path, monkeypatch):
