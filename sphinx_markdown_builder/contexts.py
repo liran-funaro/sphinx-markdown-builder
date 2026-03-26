@@ -81,6 +81,7 @@ class ContextStatus:
     list_marker: Optional[ListMarker] = None  # Current list marker
     desc_type: Optional[str] = None  # Current descriptor type
     default_ref_internal: bool = False  # Current default for internal reference
+    code_language: Optional[str] = None  # Default language for subsequent code blocks
 
 
 class SubContext:

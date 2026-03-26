@@ -211,7 +211,7 @@ indented under the only directive.
 
 ## Notes and Warnings
 
-```default
+```
 .. note::
    This is note text. If note text runs over a line, make sure the lines wrap
    and are indented to the same level as the note tag. If formatting is
@@ -230,7 +230,7 @@ indented under the only directive.
 > Notes can have more than one paragraph. Successive paragraphs must indent to
 > the same level as the rest of the note.
 
-```default
+```
 .. warning::
    Warnings are formatted in the same way as notes. In the same way, lines
    must be broken and indented under the warning tag.
@@ -260,7 +260,7 @@ above the heading for each topic or section. Anchors can contain numbers,
 letters, spaces, underscores, and hyphens, but cannot include punctuation.
 Anchors use the following syntax.
 
-```default
+```
 .. _Anchor Text:
 ```
 
@@ -288,7 +288,7 @@ In this example, “SFD SN Keyboard Shortcuts” is the anchor text for a sectio
 that is titled “Keyboard Shortcuts for Notes”. Readers will see the following
 text, and “Keyboard Shortcuts for Notes” will be an active link.
 
-```default
+```
 For more information about using keyboard shortcuts, see Keyboard Shortcuts
 for Notes.
 ```
@@ -311,7 +311,7 @@ Shortcuts” is the anchor text for a section that is titled “Keyboard Shortcu
 for Notes”. Readers will see the following text, and “keyboard shortcuts” will
 be an active link.
 
-```default
+```
 If you want to, you can use keyboard shortcuts to create, edit, and view your
 notes.
 ```
@@ -324,7 +324,7 @@ you can create a link in *Building and Running an edX Course* to a topic in the
 document that you want to link to and the anchor text for the section you want.
 The cross-reference uses the following syntax.
 
-```default
+```
 :ref:`intersphinx_map_ID:Anchor Name`
 ```
 
@@ -377,7 +377,7 @@ To create an external cross-reference, follow these steps.
 1. In the paragraph where you want the cross-reference, add the text that you
    want to use for the link, formatted as follows (where “Release Pages” is the
    link text). This creates an anchor out of that text.
-   ```default
+   ```
    The edX engineering wiki `Release Pages`_ provide access to detailed
    information about every change made to the edx-platform GitHub
    repository.
@@ -386,7 +386,7 @@ To create an external cross-reference, follow these steps.
    for the `edx-documentation/en_us/links/links.rst` file if one does not
    already exist. These `include` directives are typically at the end of the
    file.
-   ```default
+   ```
    .. include:: ../../links/links.rst
    ```
 
@@ -399,13 +399,13 @@ To create an external cross-reference, follow these steps.
    the anchor text and the URL of the external website, formatted as follows.
    Make sure that the anchor text in this file matches the anchor text in the
    file that contains the cross-reference exactly, including capitalization.
-   ```default
+   ```
    .. _Release Pages: https://openedx.atlassian.net/wiki/display/ENG/Release+Pages
    ```
 
 Readers will see the following text. “Release Pages” will be an active link.
 
-```default
+```
 The edX engineering wiki Release Pages provide access to detailed
 information about every change made to the edx-platform GitHub
 repository.
@@ -437,7 +437,7 @@ Style Guide).
 
 The empty cell is the second column in the first row of this table.
 
-```default
+```
 .. list-table::
    :widths: 25 25 50
 
@@ -468,7 +468,7 @@ The empty cell is the second column in the first row of this table.
 
 ### Example of a table with a header row
 
-```default
+```
 .. list-table::
    :widths: 15 15 70
    :header-rows: 1
@@ -491,7 +491,7 @@ The empty cell is the second column in the first row of this table.
 
 ### Example of a table with a boldface first column
 
-```default
+```
 .. list-table::
    :widths: 15 15 70
    :stub-columns: 1
@@ -517,7 +517,7 @@ The empty cell is the second column in the first row of this table.
 The blank lines before and after the unordered list are critical for the list
 to render correctly.
 
-```default
+```
 .. list-table::
    :widths: 15 15 60
    :header-rows: 1
@@ -567,7 +567,7 @@ To set text in a code block, end the previous paragaph with 2 colons, leave
 one line before the intended code block, and make sure the code block is
 indented beyond the first colon.
 
-```default
+```
 For example, this is the introductory paragraph
 ::
 

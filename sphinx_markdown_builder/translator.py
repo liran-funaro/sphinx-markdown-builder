@@ -330,6 +330,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_admonition("WARNING")
 
     @pushing_context
+    def visit_caution(self, _node):
+        self._push_admonition("CAUTION")
+
+    @pushing_context
     def visit_note(self, _node):
         """Sphinx note directive."""
         self._push_admonition("NOTE")
@@ -465,9 +469,18 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def visit_literal_block(self, node):
         self._push_status(escape_text=False)
-        code_type = node["classes"][1] if "code" in node["classes"] else ""
+        code_type = ""
+        classes = node.get("classes", [])
+        if "code" in classes:
+            code_idx = classes.index("code") + 1
+            if code_idx < len(classes):
+                code_type = classes[code_idx]
         if "language" in node:
             code_type = node["language"]
+        elif self.status.code_language:
+            code_type = self.status.code_language
+        if code_type == "default":
+            code_type = ""
         self.add(f"```{code_type}", prefix_eol=1, suffix_eol=1)
 
     def depart_literal_block(self, _node):
@@ -689,6 +702,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def depart_desc_parameter(self, _node):
         self.sep_ctx.exit_parameter()  # workaround pylint: disable=no-member
 
+    @pushing_context
+    def visit_desc_optional(self, _node):
+        self._push_context(WrappedContext("[", "]"))
+
     def visit_field_list(self, _node):
         self._start_list("*")
 
@@ -712,6 +729,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         """
         node_type = node.attributes["type"].capitalize()
         self._push_box(node_type)
+
+    def visit_highlightlang(self, node):
+        """Apply default language for subsequent literal blocks."""
+        lang = node.get("lang", "")
+        self._status_queue[-1] = dataclasses.replace(self.status, code_language=lang)
 
     ################################################################################
     # tables

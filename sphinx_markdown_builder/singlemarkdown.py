@@ -246,6 +246,8 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
 
     def _append_doc_content(self, content_parts: list[str], docname: str, llm_cleanup_enabled: bool) -> None:
         logger.info("Adding content from %s", docname)
+        previous_doc_name = self.current_doc_name
+        self.current_doc_name = docname
         try:
             doc = self.env.get_doctree(docname)
             if llm_cleanup_enabled:
@@ -256,6 +258,8 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
             content_parts.append("\n\n")
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("Error adding content from %s: %s", docname, e)
+        finally:
+            self.current_doc_name = previous_doc_name
 
     def _write_single_markdown(self) -> None:
         project = cast(str, self.config.project)
