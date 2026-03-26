@@ -271,6 +271,27 @@ def test_singlemarkdown_builder_methods(tmp_path):
     assert builder.get_relative_uri("source", "target") == "#target"
 
 
+def test_write_uses_single_file_generation_path(tmp_path):
+    """Singlemarkdown write() must delegate to write_documents()."""
+    app = mock.MagicMock()
+    env = mock.MagicMock(spec=BuildEnvironment)
+    app.config.root_doc = "index"
+    env.found_docs = {"index", "other"}
+    env.files_to_rebuild = {}
+
+    builder = SingleFileMarkdownBuilder(app, env)
+    builder.prepare_writing = mock.MagicMock()
+    builder.copy_assets = mock.MagicMock()
+    builder.write_documents = mock.MagicMock()
+
+    builder.write(build_docnames={"other"}, updated_docnames=[], method="all")
+
+    builder.write_documents.assert_called_once()
+    called_docnames = builder.write_documents.call_args.args[0]
+    assert "index" in called_docnames
+    assert "other" in called_docnames
+
+
 def test_render_partial(tmp_path, monkeypatch):
     """Test render_partial method"""
     monkeypatch.chdir(tmp_path)

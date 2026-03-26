@@ -257,6 +257,28 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("Error adding content from %s: %s", docname, e)
 
+    def write(self, build_docnames, updated_docnames, method="update") -> None:  # type: ignore[override]
+        self.events.emit("write-started", self)
+
+        if build_docnames is None or build_docnames == ["__all__"]:
+            build_docnames = self.env.found_docs
+
+        if method == "update":
+            docnames = set(build_docnames) | set(updated_docnames)
+        else:
+            docnames = set(build_docnames)
+
+        for docname in list(docnames):
+            for tocdocname in self.env.files_to_rebuild.get(docname, set()):
+                if tocdocname in self.env.found_docs:
+                    docnames.add(tocdocname)
+
+        docnames.add(cast(str, self.config.root_doc))
+
+        self.prepare_writing(docnames)
+        self.copy_assets()
+        self.write_documents(docnames)
+
     def write_documents(self, _docnames: set[str]) -> None:
         self.writer: Optional[MarkdownWriter] = MarkdownWriter(self)
         self.prepare_writing(set(self.env.all_docs))
