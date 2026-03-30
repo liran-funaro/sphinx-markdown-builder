@@ -274,6 +274,7 @@ def test_singlemarkdown_builder_methods(tmp_path):
 def test_write_uses_base_builder_pipeline(tmp_path):
     """Singlemarkdown should rely on Builder.write() and delegate to write_documents()."""
     app = mock.MagicMock()
+    app.doctreedir = str(tmp_path / "doctree")
     env = mock.MagicMock(spec=BuildEnvironment)
     app.config.root_doc = "index"
     env.found_docs = {"index", "other"}
@@ -298,6 +299,7 @@ def test_write_uses_base_builder_pipeline(tmp_path):
 def test_write_serial_uses_single_file_generation_path(tmp_path):
     """Legacy _write_serial hook should generate the merged singlemarkdown output."""
     app = mock.MagicMock()
+    app.doctreedir = str(tmp_path / "doctree")
     env = mock.MagicMock(spec=BuildEnvironment)
 
     builder = SingleFileMarkdownBuilder(app, env)
@@ -311,6 +313,7 @@ def test_write_serial_uses_single_file_generation_path(tmp_path):
 def test_write_parallel_uses_single_file_generation_path(tmp_path):
     """Legacy _write_parallel hook should generate one merged output file."""
     app = mock.MagicMock()
+    app.doctreedir = str(tmp_path / "doctree")
     env = mock.MagicMock(spec=BuildEnvironment)
 
     builder = SingleFileMarkdownBuilder(app, env)
