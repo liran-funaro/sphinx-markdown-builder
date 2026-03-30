@@ -61,7 +61,7 @@ SKIP = UniqueString("skip")
 DOC_INFO_FIELDS = "author", "contact", "copyright", "date", "organization", "revision", "status", "version"
 
 # Defines context items, skip, or None (keep processing sub-tree).
-PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint: disable=use-dict-literal
+PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, UniqueString, None]] = dict(  # pylint: disable=use-dict-literal
     # Doctree elements for which Markdown element is <prefix><content><suffix>
     emphasis=ITALIC_CONTEXT,
     strong=STRONG_CONTEXT,
@@ -690,17 +690,22 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._pop_context(count=2)
 
     @property
-    def sep_ctx(self) -> CommaSeparatedContext:
-        ctx = self.ctx
-        assert isinstance(ctx, CommaSeparatedContext)
-        return ctx
+    def sep_ctx(self) -> Optional[CommaSeparatedContext]:
+        for ctx in reversed(self._ctx_queue):
+            if isinstance(ctx, CommaSeparatedContext):
+                return ctx
+        return None
 
     def visit_desc_parameter(self, _node):
         """single method/class ctr param"""
-        self.sep_ctx.enter_parameter()  # workaround pylint: disable=no-member
+        sep_ctx = self.sep_ctx
+        if sep_ctx is not None:
+            sep_ctx.enter_parameter()  # workaround pylint: disable=no-member
 
     def depart_desc_parameter(self, _node):
-        self.sep_ctx.exit_parameter()  # workaround pylint: disable=no-member
+        sep_ctx = self.sep_ctx
+        if sep_ctx is not None:
+            sep_ctx.exit_parameter()  # workaround pylint: disable=no-member
 
     @pushing_context
     def visit_desc_optional(self, _node):

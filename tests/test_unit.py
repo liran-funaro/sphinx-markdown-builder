@@ -90,6 +90,43 @@ def test_desc_optional_is_wrapped_in_brackets():
     assert "[timeout]" in mt.astext()
 
 
+def test_desc_parameter_without_parameterlist_does_not_fail():
+    mt = make_mock()
+    node = addnodes.desc_parameter()
+
+    mt.add("prefix ")
+    mt.visit_desc_parameter(node)
+    mt.add("value")
+    mt.depart_desc_parameter(node)
+
+    assert "prefix value" in mt.astext()
+
+
+def test_desc_parameter_inside_optional_uses_nearest_sep_context():
+    mt = make_mock()
+    parameterlist = addnodes.desc_parameterlist()
+    optional = addnodes.desc_optional()
+    first = addnodes.desc_parameter()
+    second = addnodes.desc_parameter()
+
+    mt.visit_desc_parameterlist(parameterlist)
+    mt.visit_desc_optional(optional)
+
+    mt.visit_desc_parameter(first)
+    mt.add("timeout")
+    mt.depart_desc_parameter(first)
+
+    mt.depart_desc_optional(optional)
+
+    mt.visit_desc_parameter(second)
+    mt.add("retries")
+    mt.depart_desc_parameter(second)
+
+    mt.depart_desc_parameterlist(parameterlist)
+
+    assert "[timeout], retries" in mt.astext()
+
+
 def test_caution_is_rendered_as_admonition():
     mt = make_mock()
     node = docutils.nodes.caution()

@@ -249,7 +249,7 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
         previous_doc_name = self.current_doc_name
         self.current_doc_name = docname
         try:
-            doc = self.env.get_doctree(docname)
+            doc = self.env.get_and_resolve_doctree(docname, self, tags=self.tags)
             if llm_cleanup_enabled:
                 doc = self._prepare_doctree_for_llm(doc)
             else:
