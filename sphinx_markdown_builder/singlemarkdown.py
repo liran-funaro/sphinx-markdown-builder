@@ -19,6 +19,7 @@ from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import ensuredir, os_path
 
 from sphinx_markdown_builder.builder import MarkdownBuilder
+from sphinx_markdown_builder.llm import prepare_doctree_for_llm
 from sphinx_markdown_builder.translator import MarkdownTranslator
 from sphinx_markdown_builder.writer import MarkdownWriter
 
@@ -38,62 +39,8 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
     # These are copied from SingleFileHTMLBuilder
     copysource: bool = False
 
-    _NAV_ARTIFACT_TEXTS = frozenset({"genindex", "modindex", "search"})
-
     default_translator_class: type[SphinxTranslator] = MarkdownTranslator
     heading_level_offset: int = 0
-
-    @classmethod
-    def _is_nav_artifact_list_item(cls, node: nodes.list_item) -> bool:
-        text = " ".join(node.astext().split()).strip().lower()
-        return text in cls._NAV_ARTIFACT_TEXTS
-
-    @staticmethod
-    def _remove_node(node: nodes.Node) -> None:
-        if node.parent is not None:
-            node.parent.remove(node)
-
-    @classmethod
-    def _prune_empty_containers(cls, doc: nodes.document) -> None:
-        changed = True
-        while changed:
-            changed = False
-
-            for bullet_list in list(doc.findall(nodes.bullet_list)):
-                if len(bullet_list.children) == 0:
-                    cls._remove_node(bullet_list)
-                    changed = True
-
-            for section in list(doc.findall(nodes.section)):
-                children_without_title = [child for child in section.children if not isinstance(child, nodes.title)]
-                if len(children_without_title) == 0:
-                    cls._remove_node(section)
-                    changed = True
-
-    @classmethod
-    def _remove_nav_artifact_lists(cls, doc: nodes.document) -> None:
-        for bullet_list in list(doc.findall(nodes.bullet_list)):
-            list_items = [child for child in bullet_list.children if isinstance(child, nodes.list_item)]
-            if list_items and all(cls._is_nav_artifact_list_item(item) for item in list_items):
-                cls._remove_node(bullet_list)
-
-    @staticmethod
-    def _prepare_doctree_for_llm(doc: nodes.document) -> nodes.document:
-        llm_doc = cast(nodes.document, doc.deepcopy())
-
-        for target in list(llm_doc.findall(nodes.target)):
-            SingleFileMarkdownBuilder._remove_node(target)
-
-        for transition in list(llm_doc.findall(nodes.transition)):
-            SingleFileMarkdownBuilder._remove_node(transition)
-
-        for comment in list(llm_doc.findall(nodes.comment)):
-            SingleFileMarkdownBuilder._remove_node(comment)
-
-        SingleFileMarkdownBuilder._remove_nav_artifact_lists(llm_doc)
-        SingleFileMarkdownBuilder._prune_empty_containers(llm_doc)
-
-        return llm_doc
 
     def _cleanup_for_llm(self, content: str) -> str:
         # Normalize whitespace while keeping paragraph breaks intact.
@@ -251,7 +198,7 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
         try:
             doc = self.env.get_doctree(docname)
             if llm_cleanup_enabled:
-                doc = self._prepare_doctree_for_llm(doc)
+                doc = prepare_doctree_for_llm(doc)
             else:
                 content_parts.append(f'\n<a id="{docname}"></a>\n\n')
             content_parts.append(self._render_doctree(doc))
@@ -265,7 +212,7 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
         project = cast(str, self.config.project)
         root_doc = cast(str, self.config.root_doc)
         docnames = self._ordered_docnames(root_doc)
-        llm_cleanup_enabled = str(self.config.singlemarkdown_flavor).lower() == "llm"
+        flavor = self.config.singlemarkdown_flavor or self.config.markdown_flavor
         content_parts: list[str] = [f"# {project} Documentation\n\n"]
 
         had_offset_attr = hasattr(self, "heading_level_offset")
@@ -274,18 +221,18 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
         self.heading_level_offset = 1
 
         try:
-            if not llm_cleanup_enabled:
+            if flavor != "llm":
                 self._append_table_of_contents(content_parts, docnames, root_doc)
-
             for docname in docnames:
-                self._append_doc_content(content_parts, docname, llm_cleanup_enabled)
+                self._append_doc_content(content_parts, docname, flavor == "llm")
         finally:
             if had_offset_attr:
                 self.heading_level_offset = previous_offset
             else:
                 delattr(self, "heading_level_offset")
+
         final_content = "".join(content_parts)
-        if llm_cleanup_enabled:
+        if flavor == "llm":
             final_content = self._cleanup_for_llm(final_content)
         outfilename = os.path.join(self.outdir, os_path(root_doc) + self.out_suffix)
         ensuredir(os.path.dirname(outfilename))

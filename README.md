@@ -43,7 +43,11 @@ You can add the following configurations to your `conf.py` file:
 * `markdown_uri_doc_suffix`: If set, all references will link to documents with this suffix.
 * `markdown_file_suffix`: Sets the file extension for generated markdown files (default: `.md`).
 * `markdown_bullet`: Sets the bullet marker.
-* `markdown_flavor`: If set to `github`, output will suit GitHub's flavor of Markdown.
+* `markdown_flavor`: 
+  * If set to `github`, output will suit GitHub's flavor of Markdown.
+  * If set to `llm`, output will be optimized for LLM consumption.
+* `singlemarkdown_flavor`: `markdown_flavor` override for the
+  single-markdown-file builder.
 
 For example, if your `conf.py` file have the following configuration:
 

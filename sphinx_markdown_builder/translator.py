@@ -589,6 +589,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(WrappedContext("[", f"]({reftarget})"))
 
     def _add_anchor(self, anchor: str):
+        if self.config.markdown_flavor == "llm":
+            return
         content = f'<a id="{escape_html_quote(anchor)}"></a>'
         # Prevent adding the same anchor twice in the same context
         if content not in self.ctx.content:
