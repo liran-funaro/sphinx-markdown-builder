@@ -216,8 +216,9 @@ class CommaSeparatedContext(SubContext):
 
 
 class TableContext(SubContext):
-    def __init__(self, params=SubContextParams()):
+    def __init__(self, params=SubContextParams(), cell_breaker: str = "<br/>"):
         super().__init__(params)
+        self.cell_breaker = cell_breaker
         self.body: List[List[List[str]]] = []
         self.headers: List[List[List[str]]] = []
         self.internal_context = SubContext()
@@ -270,9 +271,8 @@ class TableContext(SubContext):
         assert self.is_entry
         self.is_entry = False
 
-    @staticmethod
-    def make_row(row):
-        return ["".join(entries).replace("\n", "<br/>") for entries in row]
+    def make_row(self, row):
+        return ["".join(entries).replace("\n", getattr(self, 'cell_breaker', '<br/>')) for entries in row]
 
     def make(self):
         ctx = SubContext()

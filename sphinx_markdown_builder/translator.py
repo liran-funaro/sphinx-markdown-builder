@@ -176,6 +176,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             return " "
         return "<br/>"
 
+    def _table_cell_breaker(self) -> str:
+        if self.config.markdown_flavor == "llm":
+            return " "
+        return "<br/>"
+
     def _pop_context(self, _node=None, count=1):
         for _ in range(count):
             if len(self._ctx_queue) <= 1:
@@ -879,7 +884,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_table(self, _node):
-        self._push_context(TableContext(params=SubContextParams(2, 1)))
+        self._push_context(TableContext(params=SubContextParams(2, 1), cell_breaker=self._table_cell_breaker()))
 
     def visit_thead(self, _node):
         self.table_ctx.enter_head()  # workaround pylint: disable=no-member
