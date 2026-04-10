@@ -411,6 +411,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def depart_line(self, _node):
         self._pop_context()
+        if self.config.markdown_flavor == "llm":
+            return
         self.add("<br/>", prefix_eol=1, suffix_eol=1)
 
     ################################################################################
