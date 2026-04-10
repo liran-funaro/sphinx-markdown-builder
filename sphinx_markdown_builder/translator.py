@@ -580,8 +580,18 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_reference(self, node):
+        # If this reference was already moved into a card title, skip it.
+        if getattr(node, "_md_moved_to_title", False):
+            raise nodes.SkipNode
+
         url = self._fetch_ref_uri(node)
         self._push_context(WrappedContext("[", f"]({url})"))
+
+    def visit_pending_xref(self, node):
+        # Keep default behavior (child text passes through), unless this node
+        # was already moved into a card title link.
+        if getattr(node, "_md_moved_to_title", False):
+            raise nodes.SkipNode
 
     @pushing_context
     def visit_download_reference(self, node):
@@ -607,6 +617,102 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def visit_topic(self, _node):
         self._push_status(default_ref_internal=True, section_level=5)
         self._push_context(IndentContext("> ", empty=True))
+
+    def visit_container(self, node):
+        """Handle generic container nodes and special-case sphinx-design cards.
+
+        We push a blockquote context for top-level sphinx-design cards (class
+        `sd-card`) so their contents are rendered as a Markdown blockquote. We
+        also special-case containers with class `sd-card-title` to render the
+        title as a linked level-4 heading inside the blockquote.
+        """
+        classes = node.attributes.get("classes", []) or []
+
+        # If this is the outer card container, push a blockquote context so
+        # all children are indented with "> ". We record the push on the
+        # node so depart_container can pop correctly.
+        if "sd-card" in classes:
+            # Ensure an extra blank line after the card so adjacent cards don't
+            # merge into the same blockquote in Markdown output.
+            self._push_context(IndentContext("> ", empty=True, params=SubContextParams(1, 2)))
+            # mark the node so depart_container knows to pop
+            try:
+                node._md_card_pushed = True
+            except Exception:
+                # Some node implementations may be read-only; ignore in that case.
+                pass
+            return
+
+        # If this container holds the card title, render it as a linked header
+        # and skip normal processing of its children (to avoid duplication).
+        if "sd-card-title" in classes:
+            # Find the ancestor card container to locate the link reference.
+            container = node
+            while container is not None and "sd-card" not in (container.attributes.get("classes", []) or []):
+                container = getattr(container, "parent", None)
+
+            # Look for the stretched-link node that sphinx-design adds to cards.
+            link_node = None
+            if container is not None:
+                for child in container.traverse():
+                    child_classes = child.attributes.get("classes", []) if hasattr(child, "attributes") else []
+                    if "sd-stretched-link" in child_classes:
+                        link_node = child
+                        break
+
+            # Title text
+            title = node.astext().strip()
+
+            # Determine heading level (use 4 like the existing card style)
+            level = self._title_level(4)
+
+            # Compute a sensible href for the link node, falling back to plain
+            # text if none found.
+            href = None
+            if link_node is not None:
+                if isinstance(link_node, nodes.reference):
+                    try:
+                        href = self._fetch_ref_uri(link_node)
+                    except Exception:
+                        href = ""
+                else:
+                    # pending_xref stores unresolved document target in
+                    # reftarget (e.g. "browser-automation/index").
+                    href = link_node.get("refuri") or link_node.get("reftarget") or ""
+                # Mark the original reference so it won't be rendered again.
+                try:
+                    link_node._md_moved_to_title = True
+                except Exception:
+                    pass
+
+            # Normalize to configured markdown doc suffix when it looks like an
+            # internal html doc
+            if href:
+                if href.endswith(".html"):
+                    href = href[:-5] + (self.config.markdown_uri_doc_suffix or ".md")
+                elif not (href.startswith("http://") or href.startswith("https://") or href.endswith(self.config.markdown_uri_doc_suffix)):
+                    # Append suffix for likely internal docnames
+                    href = href + (self.config.markdown_uri_doc_suffix or ".md")
+
+            # Escape title text if needed
+            if self.status.escape_text:
+                title = escape_markdown_chars(title)
+
+            if href:
+                self.add(f"{('#' * level)} [{title}]({href})", prefix_eol=1, suffix_eol=1)
+            else:
+                self.add(f"{('#' * level)} {title}", prefix_eol=1, suffix_eol=1)
+
+            raise nodes.SkipNode
+
+    def depart_container(self, node):
+        # If we marked the node as having pushed a card context, pop it now.
+        if getattr(node, "_md_card_pushed", False):
+            try:
+                self._pop_context(node)
+            except Exception:
+                # Defensive: don't fail the build if pop fails.
+                pass
 
     ################################################################################
     # lists
