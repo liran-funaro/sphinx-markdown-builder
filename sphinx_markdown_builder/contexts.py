@@ -328,8 +328,8 @@ class NoLineBreakContext(SubContext):
 
 
 class TitleContext(NoLineBreakContext):
-    def __init__(self, level: int, params=SubContextParams(2, 2)):
-        super().__init__("<br/>", params)
+    def __init__(self, level: int, params=SubContextParams(2, 2), breaker: str = "<br/>"):
+        super().__init__(breaker, params)
         self.level = level
 
     @property

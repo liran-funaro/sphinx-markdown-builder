@@ -171,6 +171,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         offset = int(getattr(self.builder, "heading_level_offset", 0))
         return min(6, max(1, base_level + offset))
 
+    def _title_breaker(self) -> str:
+        if self.config.markdown_flavor == "llm":
+            return " "
+        return "<br/>"
+
     def _pop_context(self, _node=None, count=1):
         for _ in range(count):
             if len(self._ctx_queue) <= 1:
@@ -518,7 +523,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             level = 4
         else:
             level = self.status.section_level
-        self._push_context(TitleContext(self._title_level(level)))
+        self._push_context(TitleContext(self._title_level(level), breaker=self._title_breaker()))
 
     @pushing_context
     @pushing_status
@@ -528,12 +533,12 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         However, we keep it here in case some future version will change this behaviour.
         """
         self._push_status(section_level=self.status.section_level + 1)
-        self._push_context(TitleContext(self._title_level(self.status.section_level)))
+        self._push_context(TitleContext(self._title_level(self.status.section_level), breaker=self._title_breaker()))
 
     @pushing_context
     def visit_rubric(self, _node):
         """Sphinx Rubric, a heading without relation to the document sectioning"""
-        self._push_context(TitleContext(self._title_level(3)))
+        self._push_context(TitleContext(self._title_level(3), breaker=self._title_breaker()))
 
     def visit_transition(self, _node):
         """Simply replace a transition by a horizontal rule."""
