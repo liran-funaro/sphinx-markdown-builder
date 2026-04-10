@@ -1,7 +1,10 @@
+"""Helpers to prune and normalize a docutils doctree for LLM-friendly output."""
+
 from __future__ import annotations
 
-from docutils import nodes
 from typing import cast
+
+from docutils import nodes
 
 _NAV_ARTIFACT_TEXTS = frozenset({"genindex", "modindex", "search"})
 
@@ -18,11 +21,7 @@ def _is_nav_artifact_list_item(node: nodes.list_item) -> bool:
 
 def _remove_nav_artifact_lists(doc: nodes.document) -> None:
     for bullet_list in list(doc.findall(nodes.bullet_list)):
-        list_items = [
-            child
-            for child in bullet_list.children
-            if isinstance(child, nodes.list_item)
-        ]
+        list_items = [child for child in bullet_list.children if isinstance(child, nodes.list_item)]
         if list_items and all(_is_nav_artifact_list_item(item) for item in list_items):
             _remove_node(bullet_list)
 
@@ -38,11 +37,7 @@ def _prune_empty_containers(doc: nodes.document) -> None:
                 changed = True
 
         for section in list(doc.findall(nodes.section)):
-            children_without_title = [
-                child
-                for child in section.children
-                if not isinstance(child, nodes.title)
-            ]
+            children_without_title = [child for child in section.children if not isinstance(child, nodes.title)]
             if len(children_without_title) == 0:
                 _remove_node(section)
                 changed = True

@@ -593,11 +593,13 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @pushing_context
     def visit_reference(self, node):
         # If this reference was already moved into a card title, skip it.
-        if getattr(node, "_md_moved_to_title", False):
+        if node.get("md_moved_to_title", False):
             raise nodes.SkipNode
 
         is_internal = bool(node.get("internal", self.status.default_ref_internal))
-        if self.config.markdown_flavor == "llm" and getattr(self.builder, "name", "") == "singlemarkdown" and is_internal:
+        is_llm = self.config.markdown_flavor == "llm"
+        is_single = getattr(self.builder, "name", "") == "singlemarkdown"
+        if is_llm and is_single and is_internal:
             self._push_context(WrappedContext("", ""))
             return
 
@@ -607,7 +609,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def visit_pending_xref(self, node):
         # Keep default behavior (child text passes through), unless this node
         # was already moved into a card title link.
-        if getattr(node, "_md_moved_to_title", False):
+        if node.get("md_moved_to_title", False):
             raise nodes.SkipNode
 
     @pushing_context
@@ -645,98 +647,97 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         """
         classes = node.attributes.get("classes", []) or []
 
-        # If this is the outer card container, push a blockquote context so
-        # all children are indented with "> ". We record the push on the
-        # node so depart_container can pop correctly.
+        # Handle sphinx-design card containers and titles using small helpers
+        # to keep this method simple and under the complexity threshold.
         if "sd-card" in classes:
-            # Ensure an extra blank line after the card so adjacent cards don't
-            # merge into the same blockquote in Markdown output.
-            self._push_context(IndentContext("> ", empty=True, params=SubContextParams(1, 2)))
-            # mark the node so depart_container knows to pop
-            try:
-                node._md_card_pushed = True
-            except Exception:
-                # Some node implementations may be read-only; ignore in that case.
-                pass
+            self._handle_sd_card(node)
             return
 
-        # If this container holds the card title, render it as a linked header
-        # and skip normal processing of its children (to avoid duplication).
         if "sd-card-title" in classes:
-            # Find the ancestor card container to locate the link reference.
-            container = node
-            while container is not None and "sd-card" not in (container.attributes.get("classes", []) or []):
-                container = getattr(container, "parent", None)
+            self._handle_sd_card_title(node)
+            return
 
-            # Look for the stretched-link node that sphinx-design adds to cards.
-            link_node = None
-            if container is not None:
-                for child in container.traverse():
-                    child_classes = child.attributes.get("classes", []) if hasattr(child, "attributes") else []
-                    if "sd-stretched-link" in child_classes:
-                        link_node = child
-                        break
+    def _handle_sd_card(self, node):
+        # Ensure an extra blank line after the card so adjacent cards don't
+        # merge into the same blockquote in Markdown output.
+        self._push_context(IndentContext("> ", empty=True, params=SubContextParams(1, 2)))
+        # mark the node so depart_container knows to pop
+        # Store a marker in the node attributes when possible so downstream
+        # handlers can detect that we pushed a card context. Use the node
+        # attribute mapping if available to avoid touching protected members.
+        if hasattr(node, "attributes") and isinstance(node.attributes, dict):
+            node["md_card_pushed"] = True
 
-            # Title text
-            title = node.astext().strip()
+    def _find_card_container(self, node):
+        container = node
+        while container is not None and "sd-card" not in (container.attributes.get("classes", []) or []):
+            container = getattr(container, "parent", None)
+        return container
 
-            # Determine heading level (use 4 like the existing card style)
-            level = self._title_level(4)
+    def _find_stretched_link(self, container):
+        if container is None:
+            return None
+        for child in container.traverse():
+            child_classes = child.attributes.get("classes", []) if hasattr(child, "attributes") else []
+            if "sd-stretched-link" in child_classes:
+                return child
+        return None
 
-            # Compute a sensible href for the link node, falling back to plain
-            # text if none found.
-            href = None
-            if link_node is not None:
-                if isinstance(link_node, nodes.reference):
-                    try:
-                        href = self._fetch_ref_uri(link_node)
-                    except Exception:
-                        href = ""
-                else:
-                    # pending_xref stores unresolved document target in
-                    # reftarget (e.g. "browser-automation/index").
-                    href = link_node.get("refuri") or link_node.get("reftarget") or ""
-                # Mark the original reference so it won't be rendered again.
-                try:
-                    link_node._md_moved_to_title = True
-                except Exception:
-                    pass
+    def _href_from_link_node(self, link_node):
+        if link_node is None:
+            return None
+        if isinstance(link_node, nodes.reference):
+            try:
+                return self._fetch_ref_uri(link_node)
+            except (AttributeError, KeyError, TypeError):
+                return ""
+        return link_node.get("refuri") or link_node.get("reftarget") or ""
 
-            # Normalize to configured markdown doc suffix when it looks like an
-            # internal html doc
-            if href:
-                if href.endswith(".html"):
-                    href = href[:-5] + (self.config.markdown_uri_doc_suffix or ".md")
-                elif not (href.startswith("http://") or href.startswith("https://") or href.endswith(self.config.markdown_uri_doc_suffix)):
-                    # Append suffix for likely internal docnames
-                    href = href + (self.config.markdown_uri_doc_suffix or ".md")
+    def _normalize_card_href(self, href: Optional[str]) -> Optional[str]:
+        if not href:
+            return href
+        if href.endswith(".html"):
+            return href[:-5] + (self.config.markdown_uri_doc_suffix or ".md")
+        is_http = href.startswith("http://") or href.startswith("https://")
+        if not (is_http or href.endswith(self.config.markdown_uri_doc_suffix)):
+            return href + (self.config.markdown_uri_doc_suffix or ".md")
+        return href
 
-            # Escape title text if needed
-            if self.status.escape_text:
-                title = escape_markdown_chars(title)
+    def _handle_sd_card_title(self, node):
+        container = self._find_card_container(node)
+        link_node = self._find_stretched_link(container)
 
-            if (
-                self.config.markdown_flavor == "llm"
-                and getattr(self.builder, "name", "") == "singlemarkdown"
-                and href
-                and not (href.startswith("http://") or href.startswith("https://"))
-            ):
-                self.add(f"{('#' * level)} {title}", prefix_eol=1, suffix_eol=1)
-            elif href:
-                self.add(f"{('#' * level)} [{title}]({href})", prefix_eol=1, suffix_eol=1)
-            else:
-                self.add(f"{('#' * level)} {title}", prefix_eol=1, suffix_eol=1)
+        title = node.astext().strip()
+        level = self._title_level(4)
 
-            raise nodes.SkipNode
+        href = self._href_from_link_node(link_node)
+        if link_node is not None:
+            if hasattr(link_node, "attributes") and isinstance(link_node.attributes, dict):
+                link_node["md_moved_to_title"] = True
+
+        href = self._normalize_card_href(href)
+
+        if self.status.escape_text:
+            title = escape_markdown_chars(title)
+
+        is_llm = self.config.markdown_flavor == "llm"
+        is_singlemarkdown = getattr(self.builder, "name", "") == "singlemarkdown"
+        is_internal_href = href and not (href.startswith("http://") or href.startswith("https://"))
+
+        if is_llm and is_singlemarkdown and is_internal_href:
+            self.add(f"{('#' * level)} {title}", prefix_eol=1, suffix_eol=1)
+        elif href:
+            self.add(f"{('#' * level)} [{title}]({href})", prefix_eol=1, suffix_eol=1)
+        else:
+            self.add(f"{('#' * level)} {title}", prefix_eol=1, suffix_eol=1)
+
+        raise nodes.SkipNode
 
     def depart_container(self, node):
         # If we marked the node as having pushed a card context, pop it now.
-        if getattr(node, "_md_card_pushed", False):
-            try:
+        if node.get("md_card_pushed", False):
+            if len(self._ctx_queue) > 1:
                 self._pop_context(node)
-            except Exception:
-                # Defensive: don't fail the build if pop fails.
-                pass
 
     ################################################################################
     # lists
@@ -939,7 +940,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         return ctx
 
     @pushing_context
-    def visit_footnote_reference(self, node):
+    def visit_footnote_reference(self, _node):
         # https://www.markdownguide.org/extended-syntax/#footnotes
         self._push_context(WrappedContext("[^", "]"))
 

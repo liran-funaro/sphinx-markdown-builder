@@ -223,38 +223,38 @@ class TableContext(SubContext):
         self.headers: List[List[List[str]]] = []
         self.internal_context = SubContext()
 
-        self.is_entry = False
-        self.is_header = False
-        self.is_body = False
+        # Pack boolean state flags into a single mapping to reduce the
+        # number of instance attributes (pylint R0902).
+        self._flags = {"entry": False, "header": False, "body": False}
 
     @property
     def active_output(self) -> List[List[List[str]]]:
-        if self.is_header:
+        if self._flags["header"]:
             return self.headers
-        assert self.is_body
+        assert self._flags["body"]
         return self.body
 
     @property
     def content(self):
-        if self.is_entry:
+        if self._flags["entry"]:
             return self.active_output[-1][-1]
         return self.internal_context.content
 
     def enter_head(self):
-        assert not self.is_header and not self.is_body
-        self.is_header = True
+        assert not self._flags["header"] and not self._flags["body"]
+        self._flags["header"] = True
 
     def exit_head(self):
-        assert self.is_header and not self.is_body
-        self.is_header = False
+        assert self._flags["header"] and not self._flags["body"]
+        self._flags["header"] = False
 
     def enter_body(self):
-        assert not self.is_header and not self.is_body
-        self.is_body = True
+        assert not self._flags["header"] and not self._flags["body"]
+        self._flags["body"] = True
 
     def exit_body(self):
-        assert self.is_body and not self.is_header
-        self.is_body = False
+        assert self._flags["body"] and not self._flags["header"]
+        self._flags["body"] = False
 
     def enter_row(self):
         self.active_output.append([])
@@ -263,16 +263,16 @@ class TableContext(SubContext):
         pass
 
     def enter_entry(self):
-        self.is_entry = True
+        self._flags["entry"] = True
         self.active_output[-1].append([])
         self.ensure_eol_count = 0
 
     def exit_entry(self):
-        assert self.is_entry
-        self.is_entry = False
+        assert self._flags["entry"]
+        self._flags["entry"] = False
 
     def make_row(self, row):
-        return ["".join(entries).replace("\n", getattr(self, 'cell_breaker', '<br/>')) for entries in row]
+        return ["".join(entries).replace("\n", getattr(self, "cell_breaker", "<br/>")) for entries in row]
 
     def make(self):
         ctx = SubContext()
