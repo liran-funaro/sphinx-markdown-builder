@@ -916,8 +916,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_footnote_reference(self, node):
-        ref_id = node.get("refid", "")
-        self._push_context(WrappedContext("<sup>[", f"](#{ref_id})</sup>"))
+        # https://www.markdownguide.org/extended-syntax/#footnotes
+        self._push_context(WrappedContext("[^", "]"))
 
     @pushing_context
     def visit_footnote(self, node):
@@ -927,6 +927,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         names = node.get("names", "")
         if isinstance(names, (list, tuple)):
             names = ",".join(names)
+        # https://www.markdownguide.org/extended-syntax/#footnotes
         self._push_context(FootNoteContext(ids, names, params=SubContextParams(1, 1)))
 
     def visit_label(self, node):

@@ -378,7 +378,15 @@ class FootNoteContext(NoLineBreakContext):
     def make(self):
         content = super().make()
         label = self.label_body.make() or self.names
-        return f"* <a id='{self.ids}'>**[{label}]**</a> {content}"
+        # https://www.markdownguide.org/extended-syntax/#footnotes
+        lab = label.strip()
+        if not lab:
+            # Fallback to using the raw ids if label is empty
+            ids = self.ids
+            if isinstance(ids, (list, tuple)):
+                ids = ",".join(ids)
+            lab = str(ids)
+        return f"[^{lab}]: {content}"
 
 
 _ContextT = TypeVar("_ContextT", bound=SubContext)
