@@ -596,6 +596,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         if getattr(node, "_md_moved_to_title", False):
             raise nodes.SkipNode
 
+        is_internal = bool(node.get("internal", self.status.default_ref_internal))
+        if self.config.markdown_flavor == "llm" and getattr(self.builder, "name", "") == "singlemarkdown" and is_internal:
+            self._push_context(WrappedContext("", ""))
+            return
+
         url = self._fetch_ref_uri(node)
         self._push_context(WrappedContext("[", f"]({url})"))
 
@@ -710,7 +715,14 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             if self.status.escape_text:
                 title = escape_markdown_chars(title)
 
-            if href:
+            if (
+                self.config.markdown_flavor == "llm"
+                and getattr(self.builder, "name", "") == "singlemarkdown"
+                and href
+                and not (href.startswith("http://") or href.startswith("https://"))
+            ):
+                self.add(f"{('#' * level)} {title}", prefix_eol=1, suffix_eol=1)
+            elif href:
                 self.add(f"{('#' * level)} [{title}]({href})", prefix_eol=1, suffix_eol=1)
             else:
                 self.add(f"{('#' * level)} {title}", prefix_eol=1, suffix_eol=1)
