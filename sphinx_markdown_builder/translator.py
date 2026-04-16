@@ -106,6 +106,7 @@ PREDEFINED_ELEMENTS: Dict[str, Union[contexts.PushContext, contexts.PushBox, con
         figure=None,
         legend=None,
         desc_signature_line=None,
+        centered=None,  # Sphinx ".. centered::" directive — render inner text inline
     )
 )
 
