@@ -104,3 +104,4 @@
   * [Section for third glossary](glossaries.md#section-for-third-glossary)
   * [Citation from another page](glossaries.md#citation-from-another-page)
 * [Auto Module](auto-module.md)
+* [Sphinx Design](sphinx_design.md)
