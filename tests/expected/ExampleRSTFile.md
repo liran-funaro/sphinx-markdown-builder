@@ -59,6 +59,18 @@ This is an important message.
 #### HINT
 This is a hint message.
 
+#### TIP
+This is a tip message.
+
+#### CAUTION
+This is a caution message.
+
+#### DANGER
+This is a danger message.
+
+#### ERROR
+This is an error message.
+
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.
 
