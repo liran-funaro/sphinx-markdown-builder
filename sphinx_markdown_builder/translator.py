@@ -778,6 +778,31 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     depart_list_item = _end_list_item
 
     ################################################################################
+    # option lists
+    ################################################################################
+    # option_list
+    #   option_list_item
+    #     option_group
+    #     description
+    ###############################################################################
+
+    def visit_option_list(self, _node):
+        self._start_list("*")
+
+    depart_option_list = _end_list
+    visit_option_list_item = _start_list_item
+    depart_option_list_item = _end_list_item
+
+    def visit_option_group(self, node):
+        self.add(f"`{escape_markdown_chars(node.astext())}`", suffix_eol=1)
+        raise nodes.SkipNode
+
+    def visit_description(self, _node):
+        pass
+
+    depart_description = _pass
+
+    ################################################################################
     # desc
     ################################################################################
     # desc (desctype: {function, class, method, etc.)
