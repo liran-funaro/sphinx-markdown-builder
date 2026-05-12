@@ -366,7 +366,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def visit_Text(self, node):  # pylint: disable=invalid-name
         text = node.astext().replace("\r", "")
         # Replace line breaks with spaces to create single-line paragraphs
-        if self.config.markdown_flavor == "github":
+        if self.config.markdown_flavor == "github" and self.status.escape_text:
             text = text.replace("\n", " ")
         if self.status.escape_text:
             text = escape_markdown_chars(text)
