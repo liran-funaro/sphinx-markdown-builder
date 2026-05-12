@@ -23,6 +23,16 @@ Code Example
 >>> print("this is a Doctest block.")
 this is a Doctest block.
 
+Multi-line Code Block
+---------------------
+
+.. code-block:: console
+
+   usage: command [-h] [--option1 VALUE1]
+                  [--option2 VALUE2]
+                  [--option3 VALUE3]
+                  argument
+
 
 ==========
 Line Block
