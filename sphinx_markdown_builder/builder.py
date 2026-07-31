@@ -14,6 +14,7 @@ from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
+from sphinx.util.fileutil import copy_asset_file
 
 from sphinx_markdown_builder.translator import MarkdownTranslator
 from sphinx_markdown_builder.writer import MarkdownWriter
@@ -96,3 +97,18 @@ class MarkdownBuilder(Builder):
         with io_handler(out_filename):
             with open(out_filename, "w", encoding="utf-8") as file:
                 file.write(self.writer.output)
+    
+    def copy_image_files(self) -> None:
+        if self.images:
+            for key in self.images.keys():
+                copy_asset_file(os.path.join(self.srcdir, key), self.outdir)
+    
+    def write(
+        self,
+        build_docnames,
+        updated_docnames,
+        method: str = 'update',
+    ) -> None:
+        super().write(build_docnames, updated_docnames, method)
+        self.copy_image_files()
+
