@@ -30,6 +30,7 @@ from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
 
 from docutils import languages, nodes
 from sphinx.util.docutils import SphinxTranslator
+from sphinx.util.osutil import relative_uri
 
 from sphinx_markdown_builder.contexts import (
     CommaSeparatedContext,
@@ -566,8 +567,17 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_download_reference(self, node):
-        reftarget = self._adjust_url(node.get("reftarget", ""))
-        self._push_context(WrappedContext("[", f"]({reftarget})"))
+        if "refuri" in node:
+            target = node["refuri"]
+        elif "filename" in node:
+            target = relative_uri(
+                self.builder.get_target_uri(self.builder.current_doc_name),
+                posixpath.join(self.builder.download_dir, node["filename"]),
+            )
+            target = self._adjust_url(target)
+        else:
+            target = self._adjust_url(node.get("reftarget", ""))
+        self._push_context(WrappedContext("[", f"]({target})"))
 
     def _add_anchor(self, anchor: str):
         content = f'<a id="{escape_html_quote(anchor)}"></a>'

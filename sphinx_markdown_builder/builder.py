@@ -3,6 +3,7 @@ Custom docutils builder for markdown.
 """
 
 import os
+import shutil
 from contextlib import contextmanager
 from typing import Set
 
@@ -44,6 +45,7 @@ class MarkdownBuilder(Builder):
     default_translator_class = MarkdownTranslator
 
     out_suffix = ".md"
+    download_dir = "_downloads"
 
     def __init__(self, app: Sphinx, env: BuildEnvironment = None):
         super().__init__(app, env)
@@ -96,3 +98,18 @@ class MarkdownBuilder(Builder):
         with io_handler(out_filename):
             with open(out_filename, "w", encoding="utf-8") as file:
                 file.write(self.writer.output)
+
+    def finish(self):
+        self.copy_download_files()
+
+    def copy_download_files(self):
+        for source in self.env.dlfiles:
+            source_path = os.path.join(self.srcdir, source)
+            destination = os.path.join(
+                self.outdir,
+                self.download_dir,
+                self.env.dlfiles[source][1],
+            )
+            ensuredir(os.path.dirname(destination))
+            with io_handler(source_path):
+                shutil.copyfile(source_path, destination)
