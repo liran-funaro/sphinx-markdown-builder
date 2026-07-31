@@ -73,3 +73,4 @@
   * [Section for second glossary](glossaries.md#section-for-second-glossary)
   * [Section for third glossary](glossaries.md#section-for-third-glossary)
 * [Auto Module](auto-module.md)
+* [Sphinx Design](sphinx_design.md)
