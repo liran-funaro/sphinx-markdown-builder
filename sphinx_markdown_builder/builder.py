@@ -100,16 +100,9 @@ class MarkdownBuilder(Builder):
                 file.write(self.writer.output)
 
     def finish(self):
-        self.copy_download_files()
-
-    def copy_download_files(self):
-        for source in self.env.dlfiles:
-            source_path = os.path.join(self.srcdir, source)
-            destination = os.path.join(
-                self.outdir,
-                self.download_dir,
-                self.env.dlfiles[source][1],
-            )
+        for src_file_name, (_, dst_path) in self.env.dlfiles.items():
+            source_path = os.path.join(self.srcdir, src_file_name)
+            destination = os.path.join(self.outdir, self.download_dir, dst_path)
             ensuredir(os.path.dirname(destination))
             with io_handler(source_path):
                 shutil.copyfile(source_path, destination)

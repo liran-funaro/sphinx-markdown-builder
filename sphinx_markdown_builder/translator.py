@@ -567,14 +567,19 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_download_reference(self, node):
+        # Sphinx sets `refuri` for external targets; preserve those URLs verbatim.
         if "refuri" in node:
             target = node["refuri"]
+        # For readable internal targets, `filename` is the registered, hashed
+        # destination. Link to the copied file relative to the current output page.
         elif "filename" in node:
             target = relative_uri(
                 self.builder.get_target_uri(self.builder.current_doc_name),
                 posixpath.join(self.builder.download_dir, node["filename"]),
             )
             target = self._adjust_url(target)
+        # If Sphinx could not register the internal file, only its original
+        # `reftarget` remains; retain the previous URL-adjustment fallback.
         else:
             target = self._adjust_url(node.get("reftarget", ""))
         self._push_context(WrappedContext("[", f"]({target})"))
