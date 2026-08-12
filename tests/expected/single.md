@@ -91,6 +91,22 @@ own line number for commenting in reviews.
 > 
 > This is a hint message.
 
+> ###### TIP
+> 
+> This is a tip message.
+
+> ###### CAUTION
+> 
+> This is a caution message.
+
+> ###### DANGER
+> 
+> This is a danger message.
+
+> ###### ERROR
+> 
+> This is an error message.
+
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.
 
@@ -966,14 +982,27 @@ Formula 1
 Display math:
 
 $$
-\frac{ \sum_{t=0}^{N}f(t,k) }{N}
+\begin{aligned}
+x &= 1 \\
+y &= 2
+\end{aligned}
 $$
 
 ## Code Example
 
 ```pycon
->>> print("this is a Doctest block.")
-this is a Doctest block.
+>>> print("first line\nsecond line")
+first line
+second line
+```
+
+### Multi-line Code Block
+
+```console
+usage: command [-h] [--option1 VALUE1]
+               [--option2 VALUE2]
+               [--option3 VALUE3]
+               argument
 ```
 
 ## Line Block
@@ -1010,7 +1039,7 @@ Some other text that refers to Glossary2-Term2.
 
 [![image](static/markdown.png)](https://github.com/liran-funaro/sphinx-markdown-builder)
 
-Download [`this example image`](/static/markdown.png).
+Download [`this example image`](_downloads/26598844018f8755cf64dbce62c832dd/markdown.png).
 
 ![image](static/markdown.png)
 

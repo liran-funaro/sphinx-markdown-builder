@@ -30,6 +30,7 @@ from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
 
 from docutils import languages, nodes
 from sphinx.util.docutils import SphinxTranslator
+from sphinx.util.osutil import relative_uri
 
 from sphinx_markdown_builder.contexts import (
     CommaSeparatedContext,
@@ -364,7 +365,18 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_tip(self, _node):
+        """Sphinx tip directive."""
         self._push_admonition("TIP")
+
+    @pushing_context
+    def visit_danger(self, _node):
+        """Sphinx danger directive."""
+        self._push_admonition("DANGER")
+
+    @pushing_context
+    def visit_error(self, _node):
+        """Sphinx error directive."""
+        self._push_admonition("ERROR")
 
     def visit_image(self, node):
         """Image directive."""
@@ -378,7 +390,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def visit_Text(self, node):  # pylint: disable=invalid-name
         text = node.astext().replace("\r", "")
         # Replace line breaks with spaces to create single-line paragraphs
-        if self.config.markdown_flavor == "github":
+        if self.config.markdown_flavor == "github" and not self.status.preserve_line_breaks:
             text = text.replace("\n", " ")
         if self.status.escape_text:
             text = escape_markdown_chars(text)
@@ -453,7 +465,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def visit_math_block(self, _node):
         """docutils math block"""
-        self._push_status(escape_text=False)
+        self._push_status(escape_text=False, preserve_line_breaks=True)
         self.add("$$", prefix_eol=1, suffix_eol=1)
 
     def depart_math_block(self, _node):
@@ -480,7 +492,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._pop_status()
 
     def visit_literal_block(self, node):
-        self._push_status(escape_text=False)
+        self._push_status(escape_text=False, preserve_line_breaks=True)
         code_type = ""
         classes = node.get("classes", [])
         if "code" in classes:
@@ -500,7 +512,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._pop_status()
 
     def visit_doctest_block(self, _node):
-        self._push_status(escape_text=False)
+        self._push_status(escape_text=False, preserve_line_breaks=True)
         self.add("```pycon", prefix_eol=1, suffix_eol=1)
 
     depart_doctest_block = depart_literal_block
@@ -614,8 +626,22 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_download_reference(self, node):
-        reftarget = self._adjust_url(node.get("reftarget", ""))
-        self._push_context(WrappedContext("[", f"]({reftarget})"))
+        # Sphinx sets `refuri` for external targets; preserve those URLs verbatim.
+        if "refuri" in node:
+            target = node["refuri"]
+        # For readable internal targets, `filename` is the registered, hashed
+        # destination. Link to the copied file relative to the current output page.
+        elif "filename" in node:
+            target = relative_uri(
+                self.builder.get_target_uri(self.builder.current_doc_name),
+                posixpath.join(self.builder.download_dir, node["filename"]),
+            )
+            target = self._adjust_url(target)
+        # If Sphinx could not register the internal file, only its original
+        # `reftarget` remains; retain the previous URL-adjustment fallback.
+        else:
+            target = self._adjust_url(node.get("reftarget", ""))
+        self._push_context(WrappedContext("[", f"]({target})"))
 
     def _add_anchor(self, anchor: str):
         if self.config.markdown_flavor == "llm":

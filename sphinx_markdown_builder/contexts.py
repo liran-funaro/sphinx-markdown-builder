@@ -77,6 +77,7 @@ class ListMarker:
 @dataclass(frozen=True)
 class ContextStatus:
     escape_text: bool = True  # Whether to escape characters
+    preserve_line_breaks: bool = False  # Whether to preserve line breaks in text nodes
     section_level: int = 0  # Current section heading level
     list_marker: Optional[ListMarker] = None  # Current list marker
     desc_type: Optional[str] = None  # Current descriptor type

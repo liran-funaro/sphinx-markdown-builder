@@ -51,6 +51,7 @@ test-diff:
 
 	@echo "Verifies outputs..."
 	@diff --recursive --color=always --side-by-side --text --suppress-common-lines \
+			--exclude=_downloads \
 			"$(BUILD_DIR)/markdown" "$(EXPECTED_DIR)"
 
 
