@@ -367,7 +367,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def visit_Text(self, node):  # pylint: disable=invalid-name
         text = node.astext().replace("\r", "")
         # Replace line breaks with spaces to create single-line paragraphs
-        if self.config.markdown_flavor == "github":
+        if self.config.markdown_flavor == "github" and not self.status.preserve_line_breaks:
             text = text.replace("\n", " ")
         if self.status.escape_text:
             text = escape_markdown_chars(text)
@@ -440,7 +440,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def visit_math_block(self, _node):
         """docutils math block"""
-        self._push_status(escape_text=False)
+        self._push_status(escape_text=False, preserve_line_breaks=True)
         self.add("$$", prefix_eol=1, suffix_eol=1)
 
     def depart_math_block(self, _node):
@@ -467,7 +467,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._pop_status()
 
     def visit_literal_block(self, node):
-        self._push_status(escape_text=False)
+        self._push_status(escape_text=False, preserve_line_breaks=True)
         code_type = node["classes"][1] if "code" in node["classes"] else ""
         if "language" in node:
             code_type = node["language"]
@@ -478,7 +478,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._pop_status()
 
     def visit_doctest_block(self, _node):
-        self._push_status(escape_text=False)
+        self._push_status(escape_text=False, preserve_line_breaks=True)
         self.add("```pycon", prefix_eol=1, suffix_eol=1)
 
     depart_doctest_block = depart_literal_block
