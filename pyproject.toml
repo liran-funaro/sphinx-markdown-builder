@@ -11,7 +11,7 @@ description = "A Sphinx extension to add markdown generation support."
 readme = "README.md"
 authors = [{ name = "Liran Funaro", email = "liran.funaro@gmail.com" }]
 license = "MIT"
-license-files = ["LICENCE"]
+license-files = ["LICENSE"]
 classifiers = [
     "Framework :: Sphinx :: Extension",
     "Programming Language :: Python",
