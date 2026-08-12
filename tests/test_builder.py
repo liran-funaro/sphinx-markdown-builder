@@ -130,3 +130,22 @@ def test_custom_file_suffix():
 
     # Clean up
     _rm_build_path(build_path)
+
+
+def test_github_flavor_preserves_block_line_breaks():
+    """GitHub-flavored Markdown preserves newlines in each multiline block type."""
+    build_path = os.path.join(BUILD_PATH, "github_newlines")
+    _rm_build_path(build_path)
+    run_sphinx(build_path, "-a", "-D", "markdown_flavor=github")
+
+    blocks = Path(build_path, "markdown", "blocks.md").read_text(encoding="utf-8")
+    expected_blocks = [
+        "$$\n\\begin{aligned}\nx &= 1 \\\\\ny &= 2\n\\end{aligned}\n$$",
+        '```pycon\n>>> print("first line\\nsecond line")\nfirst line\nsecond line\n```',
+        "```console\nusage: command [-h] [--option1 VALUE1]\n"
+        "               [--option2 VALUE2]\n"
+        "               [--option3 VALUE3]\n"
+        "               argument\n```",
+    ]
+    for expected_block in expected_blocks:
+        assert expected_block in blocks

@@ -13,15 +13,19 @@ Display math:
 
 .. math::
 
-      \frac{ \sum_{t=0}^{N}f(t,k) }{N}
+      \begin{aligned}
+      x &= 1 \\
+      y &= 2
+      \end{aligned}
 
 
 ============
 Code Example
 ============
 
->>> print("this is a Doctest block.")
-this is a Doctest block.
+>>> print("first line\nsecond line")
+first line
+second line
 
 Multi-line Code Block
 ---------------------
