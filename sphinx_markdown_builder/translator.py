@@ -90,6 +90,7 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint
     document=None,
     container=None,
     inline=None,
+    abbreviation=None,
     definition_list=None,
     definition_list_item=None,
     glossary=None,
@@ -390,6 +391,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(SubContext(params))
 
     visit_compact_paragraph = visit_paragraph
+    visit_caption = visit_paragraph
 
     ################################################################################
     # Line block

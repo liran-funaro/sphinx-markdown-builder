@@ -151,6 +151,35 @@ def test_github_flavor_preserves_block_line_breaks():
         assert expected_block in blocks
 
 
+def test_abbreviations_and_captions(tmp_path: Path):
+    """Test that abbreviations and captions render their text without warnings."""
+    source_path = tmp_path / "source"
+    output_path = tmp_path / "output"
+    source_path.mkdir()
+
+    (source_path / "conf.py").write_text(
+        'extensions = ["sphinx_markdown_builder"]\nroot_doc = "index"\n',
+        encoding="utf-8",
+    )
+    (source_path / "index.rst").write_text(
+        "Index\n"
+        "=====\n\n"
+        "The :abbr:`LIFO (last-in, first-out)` queue.\n\n"
+        ".. code-block:: python\n"
+        "   :caption: example.py\n\n"
+        "   pass\n",
+        encoding="utf-8",
+    )
+
+    # -W turns the unknown node warnings into errors.
+    ret_code = main(["-b", "markdown", str(source_path), str(output_path), "-W"])
+    assert ret_code == 0
+
+    markdown = (output_path / "index.md").read_text(encoding="utf-8")
+    assert "The LIFO queue." in markdown
+    assert "example.py\n\n```python" in markdown
+
+
 def test_download_references(tmp_path: Path):
     """Test that download references use and copy Sphinx's collected files."""
     source_path = tmp_path / "source"
