@@ -110,6 +110,8 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint
     tgroup=None,
     figure=None,
     desc_signature_line=None,
+    centered=None,  # Sphinx ".. centered::" directive — render inner text inline
+    caption=None,  # figure/code-block :caption: — emit the label text inline
 )
 
 
