@@ -26,7 +26,7 @@ https://github.com/docutils/docutils/blob/master/docutils/docutils/writers/html5
 import dataclasses
 import posixpath
 import re
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Tuple, Union
 
 from docutils import languages, nodes
 from sphinx.util.docutils import SphinxTranslator
@@ -61,6 +61,9 @@ VISIT_DEPART_PATTERN = re.compile("(visit|depart)_(.+)")
 SKIP = UniqueString("skip")
 
 DOC_INFO_FIELDS = "author", "contact", "copyright", "date", "organization", "revision", "status", "version"
+
+# Abbreviations are rendered as footnotes. This prefix keeps their labels distinct from any other footnote.
+ABBREVIATION_LABEL_PREFIX = "abbr-"
 
 # Defines context items, skip, or None (keep processing sub-tree).
 PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] = (
@@ -158,6 +161,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self.language = languages.get_language(self.settings.language_code, document.reporter)
         # Warn only once per writer about unsupported elements
         self._warned = set()
+        # Abbreviation (text, explanation) pairs, mapped to their footnote index, by order of appearance
+        self._abbreviations: Dict[Tuple[str, str], int] = {}
 
         # FIFO Sub context allow us to handle unique cases when post-processing is required
         self._ctx_queue: List[SubContext] = [SubContext()]
@@ -222,8 +227,17 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         ctx = SubContext()
         for sub_ctx in (self._doc_info, self._ctx_queue[0]):
             ctx.add(sub_ctx.make().strip(), prefix_eol=2, suffix_eol=1)
+        ctx.add(self._make_abbreviation_footnotes(), prefix_eol=2, suffix_eol=1)
         ctx.force_eol(1)
         return ctx.make()
+
+    def _make_abbreviation_footnotes(self) -> str:
+        """Render the footnote definitions of the abbreviations found in the document."""
+        return "\n".join(
+            f"[^{ABBREVIATION_LABEL_PREFIX}{index}]: "
+            f"**{escape_markdown_chars(text)}**: {escape_markdown_chars(explanation)}"
+            for (text, explanation), index in self._abbreviations.items()
+        )
 
     def add(self, value: str, prefix_eol: int = 0, suffix_eol: int = 0):
         """See `SubContext.add()`"""
@@ -343,6 +357,22 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def visit_caption(self, _node):
         """Figure caption."""
         self._push_context(WrappedContext("*", params=SubContextParams(2, 2)))
+
+    def depart_abbreviation(self, node):
+        """Abbreviation role, e.g., :abbr:`LLM (Large Language Model)`.
+
+        Markdown has no equivalent of the HTML `title` attribute, so the explanation is moved to a footnote:
+        `LLM[^abbr-1]`, with `[^abbr-1]: **LLM**: Large Language Model` at the end of the document.
+        Repeating abbreviations share a single footnote.
+        An abbreviation without an explanation is left as-is.
+        """
+        explanation = node.get("explanation")
+        if not explanation:
+            return
+
+        key = (node.astext(), explanation)
+        index = self._abbreviations.setdefault(key, len(self._abbreviations) + 1)
+        self.add(f"[^{ABBREVIATION_LABEL_PREFIX}{index}]")
 
     # noinspection PyPep8Naming
     def visit_Text(self, node):  # pylint: disable=invalid-name
