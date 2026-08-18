@@ -542,6 +542,13 @@ Image links can include optional specifications such as height, width, or
 scale. Alternative text for screen readers is required for each image. Provide
 text that is useful to someone who might not be able to see the image.
 
+.. figure:: /static/markdown.png
+   :alt: Markdown logo
+
+   Figure caption text.
+
+   Figure legend paragraph.
+
 
 .. _Examples of Tables:
 
