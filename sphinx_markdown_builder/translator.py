@@ -90,7 +90,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, SKIP, None]] = dict(  # pylint
     document=None,
     container=None,
     inline=None,
-    abbreviation=None,
     definition_list=None,
     definition_list_item=None,
     glossary=None,
@@ -566,6 +565,14 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def visit_reference(self, node):
         url = self._fetch_ref_uri(node)
         self._push_context(WrappedContext("[", f"]({url})"))
+
+    @pushing_context
+    def visit_abbreviation(self, node):
+        explanation = node.get("explanation")
+        if explanation:
+            self._push_context(WrappedContext(f'<abbr title="{escape_html_quote(explanation)}">', "</abbr>"))
+        else:
+            self._push_context(WrappedContext("", ""))
 
     @pushing_context
     def visit_download_reference(self, node):

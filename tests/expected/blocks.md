@@ -62,4 +62,4 @@ Some other text that refers to [Glossary2-Term2](glossaries.md#term-Glossary2-Te
 
 ## Abbreviations
 
-The LIFO queue.
+The <abbr title="last-in, first-out">LIFO</abbr> queue.
