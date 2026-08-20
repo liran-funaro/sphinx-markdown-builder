@@ -34,8 +34,8 @@ Y value
 
 Some old function.
 
-#### Deprecated
-Deprecated since version 3.1: Use `other()` instead.
+>[!WARNING]
+>Deprecated since version 3.1: Use `other()` instead.
 
 ### func1(param1: [int](https://docs.python.org/3/library/functions.html#int)) → [int](https://docs.python.org/3/library/functions.html#int)
 

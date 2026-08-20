@@ -43,33 +43,48 @@ This is an example of regular text in paragraph form. There are no indents. As
 a best practice, break lines at about 80 characters, so that each line has its
 own line number for commenting in reviews.
 
-#### WARNING
-Throughout text and code examples, make sure double quotation
-marks and apostrophes are straight (”) or (‘), not curly quotatation marks
-and apostrophes, which might be introduced when text is cut and pasted from
-other sources or editors.
+>[!WARNING]
+>Throughout text and code examples, make sure double quotation
+>marks and apostrophes are straight (”) or (‘), not curly quotatation marks
+>and apostrophes, which might be introduced when text is cut and pasted from
+>other sources or editors.
 
-#### ATTENTION
-Boldface is used for labels that are visible in the user interface. The UI
-text is surrounded by double asterisks. For example, **bold**.
+>[!IMPORTANT]
+>Boldface is used for labels that are visible in the user interface. The UI
+>text is surrounded by double asterisks. For example, **bold**.
 
-#### IMPORTANT
-This is an important message.
+>[!IMPORTANT]
+>This is an important message.
 
-#### HINT
-This is a hint message.
+>[!TIP]
+>This is a hint message.
 
-#### TIP
-This is a tip message.
+>[!TIP]
+>This is a tip message.
 
-#### CAUTION
-This is a caution message.
+>[!CAUTION]
+>This is a caution message.
 
-#### DANGER
-This is a danger message.
+>[!CAUTION]
+>This is a danger message.
 
-#### ERROR
-This is an error message.
+>[!CAUTION]
+>This is an error message.
+
+>[!NOTE]
+>### See also
+>
+>Another place.
+
+>[!NOTE]
+>### Custom Admonition Title
+>
+>Generic admonition body.
+
+>[!TIP]
+>### Sidebar Title
+>
+>Sidebar body.
 
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.
@@ -93,9 +108,9 @@ Use hash symbols for ordered lists.
 2. Find the **Course Advertised Start Date** policy key.
 3. Enter the value you want to display.
 
-#### NOTE
-Ordered lists usually use numerals. Nested ordered lists (ordered lists inside
-other ordered lists) use letters.
+>[!NOTE]
+>Ordered lists usually use numerals. Nested ordered lists (ordered lists inside
+>other ordered lists) use letters.
 
 Use asterisks for unordered (bulleted) lists.
 
@@ -228,13 +243,13 @@ indented under the only directive.
    to the same level as the rest of the note.
 ```
 
-#### NOTE
-This is note text. If note text runs over a line, make sure the lines wrap
-and are indented to the same level as the note tag. If formatting is
-incorrect, part of the note might not render in the HTML output.
-
-Notes can have more than one paragraph. Successive paragraphs must indent to
-the same level as the rest of the note.
+>[!NOTE]
+>This is note text. If note text runs over a line, make sure the lines wrap
+>and are indented to the same level as the note tag. If formatting is
+>incorrect, part of the note might not render in the HTML output.
+>
+>Notes can have more than one paragraph. Successive paragraphs must indent to
+>the same level as the rest of the note.
 
 ```default
 .. warning::
@@ -242,9 +257,9 @@ the same level as the rest of the note.
    must be broken and indented under the warning tag.
 ```
 
-#### WARNING
-Warnings are formatted in the same way as notes. In the same way, lines must
-be broken and indented under the warning tag.
+>[!WARNING]
+>Warnings are formatted in the same way as notes. In the same way, lines must
+>be broken and indented under the warning tag.
 
 ## Cross-References
 
@@ -306,9 +321,9 @@ syntax, as in the following example.
 
 If you want to, you can use [keyboard shortcuts](#sfd-sn-keyboard-shortcuts) to create, edit, and view notes.
 
-#### NOTE
-Do not include a space between the last word of the link text and the opening
-angle bracket for the anchor text.
+>[!NOTE]
+>Do not include a space between the last word of the link text and the opening
+>angle bracket for the anchor text.
 
 In this example, “keyboard shortcuts” is the link text, and “SFD SN Keyboard
 Shortcuts” is the anchor text for a section that is titled “Keyboard Shortcuts
@@ -394,10 +409,10 @@ To create an external cross-reference, follow these steps.
    .. include:: ../../links/links.rst
    ```
 
-   #### NOTE
-   The path to the links.rst file depends on the location of the file where
-   you are creating the link. For example, the path might be
-   `../../../links/links.rst` or `../links/links.rst`.
+   >[!NOTE]
+   >The path to the links.rst file depends on the location of the file where
+   >you are creating the link. For example, the path might be
+   >`../../../links/links.rst` or `../links/links.rst`.
 3. In the `edx-documentation/en_us/links/links.rst` file, add an entry for
    the anchor text and the URL of the external website, formatted as follows.
    Make sure that the anchor text in this file matches the anchor text in the
