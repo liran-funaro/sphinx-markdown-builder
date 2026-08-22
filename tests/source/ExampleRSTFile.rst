@@ -84,6 +84,10 @@ own line number for commenting in reviews.
 
    Sidebar body.
 
+A sentence with an :abbr:`LLM (Large Language Model)` in the middle.
+Repeating an :abbr:`LLM (Large Language Model)` reuses the same footnote,
+while an :abbr:`ANN (Artificial Neural Network)` gets a footnote of its own.
+A bare :abbr:`RST` has no explanation to spell out.
 
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.
@@ -541,6 +545,13 @@ Image references look like this.
 Image links can include optional specifications such as height, width, or
 scale. Alternative text for screen readers is required for each image. Provide
 text that is useful to someone who might not be able to see the image.
+
+.. figure:: /static/markdown.png
+   :alt: Markdown logo
+
+   Figure caption text.
+
+   Figure legend paragraph.
 
 
 .. _Examples of Tables:

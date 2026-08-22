@@ -77,3 +77,18 @@ def test_problematic():
         mt.dispatch_visit(node)
     mt.add("suffix")
     assert mt.astext() == "prefix\n\n```\ntext\n```\n\nsuffix\n"
+
+
+def test_abbreviation_footnotes():
+    mt = make_mock()
+    llm = docutils.nodes.abbreviation("", "LLM", explanation="Large Language Model")
+    rst = docutils.nodes.abbreviation("", "RST")
+
+    # The same abbreviation is expected to share a single footnote,
+    # while an abbreviation without an explanation is expected to be left as-is.
+    for node in (llm, llm, rst):
+        mt.dispatch_visit(node)
+        mt.add(node.astext())
+        mt.dispatch_departure(node)
+
+    assert mt.astext() == "LLM[^abbr-1]LLM[^abbr-1]RST\n\n[^abbr-1]: **LLM**: Large Language Model\n"
