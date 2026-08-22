@@ -28,7 +28,7 @@ This is a dummy function that does not do anything.
 * **Return type:**
   None
 
->[!NOTE]
->### See also
->
->[`function()`](my_module.submodule.my_class.md#my_module.submodule.my_class.SubmoduleClass.function)
+> [!NOTE]
+> ### See also
+> 
+> [`function()`](my_module.submodule.my_class.md#my_module.submodule.my_class.SubmoduleClass.function)

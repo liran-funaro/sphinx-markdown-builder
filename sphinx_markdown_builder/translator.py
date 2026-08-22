@@ -191,8 +191,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             ctx.add(last_ctx.make(), last_ctx.params.prefix_eol, last_ctx.params.suffix_eol)
 
     def _push_box(self, title: str, heading: str | None = None):
-        self.add(f">[!{title}]")
-        self._push_context(IndentContext(prefix=">", empty=True, params=SubContextParams(1, 2)))
+        self.add(f"> [!{title}]")
+        self._push_context(IndentContext(prefix="> ", empty=True, params=SubContextParams(1, 2)))
         self._push_status(section_level=3)
         if heading is not None:
             self.add(f"### {heading}")
