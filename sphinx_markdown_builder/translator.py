@@ -365,6 +365,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(SubContext(params))
 
     visit_compact_paragraph = visit_paragraph
+    visit_caption = visit_paragraph
 
     ################################################################################
     # Line block
@@ -539,6 +540,14 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def visit_reference(self, node):
         url = self._fetch_ref_uri(node)
         self._push_context(WrappedContext("[", f"]({url})"))
+
+    @pushing_context
+    def visit_abbreviation(self, node):
+        explanation = node.get("explanation")
+        if explanation:
+            self._push_context(WrappedContext(f'<abbr title="{escape_html_quote(explanation)}">', "</abbr>"))
+        else:
+            self._push_context(WrappedContext("<abbr>", "</abbr>"))
 
     @pushing_context
     def visit_download_reference(self, node):

@@ -25,6 +25,8 @@ second line
 
 ## Multi-line Code Block
 
+example.py
+
 ```console
 usage: command [-h] [--option1 VALUE1]
                [--option2 VALUE2]
@@ -57,3 +59,11 @@ Some other text that refers to [Glossary2-Term2](glossaries.md#term-Glossary2-Te
 ## C domain
 
 ### [PyObject](https://docs.python.org/3/c-api/structures.html#c.PyObject) \*PyType_GenericAlloc([PyTypeObject](https://docs.python.org/3/c-api/type.html#c.PyTypeObject) \*type, [Py_ssize_t](https://docs.python.org/3/c-api/intro.html#c.Py_ssize_t) nitems)
+
+## Abbreviations
+
+The <abbr title="last-in, first-out">LIFO</abbr> queue.
+
+An abbreviation without an explanation: <abbr>HTML</abbr>.
+
+An abbreviation with a quote in its explanation: <abbr title="Application &quot;Programming&quot; Interface">API</abbr>.

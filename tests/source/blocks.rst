@@ -31,6 +31,7 @@ Multi-line Code Block
 ---------------------
 
 .. code-block:: console
+   :caption: example.py
 
    usage: command [-h] [--option1 VALUE1]
                   [--option2 VALUE2]
@@ -71,3 +72,13 @@ C domain
 --------
 
 .. c:function:: PyObject *PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
+
+
+Abbreviations
+-------------
+
+The :abbr:`LIFO (last-in, first-out)` queue.
+
+An abbreviation without an explanation: :abbr:`HTML`.
+
+An abbreviation with a quote in its explanation: :abbr:`API (Application "Programming" Interface)`.
