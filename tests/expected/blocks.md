@@ -63,3 +63,7 @@ Some other text that refers to [Glossary2-Term2](glossaries.md#term-Glossary2-Te
 ## Abbreviations
 
 The <abbr title="last-in, first-out">LIFO</abbr> queue.
+
+An abbreviation without an explanation: <abbr>HTML</abbr>.
+
+An abbreviation with a quote in its explanation: <abbr title="Application &quot;Programming&quot; Interface">API</abbr>.

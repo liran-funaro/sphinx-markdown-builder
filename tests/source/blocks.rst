@@ -78,3 +78,7 @@ Abbreviations
 -------------
 
 The :abbr:`LIFO (last-in, first-out)` queue.
+
+An abbreviation without an explanation: :abbr:`HTML`.
+
+An abbreviation with a quote in its explanation: :abbr:`API (Application "Programming" Interface)`.
