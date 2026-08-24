@@ -572,7 +572,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         if explanation:
             self._push_context(WrappedContext(f'<abbr title="{escape_html_quote(explanation)}">', "</abbr>"))
         else:
-            self._push_context(WrappedContext("", ""))
+            self._push_context(WrappedContext("<abbr>", "</abbr>"))
 
     @pushing_context
     def visit_download_reference(self, node):
