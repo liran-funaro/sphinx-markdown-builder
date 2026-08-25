@@ -23,6 +23,8 @@ from sphinx_markdown_builder.singlemarkdown import SingleFileMarkdownBuilder, se
 BUILD_PATH = Path("./tests/docs-build/single")
 SOURCE_PATH = Path("./tests/source")
 EXPECTED_SINGLE_PATH = Path("./tests/expected/single.md")
+LLM_BUILD_PATH = Path("./tests/docs-build/llm")
+EXPECTED_LLM_PATH = Path("./tests/expected/llms-full.txt")
 
 # Test configurations for integration tests
 TEST_NAMES = ["defaults", "overrides"]
@@ -196,6 +198,16 @@ def test_singlemarkdown_expected_output():
 
     actual = _assert_singlemarkdown_output_nonempty(BUILD_PATH)
     _assert_matches_expected(actual, EXPECTED_SINGLE_PATH)
+
+
+def test_singlemarkdown_llm_expected_output():
+    """Test the llm flavor output, with per-doc Source lines and anchors, against a golden file."""
+    if LLM_BUILD_PATH.exists():
+        shutil.rmtree(LLM_BUILD_PATH)
+    run_sphinx_singlemarkdown(LLM_BUILD_PATH, "-a", "-D", "singlemarkdown_flavor=llm")
+
+    actual = _assert_singlemarkdown_output_nonempty(LLM_BUILD_PATH)
+    _assert_matches_expected(actual, EXPECTED_LLM_PATH)
 
 
 def test_singlemarkdown_update():

@@ -191,6 +191,11 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
             content_parts.append(f"* [{title}](#{docname})\n")
         content_parts.append("\n")
 
+    def _doc_source_url(self, docname: str) -> str:
+        uri = f"{docname}{self.config.markdown_uri_doc_suffix}"
+        base = cast(str, self.config.markdown_http_base)
+        return f"{base}/{uri}" if base else f"/{uri}"
+
     def _append_doc_content(self, content_parts: list[str], docname: str, llm_cleanup_enabled: bool) -> None:
         logger.info("Adding content from %s", docname)
         previous_doc_name = self.current_doc_name
@@ -199,9 +204,14 @@ class SingleFileMarkdownBuilder(MarkdownBuilder):
             doc = self.env.get_doctree(docname)
             if llm_cleanup_enabled:
                 doc = prepare_doctree_for_llm(doc)
+                rendered = self._render_doctree(doc)
+                if not rendered.strip():
+                    return
+                content_parts.append(f"Source: {self._doc_source_url(docname)}\n\n")
+                content_parts.append(rendered)
             else:
                 content_parts.append(f'\n<a id="{docname}"></a>\n\n')
-            content_parts.append(self._render_doctree(doc))
+                content_parts.append(self._render_doctree(doc))
             content_parts.append("\n\n")
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("Error adding content from %s: %s", docname, e)

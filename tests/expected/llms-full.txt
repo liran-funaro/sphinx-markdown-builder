@@ -1,6 +1,10 @@
 # sphinx_markdown_builder Documentation
 
+Source: /index.md
+
 ## Main Test File
+
+Source: /ExampleRSTFile.md
 
 ## Example .rst File
 
@@ -201,6 +205,11 @@ the `only:: Open_edX` directive, and indent the paragraph under the
 directive. You can add the conditional text as regular text or as a note.
 
 Make sure to indent the paragraph under the directive.
+
+Data about course enrollment is available from edX Insights. You can access
+Insights from the instructor dashboard for your live course: after you select
+**Instructor**, follow the link in the banner at the top of each page. For
+more information, see [Using edX Insights](http://edx.readthedocs.io/projects/edx-insights/en/latest/).
 
 To conditionalize more than a paragraph, use either the `only:: Partners` or
 the `only:: Open_edX` directive, and then use an `include::` directive
@@ -594,6 +603,8 @@ being displayed in different colors.
 </problem>
 ```
 
+Source: /Section_course_student.md
+
 ## Using the Learner Engagement Report
 
 With the learner engagement report, you can monitor what individual learners
@@ -677,11 +688,15 @@ To download a learner engagement report, follow these steps.
    date}.csv` file name. You might have to scroll down to find a specific
    file.
 
+Source: /auto-summery.md
+
 ## Welcome to Sphinx-Markdown-Builder TocTree Test’s documentation!
 
 ### Documentation
 
 Some link to a class `my_module.module_class.ModuleClass`
+
+Source: /library/my_module.md
 
 ## my_module
 
@@ -755,6 +770,8 @@ This is a function with two parameters.
 [^1]: Alice is commonly used to describe the first actor.
 [^2]: Bob is commonly used to describe the second actor.
 
+Source: /library/my_module.module_class.md
+
 ## my_module.module_class
 
 A module class file.
@@ -790,6 +807,8 @@ This is a dummy function that does not do anything.
 >
 > `function()`
 
+Source: /library/my_module.submodule.md
+
 ## my_module.submodule
 
 Example sub-module
@@ -797,6 +816,8 @@ Example sub-module
 #### Sub Modules
 
 #### Classes and Functions
+
+Source: /library/my_module.submodule.my_class.md
 
 ## my_module.submodule.my_class
 
@@ -824,6 +845,8 @@ This is a dummy function that does not do anything.
   Nothing.
 * **Return type:**
   None
+
+Source: /blocks.md
 
 ## Math Example
 
@@ -885,6 +908,8 @@ Some other text that refers to Glossary2-Term2.
 
 #### PyObject \*PyType_GenericAlloc(PyTypeObject \*type, Py_ssize_t nitems)
 
+Source: /image-target.md
+
 ## Test Image With Target
 
 [![image](static/markdown.png)](https://github.com/liran-funaro/sphinx-markdown-builder)
@@ -893,7 +918,11 @@ Download [`this example image`](_downloads/26598844018f8755cf64dbce62c832dd/mark
 
 ![image](static/markdown.png)
 
+Source: /empty.md
+
 ## Empty package
+
+Source: /glossaries.md
 
 ## Glossary test for multiple glossaries
 
@@ -932,6 +961,8 @@ Glossary2-Term2
 
 Glossary3-Term1
 : Some random text for term 1 in glossary 3.
+
+Source: /auto-module.md
 
 ## Auto Module
 
