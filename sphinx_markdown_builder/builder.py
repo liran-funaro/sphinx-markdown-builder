@@ -16,6 +16,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 
+from sphinx_markdown_builder.llm import prepare_doctree_for_llm
 from sphinx_markdown_builder.translator import MarkdownTranslator
 from sphinx_markdown_builder.writer import MarkdownWriter
 
@@ -91,6 +92,8 @@ class MarkdownBuilder(Builder):
         self.current_doc_name = docname
         self.sec_numbers = self.env.toc_secnumbers.get(docname, {})
         destination = StringOutput(encoding="utf-8")
+        if self.config.markdown_flavor == "llm":
+            doctree = prepare_doctree_for_llm(doctree)
         self.writer.write(doctree, destination)
         out_filename = os.path.join(self.outdir, f"{os_path(docname)}{self.out_suffix}")
         ensuredir(os.path.dirname(out_filename))

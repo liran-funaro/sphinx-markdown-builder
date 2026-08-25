@@ -82,6 +82,7 @@ class ContextStatus:
     list_marker: Optional[ListMarker] = None  # Current list marker
     desc_type: Optional[str] = None  # Current descriptor type
     default_ref_internal: bool = False  # Current default for internal reference
+    code_language: Optional[str] = None  # Default language for subsequent code blocks
 
 
 class SubContext:
@@ -216,44 +217,45 @@ class CommaSeparatedContext(SubContext):
 
 
 class TableContext(SubContext):
-    def __init__(self, params=SubContextParams()):
+    def __init__(self, params=SubContextParams(), cell_breaker: str = "<br/>"):
         super().__init__(params)
+        self.cell_breaker = cell_breaker
         self.body: List[List[List[str]]] = []
         self.headers: List[List[List[str]]] = []
         self.internal_context = SubContext()
 
-        self.is_entry = False
-        self.is_header = False
-        self.is_body = False
+        # Pack boolean state flags into a single mapping to reduce the
+        # number of instance attributes (pylint R0902).
+        self._flags = {"entry": False, "header": False, "body": False}
 
     @property
     def active_output(self) -> List[List[List[str]]]:
-        if self.is_header:
+        if self._flags["header"]:
             return self.headers
-        assert self.is_body
+        assert self._flags["body"]
         return self.body
 
     @property
     def content(self):
-        if self.is_entry:
+        if self._flags["entry"]:
             return self.active_output[-1][-1]
         return self.internal_context.content
 
     def enter_head(self):
-        assert not self.is_header and not self.is_body
-        self.is_header = True
+        assert not self._flags["header"] and not self._flags["body"]
+        self._flags["header"] = True
 
     def exit_head(self):
-        assert self.is_header and not self.is_body
-        self.is_header = False
+        assert self._flags["header"] and not self._flags["body"]
+        self._flags["header"] = False
 
     def enter_body(self):
-        assert not self.is_header and not self.is_body
-        self.is_body = True
+        assert not self._flags["header"] and not self._flags["body"]
+        self._flags["body"] = True
 
     def exit_body(self):
-        assert self.is_body and not self.is_header
-        self.is_body = False
+        assert self._flags["body"] and not self._flags["header"]
+        self._flags["body"] = False
 
     def enter_row(self):
         self.active_output.append([])
@@ -262,17 +264,16 @@ class TableContext(SubContext):
         pass
 
     def enter_entry(self):
-        self.is_entry = True
+        self._flags["entry"] = True
         self.active_output[-1].append([])
         self.ensure_eol_count = 0
 
     def exit_entry(self):
-        assert self.is_entry
-        self.is_entry = False
+        assert self._flags["entry"]
+        self._flags["entry"] = False
 
-    @staticmethod
-    def make_row(row):
-        return ["".join(entries).replace("\n", "<br/>") for entries in row]
+    def make_row(self, row):
+        return ["".join(entries).replace("\n", getattr(self, "cell_breaker", "<br/>")) for entries in row]
 
     def make(self):
         ctx = SubContext()
@@ -328,8 +329,8 @@ class NoLineBreakContext(SubContext):
 
 
 class TitleContext(NoLineBreakContext):
-    def __init__(self, level: int, params=SubContextParams(2, 2)):
-        super().__init__("<br/>", params)
+    def __init__(self, level: int, params=SubContextParams(2, 2), breaker: str = "<br/>"):
+        super().__init__(breaker, params)
         self.level = level
 
     @property
@@ -378,7 +379,15 @@ class FootNoteContext(NoLineBreakContext):
     def make(self):
         content = super().make()
         label = self.label_body.make() or self.names
-        return f"* <a id='{self.ids}'>**[{label}]**</a> {content}"
+        # https://www.markdownguide.org/extended-syntax/#footnotes
+        lab = label.strip()
+        if not lab:
+            # Fallback to using the raw ids if label is empty
+            ids = self.ids
+            if isinstance(ids, (list, tuple)):
+                ids = ",".join(ids)
+            lab = str(ids)
+        return f"[^{lab}]: {content}"
 
 
 _ContextT = TypeVar("_ContextT", bound=SubContext)

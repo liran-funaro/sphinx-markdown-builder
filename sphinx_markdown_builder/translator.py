@@ -102,10 +102,13 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
         index=SKIP,
         substitution_definition=SKIP,  # the doctree already contains the text with substitutions applied.
         runrole_reference=SKIP,
+        toctree=SKIP,
+        viewcode_anchor=SKIP,
         # Doctree elements to ignore
         document=None,
         container=None,
         inline=None,
+        abbreviation=None,
         definition_list=None,
         definition_list_item=None,
         glossary=None,
@@ -125,6 +128,7 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
         colspec=None,
         tgroup=None,
         figure=None,
+        caption=None,
         desc_signature_line=None,
     )
 )
@@ -180,6 +184,20 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def _push_context(self, ctx: SubContext):
         self._ctx_queue.append(ctx)
+
+    def _title_level(self, base_level: int) -> int:
+        offset = int(getattr(self.builder, "heading_level_offset", 0))
+        return min(6, max(1, base_level + offset))
+
+    def _title_breaker(self) -> str:
+        if self.config.markdown_flavor == "llm":
+            return " "
+        return "<br/>"
+
+    def _table_cell_breaker(self) -> str:
+        if self.config.markdown_flavor == "llm":
+            return " "
+        return "<br/>"
 
     def _pop_context(self, _node=None, count=1):
         for _ in range(count):
@@ -385,6 +403,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def depart_line(self, _node):
         self._pop_context()
+        if self.config.markdown_flavor == "llm":
+            return
         self.add("<br/>", prefix_eol=1, suffix_eol=1)
 
     ################################################################################
@@ -443,9 +463,18 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def visit_literal_block(self, node):
         self._push_status(escape_text=False, preserve_line_breaks=True)
-        code_type = node["classes"][1] if "code" in node["classes"] else ""
+        code_type = ""
+        classes = node.get("classes", [])
+        if "code" in classes:
+            code_idx = classes.index("code") + 1
+            if code_idx < len(classes):
+                code_type = classes[code_idx]
         if "language" in node:
             code_type = node["language"]
+        elif self.status.code_language:
+            code_type = self.status.code_language
+        if code_type == "default":
+            code_type = ""
         self.add(f"```{code_type}", prefix_eol=1, suffix_eol=1)
 
     def depart_literal_block(self, _node):
@@ -481,7 +510,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             level = 4
         else:
             level = self.status.section_level
-        self._push_context(TitleContext(level))
+        self._push_context(TitleContext(self._title_level(level), breaker=self._title_breaker()))
 
     @pushing_context
     @pushing_status
@@ -491,18 +520,26 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         However, we keep it here in case some future version will change this behaviour.
         """
         self._push_status(section_level=self.status.section_level + 1)
-        self._push_context(TitleContext(self.status.section_level))
+        self._push_context(TitleContext(self._title_level(self.status.section_level), breaker=self._title_breaker()))
 
     @pushing_context
     def visit_rubric(self, _node):
         """Sphinx Rubric, a heading without relation to the document sectioning"""
-        self._push_context(TitleContext(3))
+        self._push_context(TitleContext(self._title_level(3), breaker=self._title_breaker()))
 
     def visit_transition(self, _node):
         """Simply replace a transition by a horizontal rule."""
         # Can use three or more '*', '_' or '-'.
         self.add("---", prefix_eol=2, suffix_eol=1)
         raise nodes.SkipNode
+
+    def visit_only(self, node):
+        expr = node.get("expr", "")
+        tags = getattr(self.builder, "tags", None)
+        if not expr or tags is None:
+            return
+        if not tags.eval_condition(expr):
+            raise nodes.SkipNode
 
     def _adjust_url(self, url: str):
         """Replace `refuri` in reference with HTTP address, if possible"""
@@ -537,8 +574,25 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_reference(self, node):
+        # If this reference was already moved into a card title, skip it.
+        if node.get("md_moved_to_title", False):
+            raise nodes.SkipNode
+
+        is_internal = bool(node.get("internal", self.status.default_ref_internal))
+        is_llm = self.config.markdown_flavor == "llm"
+        is_single = getattr(self.builder, "name", "") == "singlemarkdown"
+        if is_llm and is_single and is_internal:
+            self._push_context(WrappedContext("", ""))
+            return
+
         url = self._fetch_ref_uri(node)
         self._push_context(WrappedContext("[", f"]({url})"))
+
+    def visit_pending_xref(self, node):
+        # Keep default behavior (child text passes through), unless this node
+        # was already moved into a card title link.
+        if node.get("md_moved_to_title", False):
+            raise nodes.SkipNode
 
     @pushing_context
     def visit_download_reference(self, node):
@@ -560,6 +614,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(WrappedContext("[", f"]({target})"))
 
     def _add_anchor(self, anchor: str):
+        if self.config.markdown_flavor == "llm":
+            return
         content = f'<a id="{escape_html_quote(anchor)}"></a>'
         # Prevent adding the same anchor twice in the same context
         if content not in self.ctx.content:
@@ -576,6 +632,108 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def visit_topic(self, _node):
         self._push_status(default_ref_internal=True, section_level=5)
         self._push_context(IndentContext("> ", empty=True))
+
+    def visit_container(self, node):
+        """Handle generic container nodes and special-case sphinx-design cards.
+
+        We push a blockquote context for top-level sphinx-design cards (class
+        `sd-card`) so their contents are rendered as a Markdown blockquote. We
+        also special-case containers with class `sd-card-title` to render the
+        title as a linked level-4 heading inside the blockquote.
+        """
+        classes = node.attributes.get("classes", []) or []
+
+        # Handle sphinx-design card containers and titles using small helpers
+        # to keep this method simple and under the complexity threshold.
+        if "sd-card" in classes:
+            self._handle_sd_card(node)
+            return
+
+        if "sd-card-title" in classes:
+            self._handle_sd_card_title(node)
+            return
+
+    def _handle_sd_card(self, node):
+        # Ensure an extra blank line after the card so adjacent cards don't
+        # merge into the same blockquote in Markdown output.
+        self._push_context(IndentContext("> ", empty=True, params=SubContextParams(1, 2)))
+        # mark the node so depart_container knows to pop
+        # Store a marker in the node attributes when possible so downstream
+        # handlers can detect that we pushed a card context. Use the node
+        # attribute mapping if available to avoid touching protected members.
+        if hasattr(node, "attributes") and isinstance(node.attributes, dict):
+            node["md_card_pushed"] = True
+
+    def _find_card_container(self, node):
+        container = node
+        while container is not None and "sd-card" not in (container.attributes.get("classes", []) or []):
+            container = getattr(container, "parent", None)
+        return container
+
+    def _find_stretched_link(self, container):
+        if container is None:
+            return None
+        for child in container.traverse():
+            child_classes = child.attributes.get("classes", []) if hasattr(child, "attributes") else []
+            if "sd-stretched-link" in child_classes:
+                return child
+        return None
+
+    def _href_from_link_node(self, link_node):
+        if link_node is None:
+            return None
+        if isinstance(link_node, nodes.reference):
+            try:
+                return self._fetch_ref_uri(link_node)
+            except (AttributeError, KeyError, TypeError):
+                return ""
+        return link_node.get("refuri") or link_node.get("reftarget") or ""
+
+    def _normalize_card_href(self, href: Optional[str]) -> Optional[str]:
+        if not href:
+            return href
+        if href.endswith(".html"):
+            return href[:-5] + (self.config.markdown_uri_doc_suffix or ".md")
+        is_http = href.startswith("http://") or href.startswith("https://")
+        if not (is_http or href.endswith(self.config.markdown_uri_doc_suffix)):
+            return href + (self.config.markdown_uri_doc_suffix or ".md")
+        return href
+
+    def _handle_sd_card_title(self, node):
+        container = self._find_card_container(node)
+        link_node = self._find_stretched_link(container)
+
+        title = node.astext().strip()
+        level = self._title_level(4)
+
+        href = self._href_from_link_node(link_node)
+        if link_node is not None:
+            if hasattr(link_node, "attributes") and isinstance(link_node.attributes, dict):
+                link_node["md_moved_to_title"] = True
+
+        href = self._normalize_card_href(href)
+
+        if self.status.escape_text:
+            title = escape_markdown_chars(title)
+
+        is_llm = self.config.markdown_flavor == "llm"
+        is_singlemarkdown = getattr(self.builder, "name", "") == "singlemarkdown"
+        is_internal_href = href and not (href.startswith("http://") or href.startswith("https://"))
+
+        if is_llm and is_singlemarkdown and is_internal_href:
+            self.add(f"{('#' * level)} {title}", prefix_eol=1, suffix_eol=1)
+        elif href:
+            self.add(f"{('#' * level)} [{title}]({href})", prefix_eol=1, suffix_eol=1)
+        else:
+            self.add(f"{('#' * level)} {title}", prefix_eol=1, suffix_eol=1)
+
+        raise nodes.SkipNode
+
+    def depart_container(self, node):
+        # If we marked the node as having pushed a card context, pop it now.
+        if node.get("md_card_pushed", False):
+            if len(self._ctx_queue) > 1:
+                self._pop_context(node)
 
     ################################################################################
     # lists
@@ -616,6 +774,31 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     depart_list_item = _end_list_item
 
     ################################################################################
+    # option lists
+    ################################################################################
+    # option_list
+    #   option_list_item
+    #     option_group
+    #     description
+    ###############################################################################
+
+    def visit_option_list(self, _node):
+        self._start_list("*")
+
+    depart_option_list = _end_list
+    visit_option_list_item = _start_list_item
+    depart_option_list_item = _end_list_item
+
+    def visit_option_group(self, node):
+        self.add(f"`{escape_markdown_chars(node.astext())}`", suffix_eol=1)
+        raise nodes.SkipNode
+
+    def visit_description(self, _node):
+        pass
+
+    depart_description = _pass
+
+    ################################################################################
     # desc
     ################################################################################
     # desc (desctype: {function, class, method, etc.)
@@ -651,7 +834,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         # If signature has a non-null class, that's means it is a signature
         # of a class method
         h_level = 4 if node.get("class", None) else 3
-        self._push_context(TitleContext(h_level))
+        self._push_context(TitleContext(self._title_level(h_level)))
 
     def visit_desc_parameterlist(self, _node):
         self._push_context(WrappedContext("(", ")", wrap_empty=True))
@@ -661,17 +844,26 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._pop_context(count=2)
 
     @property
-    def sep_ctx(self) -> CommaSeparatedContext:
-        ctx = self.ctx
-        assert isinstance(ctx, CommaSeparatedContext)
-        return ctx
+    def sep_ctx(self) -> Optional[CommaSeparatedContext]:
+        for ctx in reversed(self._ctx_queue):
+            if isinstance(ctx, CommaSeparatedContext):
+                return ctx
+        return None
 
     def visit_desc_parameter(self, _node):
         """single method/class ctr param"""
-        self.sep_ctx.enter_parameter()  # workaround pylint: disable=no-member
+        sep_ctx = self.sep_ctx
+        if sep_ctx is not None:
+            sep_ctx.enter_parameter()  # workaround pylint: disable=no-member
 
     def depart_desc_parameter(self, _node):
-        self.sep_ctx.exit_parameter()  # workaround pylint: disable=no-member
+        sep_ctx = self.sep_ctx
+        if sep_ctx is not None:
+            sep_ctx.exit_parameter()  # workaround pylint: disable=no-member
+
+    @pushing_context
+    def visit_desc_optional(self, _node):
+        self._push_context(WrappedContext("[", "]"))
 
     def visit_field_list(self, _node):
         self._start_list("*")
@@ -686,6 +878,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @pushing_context
     def visit_field_body(self, _node):
         self._push_context(SubContext(SubContextParams(1, 1)))
+
+    def visit_highlightlang(self, node):
+        """Apply default language for subsequent literal blocks."""
+        lang = node.get("lang", "")
+        self._status_queue[-1] = dataclasses.replace(self.status, code_language=lang)
 
     ################################################################################
     # tables
@@ -711,7 +908,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_table(self, _node):
-        self._push_context(TableContext(params=SubContextParams(2, 1)))
+        self._push_context(TableContext(params=SubContextParams(2, 1), cell_breaker=self._table_cell_breaker()))
 
     def visit_thead(self, _node):
         self.table_ctx.enter_head()  # workaround pylint: disable=no-member
@@ -754,9 +951,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         return ctx
 
     @pushing_context
-    def visit_footnote_reference(self, node):
-        ref_id = node.get("refid", "")
-        self._push_context(WrappedContext("<sup>[", f"](#{ref_id})</sup>"))
+    def visit_footnote_reference(self, _node):
+        # https://www.markdownguide.org/extended-syntax/#footnotes
+        self._push_context(WrappedContext("[^", "]"))
 
     @pushing_context
     def visit_footnote(self, node):
@@ -766,6 +963,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         names = node.get("names", "")
         if isinstance(names, (list, tuple)):
             names = ",".join(names)
+        # https://www.markdownguide.org/extended-syntax/#footnotes
         self._push_context(FootNoteContext(ids, names, params=SubContextParams(1, 1)))
 
     def visit_label(self, node):
