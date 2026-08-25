@@ -71,41 +71,48 @@ This is an example of regular text in paragraph form. There are no indents. As
 a best practice, break lines at about 80 characters, so that each line has its
 own line number for commenting in reviews.
 
-> ###### WARNING
-> 
+> [!WARNING]
 > Throughout text and code examples, make sure double quotation
 > marks and apostrophes are straight (”) or (‘), not curly quotatation marks
 > and apostrophes, which might be introduced when text is cut and pasted from
 > other sources or editors.
 
-> ###### ATTENTION
-> 
+> [!IMPORTANT]
 > Boldface is used for labels that are visible in the user interface. The UI
 > text is surrounded by double asterisks. For example, **bold**.
 
-> ###### IMPORTANT
-> 
+> [!IMPORTANT]
 > This is an important message.
 
-> ###### HINT
-> 
+> [!TIP]
 > This is a hint message.
 
-> ###### TIP
-> 
+> [!TIP]
 > This is a tip message.
 
-> ###### CAUTION
-> 
+> [!CAUTION]
 > This is a caution message.
 
-> ###### DANGER
-> 
+> [!CAUTION]
 > This is a danger message.
 
-> ###### ERROR
-> 
+> [!CAUTION]
 > This is an error message.
+
+> [!NOTE]
+> ### See also
+> 
+> Another place.
+
+> [!NOTE]
+> #### Custom Admonition Title
+> 
+> Generic admonition body.
+
+> [!TIP]
+> #### Sidebar Title
+> 
+> Sidebar body.
 
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.
@@ -129,8 +136,7 @@ Use hash symbols for ordered lists.
 2. Find the **Course Advertised Start Date** policy key.
 3. Enter the value you want to display.
 
-> ###### NOTE
-> 
+> [!NOTE]
 > Ordered lists usually use numerals. Nested ordered lists (ordered lists inside
 > other ordered lists) use letters.
 
@@ -265,8 +271,7 @@ indented under the only directive.
    to the same level as the rest of the note.
 ```
 
-> ###### NOTE
-> 
+> [!NOTE]
 > This is note text. If note text runs over a line, make sure the lines wrap
 > and are indented to the same level as the note tag. If formatting is
 > incorrect, part of the note might not render in the HTML output.
@@ -280,8 +285,7 @@ indented under the only directive.
    must be broken and indented under the warning tag.
 ```
 
-> ###### WARNING
-> 
+> [!WARNING]
 > Warnings are formatted in the same way as notes. In the same way, lines must
 > be broken and indented under the warning tag.
 
@@ -345,8 +349,7 @@ syntax, as in the following example.
 
 If you want to, you can use keyboard shortcuts to create, edit, and view notes.
 
-> ###### NOTE
-> 
+> [!NOTE]
 > Do not include a space between the last word of the link text and the opening
 > angle bracket for the anchor text.
 
@@ -434,8 +437,7 @@ To create an external cross-reference, follow these steps.
    .. include:: ../../links/links.rst
    ```
 
-   > ###### NOTE
-   > 
+   > [!NOTE]
    > The path to the links.rst file depends on the location of the file where
    > you are creating the link. For example, the path might be
    > `../../../links/links.rst` or `../links/links.rst`.
@@ -847,8 +849,8 @@ Y value
 
 Some old function.
 
-##### Deprecated
-Deprecated since version 3.1: Use `other()` instead.
+> [!WARNING]
+> Deprecated since version 3.1: Use `other()` instead.
 
 #### func1(param1)
 
@@ -917,7 +919,8 @@ This is a dummy function that does not do anything.
 * **Return type:**
   None
 
-> ###### SEE ALSO
+> [!NOTE]
+> ### See also
 > 
 > `function()`
 
@@ -1132,8 +1135,8 @@ Y value
 
 Some old function.
 
-##### Deprecated
-Deprecated since version 3.1: Use `other()` instead.
+> [!WARNING]
+> Deprecated since version 3.1: Use `other()` instead.
 
 #### func1(param1)
 

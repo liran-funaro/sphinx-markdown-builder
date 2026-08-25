@@ -422,3 +422,9 @@ DOC_INFO_CONTEXT = PushContext(
     MetaContext,
     translator=lambda _node, elem: {"name": f"{elem}: "},
 )
+
+
+@dataclass(frozen=True)
+class PushBox:
+    title: str
+    heading: str | None = None

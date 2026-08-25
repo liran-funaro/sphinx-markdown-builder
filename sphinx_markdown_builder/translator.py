@@ -40,6 +40,7 @@ from sphinx_markdown_builder.contexts import (
     ITALIC_CONTEXT,
     ListMarker,
     MetaContext,
+    PushBox,
     PushContext,
     STRONG_CONTEXT,
     SubContext,
@@ -62,58 +63,74 @@ SKIP = UniqueString("skip")
 DOC_INFO_FIELDS = "author", "contact", "copyright", "date", "organization", "revision", "status", "version"
 
 # Defines context items, skip, or None (keep processing sub-tree).
-PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, UniqueString, None]] = dict(  # pylint: disable=use-dict-literal
-    # Doctree elements for which Markdown element is <prefix><content><suffix>
-    emphasis=ITALIC_CONTEXT,
-    strong=STRONG_CONTEXT,
-    subscript=SUBSCRIPT_CONTEXT,
-    superscript=SUBSCRIPT_CONTEXT,
-    desc_annotation=ITALIC_CONTEXT,
-    literal_strong=STRONG_CONTEXT,
-    literal_emphasis=ITALIC_CONTEXT,
-    field_name=PushContext(WrappedContext, "**", ":**"),  # e.g 'returns', 'parameters'
-    # Doc info elements
-    docinfo=DOC_INFO_CONTEXT,
-    docinfo_item=DOC_INFO_CONTEXT,
-    **dict.fromkeys(DOC_INFO_FIELDS, DOC_INFO_CONTEXT),
-    authors=None,  # not used: visit_author is called anyway for each author.
-    # Doctree elements to skip subtree
-    autosummary_toc=SKIP,
-    nbplot_epilogue=SKIP,
-    nbplot_not_rendered=SKIP,
-    nbplot_container=SKIP,
-    code_links=SKIP,
-    index=SKIP,
-    substitution_definition=SKIP,  # the doctree already contains the text with substitutions applied.
-    runrole_reference=SKIP,
-    toctree=SKIP,
-    viewcode_anchor=SKIP,
-    # Doctree elements to ignore
-    document=None,
-    container=None,
-    inline=None,
-    abbreviation=None,
-    definition_list=None,
-    definition_list_item=None,
-    glossary=None,
-    field_list_item=None,
-    mpl_hint=None,
-    pending_xref=None,
-    compound=None,
-    desc_addname=None,  # module pre-roll for class/method
-    desc_content=None,  # the description of the class/method
-    desc_name=None,  # name of the class/method
-    title_reference=None,
-    autosummary_table=None,  # Sphinx autosummary
-    # See https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html.
-    # Ignored table elements
-    raw=None,
-    tabular_col_spec=None,
-    colspec=None,
-    tgroup=None,
-    figure=None,
-    caption=None,
-    desc_signature_line=None,
+PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] = (
+    dict(  # pylint: disable=use-dict-literal
+        # Doctree elements for which Markdown element is <prefix><content><suffix>
+        emphasis=ITALIC_CONTEXT,
+        strong=STRONG_CONTEXT,
+        subscript=SUBSCRIPT_CONTEXT,
+        superscript=SUBSCRIPT_CONTEXT,
+        desc_annotation=ITALIC_CONTEXT,
+        literal_strong=STRONG_CONTEXT,
+        literal_emphasis=ITALIC_CONTEXT,
+        field_name=PushContext(WrappedContext, "**", ":**"),  # e.g 'returns', 'parameters'
+        # Doc info elements
+        docinfo=DOC_INFO_CONTEXT,
+        docinfo_item=DOC_INFO_CONTEXT,
+        **dict.fromkeys(DOC_INFO_FIELDS, DOC_INFO_CONTEXT),
+        authors=None,  # not used: visit_author is called anyway for each author.
+        # Admonitions
+        important=PushBox("IMPORTANT"),
+        warning=PushBox("WARNING"),
+        note=PushBox("NOTE"),
+        seealso=PushBox("NOTE", "See also"),
+        attention=PushBox("IMPORTANT"),
+        hint=PushBox("TIP"),
+        tip=PushBox("TIP"),
+        caution=PushBox("CAUTION"),
+        danger=PushBox("CAUTION"),
+        error=PushBox("CAUTION"),
+        admonition=PushBox("NOTE"),
+        sidebar=PushBox("TIP"),
+        versionmodified=PushBox("WARNING"),  # “versionadded”, “versionchanged” and “deprecated” directives.
+        # Doctree elements to skip subtree
+        autosummary_toc=SKIP,
+        nbplot_epilogue=SKIP,
+        nbplot_not_rendered=SKIP,
+        nbplot_container=SKIP,
+        code_links=SKIP,
+        index=SKIP,
+        substitution_definition=SKIP,  # the doctree already contains the text with substitutions applied.
+        runrole_reference=SKIP,
+        toctree=SKIP,
+        viewcode_anchor=SKIP,
+        # Doctree elements to ignore
+        document=None,
+        container=None,
+        inline=None,
+        abbreviation=None,
+        definition_list=None,
+        definition_list_item=None,
+        glossary=None,
+        field_list_item=None,
+        mpl_hint=None,
+        pending_xref=None,
+        compound=None,
+        desc_addname=None,  # module pre-roll for class/method
+        desc_content=None,  # the description of the class/method
+        desc_name=None,  # name of the class/method
+        title_reference=None,
+        autosummary_table=None,  # Sphinx autosummary
+        # See https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html.
+        # Ignored table elements
+        raw=None,
+        tabular_col_spec=None,
+        colspec=None,
+        tgroup=None,
+        figure=None,
+        caption=None,
+        desc_signature_line=None,
+    )
 )
 
 
@@ -191,15 +208,12 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             ctx = self.ctx if last_ctx.params.target == "body" else self._doc_info
             ctx.add(last_ctx.make(), last_ctx.params.prefix_eol, last_ctx.params.suffix_eol)
 
-    def _push_box(self, title: str):
-        level = self._title_level(4)
-        self.add(f"{'#' * level} {title}", prefix_eol=2)
-        self._push_context(SubContext(SubContextParams(1, 2)))
-
-    def _push_admonition(self, title: str):
-        level = self._title_level(5)
-        self._push_context(IndentContext("> ", empty=True, params=SubContextParams(1, 2)))
-        self.add(f"{'#' * level} {title}", prefix_eol=1, suffix_eol=1)
+    def _push_box(self, title: str, heading: str | None = None):
+        self.add(f"> [!{title}]")
+        self._push_context(IndentContext(prefix="> ", empty=True, params=SubContextParams(1, 2)))
+        self._push_status(section_level=3)
+        if heading is not None:
+            self.add(f"### {heading}")
 
     @property
     def status(self) -> ContextStatus:
@@ -266,7 +280,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
                 return predefined_method
             raise ex
 
-    def _find_predefined_action(self, state: str, element: str):
+    def _find_predefined_action(self, state: str, element: str):  # pylint: disable=too-many-return-statements
         action = PREDEFINED_ELEMENTS.get(element, "__undefined__")
         if action is None:
             return self._pass
@@ -276,6 +290,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             if state == "visit":
                 return lambda node: self._push_context(action.create(node, element))
             return self._pop_context
+        if isinstance(action, PushBox):
+            if state == "visit":
+                return lambda _node: self._push_box(action.title, action.heading)
+            return self._pop_context_and_status
         return None
 
     def _find_pushing_method(self, state: str, element: str):
@@ -329,54 +347,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     ################################################################################
     # visit/depart handlers
     ################################################################################
-
-    @pushing_context
-    def visit_important(self, _node):
-        """Sphinx important directive."""
-        self._push_admonition("IMPORTANT")
-
-    @pushing_context
-    def visit_warning(self, _node):
-        """Sphinx warning directive."""
-        self._push_admonition("WARNING")
-
-    @pushing_context
-    def visit_caution(self, _node):
-        self._push_admonition("CAUTION")
-
-    @pushing_context
-    def visit_note(self, _node):
-        """Sphinx note directive."""
-        self._push_admonition("NOTE")
-
-    @pushing_context
-    def visit_seealso(self, _node):
-        """Sphinx see also directive."""
-        self._push_admonition("SEE ALSO")
-
-    @pushing_context
-    def visit_attention(self, _node):
-        self._push_admonition("ATTENTION")
-
-    @pushing_context
-    def visit_hint(self, _node):
-        """Sphinx hint directive."""
-        self._push_admonition("HINT")
-
-    @pushing_context
-    def visit_tip(self, _node):
-        """Sphinx tip directive."""
-        self._push_admonition("TIP")
-
-    @pushing_context
-    def visit_danger(self, _node):
-        """Sphinx danger directive."""
-        self._push_admonition("DANGER")
-
-    @pushing_context
-    def visit_error(self, _node):
-        """Sphinx error directive."""
-        self._push_admonition("ERROR")
 
     def visit_image(self, node):
         """Image directive."""
@@ -908,16 +878,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @pushing_context
     def visit_field_body(self, _node):
         self._push_context(SubContext(SubContextParams(1, 1)))
-
-    @pushing_context
-    def visit_versionmodified(self, node):
-        """
-        Node for version change entries.
-        Currently used for “versionadded”, “versionchanged” and “deprecated” directives.
-        Type will hold something like 'deprecated'
-        """
-        node_type = node.attributes["type"].capitalize()
-        self._push_box(node_type)
 
     def visit_highlightlang(self, node):
         """Apply default language for subsequent literal blocks."""
