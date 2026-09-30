@@ -32,7 +32,8 @@ def openedx_rtd_url(slug):
 
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3/", None),
+    # Keep the Python inventory aligned with the expected Markdown snapshots.
+    "python": ("https://docs.python.org/3/", "https://docs.python.org/3.11/objects.inv"),
     "torch": ("https://pytorch.org/docs/stable/", None),
     "opencoursestaff": (
         openedx_rtd_url("open-edx-building-and-running-a-course"),
