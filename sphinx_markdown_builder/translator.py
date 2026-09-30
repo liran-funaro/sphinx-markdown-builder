@@ -111,6 +111,7 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
         glossary=None,
         field_list_item=None,
         mpl_hint=None,
+        PassthroughTextElement=None,  # sphinx-design: transparent wrapper around inline refs
         pending_xref=None,
         compound=None,
         desc_addname=None,  # module pre-roll for class/method

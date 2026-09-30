@@ -18,6 +18,7 @@ extensions = [
     "sphinx.ext.intersphinx",  # Link to other project's documentation (see mapping below)
     "sphinx_markdown_builder",
     "sphinxcontrib.httpdomain",
+    "sphinx_design",
 ]
 
 
