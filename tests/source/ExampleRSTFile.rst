@@ -60,6 +60,31 @@ own line number for commenting in reviews.
 .. hint::
    This is a hint message.
 
+.. tip::
+   This is a tip message.
+
+.. caution::
+   This is a caution message.
+
+.. danger::
+   This is a danger message.
+
+.. error::
+   This is an error message.
+
+.. seealso::
+
+   Another place.
+
+.. admonition:: Custom Admonition Title
+
+   Generic admonition body.
+
+.. sidebar:: Sidebar Title
+
+   Sidebar body.
+
+
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.
 

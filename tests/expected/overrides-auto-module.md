@@ -1,6 +1,6 @@
 <meta name="author" content="Liran Funaro"/>
 <meta name="copyright" content="Copyright (c) 2023-2026, Liran Funaro."/>
-<meta name="version" content="0.6.10"/>
+<meta name="version" content="0.6.11"/>
 
 <a id="auto-module"></a>
 
@@ -34,8 +34,8 @@ Y value
 
 Some old function.
 
-#### Deprecated
-Deprecated since version 3.1: Use `other()` instead.
+> [!WARNING]
+> Deprecated since version 3.1: Use `other()` instead.
 
 ### func1(param1: [int](https://docs.python.org/3/library/functions.html#int)) → [int](https://docs.python.org/3/library/functions.html#int)
 

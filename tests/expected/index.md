@@ -60,6 +60,7 @@
 * [Indices and tables](auto-summery.md#indices-and-tables)
 * [Math Example](blocks.md)
 * [Code Example](blocks.md#code-example)
+  * [Multi-line Code Block](blocks.md#multi-line-code-block)
 * [Line Block](blocks.md#line-block)
   * [Other text](blocks.md#other-text)
   * [Referencing terms from a glossary](blocks.md#referencing-terms-from-a-glossary)
