@@ -33,7 +33,6 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.osutil import relative_uri
 
 from sphinx_markdown_builder.contexts import (
-    CommaSeparatedContext,
     ContextStatus,
     DOC_INFO_CONTEXT,
     IndentContext,
@@ -162,6 +161,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._ctx_queue: List[SubContext] = [SubContext()]
         self._doc_info: SubContext = SubContext()
         self._status_queue: List[ContextStatus] = [ContextStatus()]
+        self._first_param = True
 
         if self.config.markdown_docinfo:
             self._add_doc_info_from_config()
@@ -655,23 +655,19 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def visit_desc_parameterlist(self, _node):
         self._push_context(WrappedContext("(", ")", wrap_empty=True))
-        self._push_context(CommaSeparatedContext(", "))
+        self._first_param = True
 
-    def depart_desc_parameterlist(self, _node):
-        self._pop_context(count=2)
-
-    @property
-    def sep_ctx(self) -> CommaSeparatedContext:
-        ctx = self.ctx
-        assert isinstance(ctx, CommaSeparatedContext)
-        return ctx
+    depart_desc_parameterlist = _pop_context
 
     def visit_desc_parameter(self, _node):
         """single method/class ctr param"""
-        self.sep_ctx.enter_parameter()  # workaround pylint: disable=no-member
+        if not self._first_param:
+            self.add(", ")
+        self._first_param = False
 
-    def depart_desc_parameter(self, _node):
-        self.sep_ctx.exit_parameter()  # workaround pylint: disable=no-member
+    @pushing_context
+    def visit_desc_optional(self, _node):
+        self._push_context(WrappedContext("[", "]"))
 
     def visit_field_list(self, _node):
         self._start_list("*")
