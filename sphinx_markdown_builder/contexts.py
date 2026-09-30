@@ -189,32 +189,6 @@ class WrappedContext(SubContext):
         return f"{prefix_space}{self.prefix}{text}{self.suffix}{suffix_space}"
 
 
-class CommaSeparatedContext(SubContext):
-    def __init__(self, sep: str = ", ", params=SubContextParams()):
-        super().__init__(params)
-        self.sep = sep
-        self.parameters: List[List[str]] = []
-
-        self.is_parameter = False
-
-    def enter_parameter(self):
-        self.is_parameter = True
-        self.parameters.append([])
-
-    def exit_parameter(self):
-        self.is_parameter = False
-
-    @property
-    def content(self):
-        if self.is_parameter:
-            return self.parameters[-1]
-        return super().content
-
-    def make(self):
-        ret = super().make()
-        return ret + self.sep.join(["".join(item) for item in self.parameters])
-
-
 class TableContext(SubContext):
     def __init__(self, params=SubContextParams()):
         super().__init__(params)
