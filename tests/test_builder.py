@@ -10,6 +10,7 @@ from typing import Iterable
 
 import pytest
 from sphinx.cmd.build import main
+import yaml
 
 BUILD_PATH = "./tests/docs-build"
 SOURCE_PATH = "./tests/source"
@@ -190,3 +191,39 @@ def test_download_references(tmp_path: Path):
     assert f"](../{download_uri})" in markdown
     assert "](../assets/sample.pdf)" not in markdown
     assert "](https://example.com/sample.pdf)" in markdown
+
+
+@pytest.mark.parametrize("flavor", ["", "github"])
+@pytest.mark.parametrize("enabled", [False, True])
+def test_docinfo_frontmatter(tmp_path: Path, flavor: str, enabled: bool):
+    source_path = tmp_path / "source"
+    output_path = tmp_path / "output"
+    source_path.mkdir()
+    metadata = {
+        "author": 'Example: "Team" #1 \\ docs\nSecond line',
+        "copyright": "2026, Example Documentation Team",
+        "version": "0.6",
+    }
+    config = (
+        'extensions = ["sphinx_markdown_builder"]\nroot_doc = "index"\n'
+        f"markdown_docinfo = {enabled!r}\nmarkdown_flavor = {flavor!r}\n"
+    )
+    config += "".join(f"{key} = {value!r}\n" for key, value in metadata.items())
+    (source_path / "conf.py").write_text(
+        config,
+        encoding="utf-8",
+    )
+    (source_path / "index.rst").write_text("Index\n=====\n\n.. toctree::\n\n   child\n", encoding="utf-8")
+    (source_path / "child.rst").write_text("Child\n=====\n\nBody text.\n", encoding="utf-8")
+
+    assert main(["-b", "markdown", str(source_path), str(output_path)]) == 0
+
+    for name in ("index", "child"):
+        markdown = (output_path / f"{name}.md").read_text(encoding="utf-8")
+        if enabled:
+            assert markdown.startswith("---\n")
+            _, frontmatter, body = markdown.split("---", 2)
+            assert yaml.safe_load(frontmatter) == metadata
+            assert body.startswith(f"\n\n# {name.title()}\n")
+        else:
+            assert markdown.startswith(f"# {name.title()}\n")

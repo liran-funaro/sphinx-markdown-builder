@@ -11,8 +11,6 @@ from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type,
 
 from tabulate import tabulate
 
-from sphinx_markdown_builder.escape import escape_html_quote
-
 
 class UniqueString(str):
     pass
@@ -342,17 +340,14 @@ class TitleContext(NoLineBreakContext):
         return f"{self.section_prefix} {content}"
 
 
-class MetaContext(NoLineBreakContext):
+class MetaContext(SubContext):
     def __init__(self, name: str, params=SubContextParams(1, 1, target="head")):
-        super().__init__("<br/>", params)
+        super().__init__(params)
         assert name, "Empty meta name"
         self.name = name
 
     def make(self):
-        content = super().make()
-        if not content:
-            return ""
-        return f'<meta name="{escape_html_quote(self.name)}" content="{escape_html_quote(content)}"/>'
+        return super().make().strip()
 
 
 class FootNoteContext(NoLineBreakContext):
@@ -411,7 +406,7 @@ STRONG_CONTEXT = PushContext(WrappedContext, "**")  # _ is more restrictive
 SUBSCRIPT_CONTEXT = PushContext(WrappedContext, "<sub>", "</sub>")
 DOC_INFO_CONTEXT = PushContext(
     MetaContext,
-    translator=lambda _node, elem: {"name": f"{elem}: "},
+    translator=lambda _node, elem: {"name": elem},
 )
 
 
