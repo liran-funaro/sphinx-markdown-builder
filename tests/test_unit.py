@@ -1,6 +1,7 @@
 """
 Unit tests for the markdown builder
 """
+
 import logging
 from unittest.mock import Mock
 
@@ -77,3 +78,24 @@ def test_problematic():
         mt.dispatch_visit(node)
     mt.add("suffix")
     assert mt.astext() == "prefix\n\n```\ntext\n```\n\nsuffix\n"
+
+
+@pytest.mark.parametrize(
+    "attributes, anchors",
+    [
+        ({"ids": ["structWidget", "widget-alias"]}, ["structWidget", "widget-alias"]),
+        ({"refid": "existing-target"}, ["existing-target"]),
+        ({"ids": ["same-target"], "refid": "same-target"}, ["same-target"]),
+        ({"ids": ["explicit-target"], "refid": "indirect-target"}, ["explicit-target", "indirect-target"]),
+        ({"ids": ["external-link"], "refuri": "https://example.com/"}, []),
+        ({}, []),
+    ],
+)
+def test_explicit_target_anchors(attributes, anchors):
+    """Breathe's explicit target IDs coexist with existing indirect targets."""
+    translator = make_mock()
+    translator.dispatch_visit(docutils.nodes.target(**attributes))
+    output = translator.astext()
+    for anchor in anchors:
+        assert output.count(f'<a id="{anchor}"></a>') == 1
+    assert output.count("<a id=") == len(anchors)
