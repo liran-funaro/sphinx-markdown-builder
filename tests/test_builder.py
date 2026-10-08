@@ -190,3 +190,30 @@ def test_download_references(tmp_path: Path):
     assert f"](../{download_uri})" in markdown
     assert "](../assets/sample.pdf)" not in markdown
     assert "](https://example.com/sample.pdf)" in markdown
+
+
+@pytest.mark.parametrize("signature_anchors", [False, True])
+def test_doxygen_target_in_signature(tmp_path, signature_anchors):
+    """An explicit target inside a signature remains reachable by a reference."""
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "conf.py").write_text(
+        'extensions = ["sphinx_markdown_builder"]\n'
+        f"markdown_anchor_signatures = {signature_anchors!r}\n"
+        "from docutils import nodes\n"
+        "from sphinx import addnodes\n"
+        "def add_target(app, doctree):\n"
+        "    signature = next(doctree.findall(addnodes.desc_signature))\n"
+        "    signature.insert(0, nodes.target(ids=['structWidget']))\n"
+        "    reference = nodes.reference(text='Doxygen Widget', refid='structWidget', internal=True)\n"
+        "    doctree += nodes.paragraph('', '', reference)\n"
+        "def setup(app):\n"
+        "    app.connect('doctree-read', add_target)\n"
+    )
+    (source / "index.rst").write_text("API\n===\n\n.. cpp:struct:: Widget\n")
+    output = tmp_path / "output"
+    assert main(["-b", "markdown", "-E", "-W", str(source), str(output)]) == 0
+    markdown = (output / "index.md").read_text()
+    assert "[Doxygen Widget](#structWidget)" in markdown
+    assert '<a id="structWidget"></a>' in markdown
+    assert "struct Widget" in markdown

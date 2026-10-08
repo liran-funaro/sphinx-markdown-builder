@@ -566,10 +566,13 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             self.add(content, prefix_eol=2, suffix_eol=1)
 
     def visit_target(self, node):
+        # External hyperlink definitions do not define local destinations.
+        anchors = dict.fromkeys(node.get("ids", []) if "refuri" not in node else [])
         ref_id = node.get("refid", None)
-        if ref_id is None:
-            return
-        self._add_anchor(ref_id)
+        if ref_id is not None:
+            anchors[ref_id] = None
+        for anchor in anchors:
+            self._add_anchor(anchor)
 
     @pushing_context
     @pushing_status
