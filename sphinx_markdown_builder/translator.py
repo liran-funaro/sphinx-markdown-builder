@@ -26,7 +26,7 @@ https://github.com/docutils/docutils/blob/master/docutils/docutils/writers/html5
 import dataclasses
 import posixpath
 import re
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Set, Union
 
 from docutils import languages, nodes
 from sphinx.util.docutils import SphinxTranslator
@@ -161,7 +161,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
         # FIFO Sub context allow us to handle unique cases when post-processing is required
         self._ctx_queue: List[SubContext] = [SubContext()]
-        self._doc_info: Dict[str, str] = {}
+        self._doc_info: Dict[str, Union[str, List[str]]] = {}
+        self._doc_info_configured: Set[str] = set()
         self._status_queue: List[ContextStatus] = [ContextStatus()]
 
         if self.config.markdown_docinfo:
@@ -175,10 +176,25 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
                 self.ctx.add(value)
                 self._pop_context()
 
+    def _add_doc_info_value(self, name: str, value: str):
+        """Store a docinfo value while preserving config overrides and multiple values."""
+        if name in self._doc_info_configured:
+            self._doc_info[name] = value
+            self._doc_info_configured.discard(name)
+            return
+
+        existing = self._doc_info.get(name)
+        if existing is None:
+            self._doc_info[name] = value
+        elif isinstance(existing, list):
+            existing.append(value)
+        else:
+            self._doc_info[name] = [existing, value]
+
     def _visit_doc_info(self, node, name):
         value = node.astext().strip()
         if value:
-            self._doc_info[name] = value
+            self._add_doc_info_value(name, value)
         raise nodes.SkipNode
 
     @property
@@ -198,6 +214,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             if isinstance(last_ctx, MetaContext):
                 if content:
                     self._doc_info[last_ctx.name] = content
+                    self._doc_info_configured.add(last_ctx.name)
             else:
                 self.ctx.add(content, last_ctx.params.prefix_eol, last_ctx.params.suffix_eol)
 

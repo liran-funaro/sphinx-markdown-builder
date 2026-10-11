@@ -74,6 +74,23 @@ def test_compact_frontmatter():
     assert translator.astext() == "---\nauthor: Example Team\nversion: '0.6'\n---\n\n"
 
 
+def test_multiple_authors_are_serialized_as_list():
+    document = new_document("test")
+    document += docutils.nodes.docinfo(
+        "",
+        docutils.nodes.author("", "Alice"),
+        docutils.nodes.author("", "Bob"),
+    )
+    builder = Mock(name="builder")
+    translator = MarkdownTranslator(document, builder)
+    document.walkabout(translator)
+
+    markdown = translator.astext()
+    assert markdown.startswith("---\n")
+    assert yaml.safe_load(markdown.split("---", 2)[1]) == {"author": ["Alice", "Bob"]}
+    assert markdown.endswith("---\n\n")
+
+
 @pytest.mark.parametrize("enabled", [False, True])
 def test_no_empty_frontmatter(enabled):
     document = Mock(name="document")
