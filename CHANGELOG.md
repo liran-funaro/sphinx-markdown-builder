@@ -84,6 +84,11 @@
 - Add `markdown_http_base` and `markdown_uri_doc_suffix` settings for links to externally hosted documentation. ([ef3d414](https://github.com/liran-funaro/sphinx-markdown-builder/commit/ef3d414a5e43b09dd99dee82a0aead60a7312674)) [Liran Funaro](https://github.com/liran-funaro)
 - Generate correctly structured Markdown tables with `tabulate`. ([c1ada2a](https://github.com/liran-funaro/sphinx-markdown-builder/commit/c1ada2a28c3d63e3c8ca7b2317756bc4a3698585)) [Liran Funaro](https://github.com/liran-funaro)
 - Fix nested-list spacing and images used as link targets. ([4b1786b](https://github.com/liran-funaro/sphinx-markdown-builder/commit/4b1786b798f9a63d3579f0e26343c8e8b6634239)) [Liran Funaro](https://github.com/liran-funaro)
+
+## Pre-0.6.0
+
+This project is a maintained fork of [clayrisser/sphinx-markdown-builder](https://github.com/clayrisser/sphinx-markdown-builder), which is now archived. The original project did not tag its releases, so the inherited changes below cannot be reliably grouped by release.
+
 - Avoid unwanted paragraph line breaks inside table cells and list items. ([clayrisser/sphinx-markdown-builder#57](https://github.com/clayrisser/sphinx-markdown-builder/pull/57)) [Shengyu Zhang](https://github.com/SilverRainZ)
 - Preserve inline literals and signature text, fix same-page anchors, and allow signature anchors. ([clayrisser/sphinx-markdown-builder#55](https://github.com/clayrisser/sphinx-markdown-builder/pull/55)) [Sergey Gruntovsky](https://github.com/wncm)
 - Fix links to generated Markdown documents, including toctree references. ([clayrisser/sphinx-markdown-builder#51](https://github.com/clayrisser/sphinx-markdown-builder/pull/51)) [Fabian Niehaus](https://github.com/FabianNiehaus)
