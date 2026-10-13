@@ -85,12 +85,12 @@
 - Generate correctly structured Markdown tables with `tabulate`. ([c1ada2a](https://github.com/liran-funaro/sphinx-markdown-builder/commit/c1ada2a28c3d63e3c8ca7b2317756bc4a3698585)) [Liran Funaro](https://github.com/liran-funaro)
 - Fix nested-list spacing and images used as link targets. ([4b1786b](https://github.com/liran-funaro/sphinx-markdown-builder/commit/4b1786b798f9a63d3579f0e26343c8e8b6634239)) [Liran Funaro](https://github.com/liran-funaro)
 
-### 0.5.5
+## 0.5.5
 
 - Avoid unwanted paragraph line breaks inside table cells and list items. ([clayrisser/sphinx-markdown-builder#57](https://github.com/clayrisser/sphinx-markdown-builder/pull/57)) [Shengyu Zhang](https://github.com/SilverRainZ)
 - Preserve inline literals and signature text, fix same-page anchors, and allow signature anchors. ([clayrisser/sphinx-markdown-builder#55](https://github.com/clayrisser/sphinx-markdown-builder/pull/55)) [Sergey Gruntovsky](https://github.com/wncm)
 
-### 0.5.4
+## 0.5.4
 
 - Fix links to generated Markdown documents, including toctree references. ([clayrisser/sphinx-markdown-builder#51](https://github.com/clayrisser/sphinx-markdown-builder/pull/51)) [Fabian Niehaus](https://github.com/FabianNiehaus)
 - Create translators through the Sphinx builder API so extensions can register custom node handlers. ([clayrisser/sphinx-markdown-builder#50](https://github.com/clayrisser/sphinx-markdown-builder/pull/50)) [Olivier Cayrol](https://github.com/ocayrol)
@@ -99,47 +99,47 @@
 - Render API annotations in italics. ([clayrisser/sphinx-markdown-builder#42](https://github.com/clayrisser/sphinx-markdown-builder/pull/42)) [terryzhuo110](https://github.com/terryyz)
 - Keep code-block language annotations compatible with newer Sphinx highlighting attributes. ([clayrisser/sphinx-markdown-builder#41](https://github.com/clayrisser/sphinx-markdown-builder/pull/41)) [Christian Duffau-Rasmussen](https://github.com/duffau)
 
-### 0.5.3
+## 0.5.3
 
 - Render class headings above method headings and tolerate signatures without a class attribute. ([clayrisser/sphinx-markdown-builder#39](https://github.com/clayrisser/sphinx-markdown-builder/pull/39)) [Adrien VALIENTE](https://github.com/avaliente-bc) and [Jam Risser](https://github.com/clayrisser)
 - Escape Python special-method names so double underscores do not become Markdown emphasis. ([clayrisser/sphinx-markdown-builder#37](https://github.com/clayrisser/sphinx-markdown-builder/pull/37)) [Adrien VALIENTE](https://github.com/avaliente-bc)
 
-### 0.5.2
+## 0.5.2
 
 - Improve numbering and indentation of nested ordered and unordered lists. ([c75f9b5](https://github.com/liran-funaro/sphinx-markdown-builder/commit/c75f9b56bf1681f8306cb886847f06830694c4eb)) [Jam Risser](https://github.com/clayrisser)
 
-### 0.5.1
+## 0.5.1
 
 - Remove the installation-time Pandoc requirement, unnecessary typing dependency, and strict dependency pins. ([clayrisser/sphinx-markdown-builder#29](https://github.com/clayrisser/sphinx-markdown-builder/pull/29)) [Zac Hatfield-Dodds](https://github.com/Zac-HD)
 - Preserve nested inline formatting in link text. ([clayrisser/sphinx-markdown-builder#28](https://github.com/clayrisser/sphinx-markdown-builder/pull/28)) [Joe Wallis](https://github.com/Peilonrayz)
 
-### 0.5.0
+## 0.5.0
 
 - Remove redundant newlines from generated Markdown. ([clayrisser/sphinx-markdown-builder#26](https://github.com/clayrisser/sphinx-markdown-builder/pull/26)) [Joe Wallis](https://github.com/Peilonrayz)
 - Render inline literal text correctly inside links. ([clayrisser/sphinx-markdown-builder#24](https://github.com/clayrisser/sphinx-markdown-builder/pull/24)) [Joe Wallis](https://github.com/Peilonrayz)
 - Preserve the configured language on highlighted code blocks. ([clayrisser/sphinx-markdown-builder#23](https://github.com/clayrisser/sphinx-markdown-builder/pull/23)) [Gaute Lindkvist](https://github.com/lindkvis)
 
-### 0.4.1
+## 0.4.1
 
 - Avoid an `IndexError` when completing a table row. ([clayrisser/sphinx-markdown-builder#12](https://github.com/clayrisser/sphinx-markdown-builder/pull/12)) [Liam Deacon](https://github.com/Liam-Deacon)
 
-### 0.4.0
+## 0.4.0
 
 - Render Sphinx API signatures, parameter fields, notes, warnings, rubrics, and version-change directives. ([b1e2334](https://github.com/liran-funaro/sphinx-markdown-builder/commit/b1e2334f66918c47013755f7ff8aeefff9002ccb)) [Manne Öhrström](https://github.com/manneohrstrom)
 
-### 0.3.0
+## 0.3.0
 
 - Render native tables as aligned Markdown tables. ([179a99f](https://github.com/liran-funaro/sphinx-markdown-builder/commit/179a99f83af1818602fe6efb07c529b66d76ea7f)) [Jam Risser](https://github.com/clayrisser)
 - Render images with valid Markdown image syntax. ([164f594](https://github.com/liran-funaro/sphinx-markdown-builder/commit/164f5946e21a3a714daa323caf6ff19a4160dfc9)) [Manne Öhrström](https://github.com/manneohrstrom)
 
-### 0.1.3
+## 0.1.3
 
 - Render document titles and subtitles at the correct Markdown heading levels. ([f3d5f52](https://github.com/liran-funaro/sphinx-markdown-builder/commit/f3d5f52cc86c19a0ddec357bbb209f71ccc5ad80)) [Jam Risser](https://github.com/clayrisser)
 
-### 0.1.2
+## 0.1.2
 
 - Remove the missing nbplots import so the bundled translator can load. ([fbc6e53](https://github.com/liran-funaro/sphinx-markdown-builder/commit/fbc6e532b6361e12ba4516df604f5e21fb99797d)) [Jam Risser](https://github.com/clayrisser)
 
-### 0.1.0
+## 0.1.0
 
 - Introduce the Markdown builder and bundle its doctree translator to generate Markdown from Sphinx documents. ([00e60eb](https://github.com/liran-funaro/sphinx-markdown-builder/commit/00e60eb6cd03028597712b82b2c51c3316b821f1)) [Jam Risser](https://github.com/clayrisser)
