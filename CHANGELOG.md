@@ -85,10 +85,6 @@
 - Generate correctly structured Markdown tables with `tabulate`. ([c1ada2a](https://github.com/liran-funaro/sphinx-markdown-builder/commit/c1ada2a28c3d63e3c8ca7b2317756bc4a3698585)) [Liran Funaro](https://github.com/liran-funaro)
 - Fix nested-list spacing and images used as link targets. ([4b1786b](https://github.com/liran-funaro/sphinx-markdown-builder/commit/4b1786b798f9a63d3579f0e26343c8e8b6634239)) [Liran Funaro](https://github.com/liran-funaro)
 
-## Pre-0.6.0
-
-This project is a maintained fork of [clayrisser/sphinx-markdown-builder](https://github.com/clayrisser/sphinx-markdown-builder), which is now archived. The original project did not tag its releases. Historical version groups below are reconstructed from `setup.py`, merge ancestry, and the original changelog; they describe versioned source history, not independently verified published release contents. Where no changelog entry exists, changes are grouped by their integration version, with consolidated entries placed at their latest supporting version.
-
 ### 0.5.5
 
 - Avoid unwanted paragraph line breaks inside table cells and list items. ([clayrisser/sphinx-markdown-builder#57](https://github.com/clayrisser/sphinx-markdown-builder/pull/57)) [Shengyu Zhang](https://github.com/SilverRainZ)
