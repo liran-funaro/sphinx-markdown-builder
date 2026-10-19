@@ -71,9 +71,3 @@ C domain
 --------
 
 .. c:function:: PyObject *PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
-
-
-Python domain
--------------
-
-.. py:function:: f(a[, b[, c]])

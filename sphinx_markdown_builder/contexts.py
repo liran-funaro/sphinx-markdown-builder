@@ -189,6 +189,12 @@ class WrappedContext(SubContext):
         return f"{prefix_space}{self.prefix}{text}{self.suffix}{suffix_space}"
 
 
+class ParameterListContext(WrappedContext):
+    def __init__(self, params=SubContextParams()):
+        super().__init__("(", ")", wrap_empty=True, params=params)
+        self.first_param = True
+
+
 class TableContext(SubContext):
     def __init__(self, params=SubContextParams()):
         super().__init__(params)

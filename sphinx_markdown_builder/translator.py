@@ -39,6 +39,7 @@ from sphinx_markdown_builder.contexts import (
     ITALIC_CONTEXT,
     ListMarker,
     MetaContext,
+    ParameterListContext,
     PushBox,
     PushContext,
     STRONG_CONTEXT,
@@ -161,7 +162,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._ctx_queue: List[SubContext] = [SubContext()]
         self._doc_info: SubContext = SubContext()
         self._status_queue: List[ContextStatus] = [ContextStatus()]
-        self._first_param = True
 
         if self.config.markdown_docinfo:
             self._add_doc_info_from_config()
@@ -654,16 +654,16 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(TitleContext(h_level))
 
     def visit_desc_parameterlist(self, _node):
-        self._push_context(WrappedContext("(", ")", wrap_empty=True))
-        self._first_param = True
+        self._push_context(ParameterListContext())
 
     depart_desc_parameterlist = _pop_context
 
     def visit_desc_parameter(self, _node):
         """single method/class ctr param"""
-        if not self._first_param:
+        param_list = next(ctx for ctx in reversed(self._ctx_queue) if isinstance(ctx, ParameterListContext))
+        if not param_list.first_param:
             self.add(", ")
-        self._first_param = False
+        param_list.first_param = False
 
     @pushing_context
     def visit_desc_optional(self, _node):

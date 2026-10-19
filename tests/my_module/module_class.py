@@ -32,3 +32,9 @@ class ModuleClass:
            :py:meth:`~my_module.submodule.my_class.SubmoduleClass.function`
         """
         self.submodule_class.function(param1, param2)
+
+    def optional_params(self, *args):
+        """optional_params(a[, b[, c]])
+
+        A function with optional parameters.
+        """
