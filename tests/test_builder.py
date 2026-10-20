@@ -190,6 +190,38 @@ def test_exclude_raw_html(tmp_path: Path, config_value, includes_html):
     assert "MIXED_MARKER" in markdown
 
 
+def test_exclude_raw_html_config_change_rebuilds_output(tmp_path: Path):
+    """Changing only the raw HTML setting invalidates Markdown output."""
+    source_path = tmp_path / "source"
+    output_path = tmp_path / "output"
+    source_path.mkdir()
+
+    config_path = source_path / "conf.py"
+    config_path.write_text(
+        'extensions = ["sphinx_markdown_builder"]\nmarkdown_exclude_raw_html = False\n',
+        encoding="utf-8",
+    )
+    (source_path / "index.rst").write_text(
+        "Raw HTML\n"
+        "========\n\n"
+        ".. raw:: html\n\n"
+        "   HTML_ONLY_MARKER\n",
+        encoding="utf-8",
+    )
+
+    assert main(["-b", "markdown", str(source_path), str(output_path)]) == 0
+    output_file = output_path / "index.md"
+    assert "HTML_ONLY_MARKER" in output_file.read_text(encoding="utf-8")
+
+    config_path.write_text(
+        'extensions = ["sphinx_markdown_builder"]\nmarkdown_exclude_raw_html = True\n',
+        encoding="utf-8",
+    )
+
+    assert main(["-b", "markdown", str(source_path), str(output_path)]) == 0
+    assert "HTML_ONLY_MARKER" not in output_file.read_text(encoding="utf-8")
+
+
 def test_download_references(tmp_path: Path):
     """Test that download references use and copy Sphinx's collected files."""
     source_path = tmp_path / "source"
