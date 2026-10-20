@@ -151,6 +151,45 @@ def test_github_flavor_preserves_block_line_breaks():
         assert expected_block in blocks
 
 
+@pytest.mark.parametrize(
+    ("config_value", "includes_html"),
+    [(None, True), (False, True), (True, False)],
+    ids=["default", "false", "true"],
+)
+def test_exclude_raw_html(tmp_path: Path, config_value, includes_html):
+    """Raw HTML is excluded only when explicitly configured."""
+    source_path = tmp_path / "source"
+    output_path = tmp_path / "output"
+    source_path.mkdir()
+
+    config = 'extensions = ["sphinx_markdown_builder"]\n'
+    if config_value is not None:
+        config += f"markdown_exclude_raw_html = {config_value!r}\n"
+    (source_path / "conf.py").write_text(config, encoding="utf-8")
+    (source_path / "index.rst").write_text(
+        "Raw formats\n"
+        "===========\n\n"
+        ".. raw:: html\n\n"
+        "   HTML_ONLY_MARKER\n\n"
+        ".. raw:: markdown\n\n"
+        "   MARKDOWN_MARKER\n\n"
+        ".. raw:: md\n\n"
+        "   MD_MARKER\n\n"
+        ".. raw:: html markdown\n\n"
+        "   MIXED_MARKER\n",
+        encoding="utf-8",
+    )
+
+    ret_code = main(["-b", "markdown", str(source_path), str(output_path)])
+    assert ret_code == 0
+
+    markdown = (output_path / "index.md").read_text(encoding="utf-8")
+    assert ("HTML_ONLY_MARKER" in markdown) is includes_html
+    assert "MARKDOWN_MARKER" in markdown
+    assert "MD_MARKER" in markdown
+    assert "MIXED_MARKER" in markdown
+
+
 def test_download_references(tmp_path: Path):
     """Test that download references use and copy Sphinx's collected files."""
     source_path = tmp_path / "source"

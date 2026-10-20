@@ -18,6 +18,7 @@ def setup(app):
     app.add_config_value("markdown_docinfo", False, "html", bool)
     app.add_config_value("markdown_bullet", "*", "html", str)
     app.add_config_value("markdown_flavor", "", "html", str)
+    app.add_config_value("markdown_exclude_raw_html", False, "html", bool)
 
     return {
         "version": __version__,

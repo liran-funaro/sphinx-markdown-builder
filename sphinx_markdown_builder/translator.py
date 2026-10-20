@@ -120,7 +120,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
         autosummary_table=None,  # Sphinx autosummary
         # See https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html.
         # Ignored table elements
-        raw=None,
         tabular_col_spec=None,
         colspec=None,
         tgroup=None,
@@ -347,6 +346,15 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         if self.status.escape_text:
             text = escape_markdown_chars(text)
         self.add(text)
+
+    def visit_raw(self, node):
+        """Optionally omit raw content that is only intended for HTML output."""
+        if not self.config.markdown_exclude_raw_html:
+            return
+
+        formats = {raw_format.lower() for raw_format in node.get("format", "").split()}
+        if "html" in formats and formats.isdisjoint({"markdown", "md"}):
+            raise nodes.SkipNode
 
     @pushing_context
     @pushing_status
