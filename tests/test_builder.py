@@ -156,7 +156,7 @@ def test_github_flavor_preserves_block_line_breaks():
     [(None, True), (False, True), (True, False)],
     ids=["default", "false", "true"],
 )
-def test_exclude_raw_html(tmp_path: Path, config_value, includes_html):
+def test_exclude_html(tmp_path: Path, config_value, includes_html):
     """Raw HTML is excluded only when explicitly configured."""
     source_path = tmp_path / "source"
     output_path = tmp_path / "output"
@@ -164,7 +164,7 @@ def test_exclude_raw_html(tmp_path: Path, config_value, includes_html):
 
     config = 'extensions = ["sphinx_markdown_builder"]\n'
     if config_value is not None:
-        config += f"markdown_exclude_raw_html = {config_value!r}\n"
+        config += f"markdown_exclude_html = {config_value!r}\n"
     (source_path / "conf.py").write_text(config, encoding="utf-8")
     (source_path / "index.rst").write_text(
         "Raw formats\n"
@@ -190,7 +190,7 @@ def test_exclude_raw_html(tmp_path: Path, config_value, includes_html):
     assert "MIXED_MARKER" in markdown
 
 
-def test_exclude_raw_html_config_change_rebuilds_output(tmp_path: Path):
+def test_exclude_html_config_change_rebuilds_output(tmp_path: Path):
     """Changing only the raw HTML setting invalidates Markdown output."""
     source_path = tmp_path / "source"
     output_path = tmp_path / "output"
@@ -198,7 +198,7 @@ def test_exclude_raw_html_config_change_rebuilds_output(tmp_path: Path):
 
     config_path = source_path / "conf.py"
     config_path.write_text(
-        'extensions = ["sphinx_markdown_builder"]\nmarkdown_exclude_raw_html = False\n',
+        'extensions = ["sphinx_markdown_builder"]\nmarkdown_exclude_html = False\n',
         encoding="utf-8",
     )
     (source_path / "index.rst").write_text(
@@ -214,7 +214,7 @@ def test_exclude_raw_html_config_change_rebuilds_output(tmp_path: Path):
     assert "HTML_ONLY_MARKER" in output_file.read_text(encoding="utf-8")
 
     config_path.write_text(
-        'extensions = ["sphinx_markdown_builder"]\nmarkdown_exclude_raw_html = True\n',
+        'extensions = ["sphinx_markdown_builder"]\nmarkdown_exclude_html = True\n',
         encoding="utf-8",
     )
 

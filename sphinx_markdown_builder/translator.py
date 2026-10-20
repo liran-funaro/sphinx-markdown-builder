@@ -349,7 +349,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def visit_raw(self, node):
         """Optionally omit raw content that is only intended for HTML output."""
-        if not self.config.markdown_exclude_raw_html:
+        if not self.config.markdown_exclude_html:
             return
 
         formats = {raw_format.lower() for raw_format in node.get("format", "").split()}
