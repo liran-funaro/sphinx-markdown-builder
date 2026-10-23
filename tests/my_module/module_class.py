@@ -33,6 +33,9 @@ class ModuleClass:
         """
         self.submodule_class.function(param1, param2)
 
+    # The first docstring line overrides the signature in the docs
+    # (autodoc_docstring_signature), which is how bracketed optional
+    # parameters are documented.
     def optional_params(self, *args):
         """optional_params(a[, b[, c]])
 
