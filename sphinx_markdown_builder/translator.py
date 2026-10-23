@@ -125,6 +125,7 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
         colspec=None,
         tgroup=None,
         figure=None,
+        legend=None,
         desc_signature_line=None,
     )
 )
@@ -337,6 +338,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         # We don't need to add EOL before/after the image.
         # It will be handled by the visit/depart handlers of the paragraph.
         self.add(f"![{alt}]({uri})")
+
+    @pushing_context
+    def visit_caption(self, _node):
+        """Figure caption."""
+        self._push_context(WrappedContext("*", params=SubContextParams(2, 2)))
 
     # noinspection PyPep8Naming
     def visit_Text(self, node):  # pylint: disable=invalid-name
