@@ -26,11 +26,12 @@ https://github.com/docutils/docutils/blob/master/docutils/docutils/writers/html5
 import dataclasses
 import posixpath
 import re
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Set, Union
 
 from docutils import languages, nodes
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.osutil import relative_uri
+import yaml
 
 from sphinx_markdown_builder.contexts import (
     CommaSeparatedContext,
@@ -75,8 +76,8 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
         literal_emphasis=ITALIC_CONTEXT,
         field_name=PushContext(WrappedContext, "**", ":**"),  # e.g 'returns', 'parameters'
         # Doc info elements
-        docinfo=DOC_INFO_CONTEXT,
-        docinfo_item=DOC_INFO_CONTEXT,
+        docinfo=None,
+        docinfo_item=None,
         **dict.fromkeys(DOC_INFO_FIELDS, DOC_INFO_CONTEXT),
         authors=None,  # not used: visit_author is called anyway for each author.
         # Admonitions
@@ -161,7 +162,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
         # FIFO Sub context allow us to handle unique cases when post-processing is required
         self._ctx_queue: List[SubContext] = [SubContext()]
-        self._doc_info: SubContext = SubContext()
+        self._doc_info: Dict[str, Union[str, List[str]]] = {}
+        self._doc_info_configured: Set[str] = set()
         self._status_queue: List[ContextStatus] = [ContextStatus()]
 
         if self.config.markdown_docinfo:
@@ -174,6 +176,27 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
                 self._push_context(MetaContext(key))
                 self.ctx.add(value)
                 self._pop_context()
+
+    def _add_doc_info_value(self, name: str, value: str):
+        """Store a docinfo value while preserving config overrides and multiple values."""
+        if name in self._doc_info_configured:
+            self._doc_info[name] = value
+            self._doc_info_configured.discard(name)
+            return
+
+        existing = self._doc_info.get(name)
+        if existing is None:
+            self._doc_info[name] = value
+        elif isinstance(existing, list):
+            existing.append(value)
+        else:
+            self._doc_info[name] = [existing, value]
+
+    def _visit_doc_info(self, node, name):
+        value = node.astext().strip()
+        if value:
+            self._add_doc_info_value(name, value)
+        raise nodes.SkipNode
 
     @property
     def ctx(self) -> SubContext:
@@ -188,8 +211,13 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
                 break
 
             last_ctx = self._ctx_queue.pop()
-            ctx = self.ctx if last_ctx.params.target == "body" else self._doc_info
-            ctx.add(last_ctx.make(), last_ctx.params.prefix_eol, last_ctx.params.suffix_eol)
+            content = last_ctx.make()
+            if isinstance(last_ctx, MetaContext):
+                if content:
+                    self._doc_info[last_ctx.name] = content
+                    self._doc_info_configured.add(last_ctx.name)
+            else:
+                self.ctx.add(content, last_ctx.params.prefix_eol, last_ctx.params.suffix_eol)
 
     def _push_box(self, title: str, heading: str | None = None):
         self.add(f"> [!{title}]")
@@ -220,8 +248,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         assert len(self._ctx_queue) == 1
 
         ctx = SubContext()
-        for sub_ctx in (self._doc_info, self._ctx_queue[0]):
-            ctx.add(sub_ctx.make().strip(), prefix_eol=2, suffix_eol=1)
+        if self._doc_info:
+            metadata = yaml.safe_dump(self._doc_info, allow_unicode=True, sort_keys=False)
+            ctx.add(f"---\n{metadata}---", suffix_eol=2)
+        ctx.add(self._ctx_queue[0].make().strip(), prefix_eol=2, suffix_eol=1)
         ctx.force_eol(1)
         return ctx.make()
 
@@ -269,6 +299,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             return self._pass
         if action is SKIP:
             return self._skip
+        if action is DOC_INFO_CONTEXT:
+            if state == "visit":
+                return lambda node: self._visit_doc_info(node, element)
+            return self._pass
         if isinstance(action, PushContext):
             if state == "visit":
                 return lambda node: self._push_context(action.create(node, element))
