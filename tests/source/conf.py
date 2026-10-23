@@ -10,7 +10,7 @@ if mod_path not in sys.path:
 project = "sphinx_markdown_builder"
 copyright = "Copyright (c) 2023-2026, Liran Funaro."
 author = "Liran Funaro"
-version = "0.6.10"
+version = "0.6.11"
 
 extensions = [
     "sphinx.ext.autodoc",  # Core library for html generation from docstrings
@@ -32,7 +32,8 @@ def openedx_rtd_url(slug):
 
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3/", None),
+    # Keep the Python inventory aligned with the expected Markdown snapshots.
+    "python": ("https://docs.python.org/3/", "https://docs.python.org/3.11/objects.inv"),
     "torch": ("https://pytorch.org/docs/stable/", None),
     "opencoursestaff": (
         openedx_rtd_url("open-edx-building-and-running-a-course"),

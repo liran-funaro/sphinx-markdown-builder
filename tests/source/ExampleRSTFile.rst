@@ -60,6 +60,31 @@ own line number for commenting in reviews.
 .. hint::
    This is a hint message.
 
+.. tip::
+   This is a tip message.
+
+.. caution::
+   This is a caution message.
+
+.. danger::
+   This is a danger message.
+
+.. error::
+   This is an error message.
+
+.. seealso::
+
+   Another place.
+
+.. admonition:: Custom Admonition Title
+
+   Generic admonition body.
+
+.. sidebar:: Sidebar Title
+
+   Sidebar body.
+
+
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.
 
@@ -516,6 +541,13 @@ Image references look like this.
 Image links can include optional specifications such as height, width, or
 scale. Alternative text for screen readers is required for each image. Provide
 text that is useful to someone who might not be able to see the image.
+
+.. figure:: /static/markdown.png
+   :alt: Markdown logo
+
+   Figure caption text.
+
+   Figure legend paragraph.
 
 
 .. _Examples of Tables:

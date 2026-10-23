@@ -62,9 +62,11 @@ def test_unknown_visit(caplog):
         with pytest.raises(docutils.nodes.SkipNode):
             mt.dispatch_visit(node)
 
-    assert sum("unknown node" in rec.message for rec in caplog.records) == len(test_nodes)
+    # Deduplicate: pytest >= 9.1 may capture the same record multiple times
+    unknown_messages = {rec.message for rec in caplog.records if "unknown node" in rec.message}
+    assert len(unknown_messages) == len(test_nodes)
     for node in test_nodes:
-        assert sum(node.__class__.__name__ in rec.message for rec in caplog.records) == 1
+        assert sum(node.__class__.__name__ in msg for msg in unknown_messages) == 1
 
 
 def test_problematic():
