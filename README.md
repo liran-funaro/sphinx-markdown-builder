@@ -39,6 +39,8 @@ You can add the following configurations to your `conf.py` file:
 * `markdown_file_suffix`: Sets the file extension for generated markdown files (default: `.md`).
 * `markdown_bullet`: Sets the bullet marker.
 * `markdown_flavor`: If set to `github`, output will suit GitHub's flavor of Markdown.
+* `markdown_exclude_html`: If set to `True`, excludes HTML from Markdown output where supported.
+  Raw `markdown`, `md`, and mixed-format content is preserved. Defaults to `False`.
 
 For example, if your `conf.py` file have the following configuration:
 
