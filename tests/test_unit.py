@@ -6,9 +6,10 @@ from unittest.mock import Mock
 
 import docutils.nodes
 import pytest
+from tabulate import tabulate
 import sphinx.util.logging
 
-from sphinx_markdown_builder.contexts import SubContext
+from sphinx_markdown_builder.contexts import SubContext, TableContext
 from sphinx_markdown_builder.translator import MarkdownTranslator
 
 
@@ -77,3 +78,54 @@ def test_problematic():
         mt.dispatch_visit(node)
     mt.add("suffix")
     assert mt.astext() == "prefix\n\n```\ntext\n```\n\nsuffix\n"
+
+
+@pytest.mark.parametrize("compact", [False, True], ids=["default", "compact"])
+def test_table_formatting(compact):
+    ctx = TableContext(compact=compact)
+    ctx.headers = [[["Name"], ["Description"]]]
+    ctx.body = [
+        [["short"], ["A much longer description"]],
+        [["another value"], ["Brief"]],
+    ]
+
+    if compact:
+        expected = (
+            "| Name | Description |\n"
+            "| --- | --- |\n"
+            "| short | A much longer description |\n"
+            "| another value | Brief |"
+        )
+    else:
+        expected = tabulate(
+            [
+                ["short", "A much longer description"],
+                ["another value", "Brief"],
+            ],
+            headers=["Name", "Description"],
+            tablefmt="github",
+        )
+
+    assert ctx.make() == expected
+
+
+def test_compact_table_preserves_cell_content():
+    ctx = TableContext(compact=True)
+    ctx.headers = [[["Value"], ["Description"]]]
+    ctx.body = [
+        [["001"], ["First line\nSecond line"]],
+        [["`example()`"], ["**Important**"]],
+    ]
+
+    assert ctx.make() == (
+        "| Value | Description |\n"
+        "| --- | --- |\n"
+        "| 001 | First line<br/>Second line |\n"
+        "| `example()` | **Important** |"
+    )
+
+
+def test_compact_table_without_content():
+    ctx = TableContext(compact=True)
+
+    assert ctx.make() == ""

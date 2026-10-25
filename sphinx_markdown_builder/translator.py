@@ -717,7 +717,12 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_table(self, _node):
-        self._push_context(TableContext(params=SubContextParams(2, 1)))
+        self._push_context(
+            TableContext(
+                params=SubContextParams(2, 1),
+                compact=self.config.markdown_compact_tables,
+            )
+        )
 
     def visit_thead(self, _node):
         self.table_ctx.enter_head()  # workaround pylint: disable=no-member

@@ -215,12 +215,13 @@ class CommaSeparatedContext(SubContext):
         return ret + self.sep.join(["".join(item) for item in self.parameters])
 
 
-class TableContext(SubContext):
-    def __init__(self, params=SubContextParams()):
+class TableContext(SubContext):  # pylint: disable=too-many-instance-attributes
+    def __init__(self, params=SubContextParams(), *, compact=False):
         super().__init__(params)
         self.body: List[List[List[str]]] = []
         self.headers: List[List[List[str]]] = []
         self.internal_context = SubContext()
+        self.compact = compact
 
         self.is_entry = False
         self.is_header = False
@@ -281,10 +282,30 @@ class TableContext(SubContext):
             ctx.add(prefix)
 
         content = [*self.headers, *self.body]
-        if len(content) > 0:
+        if content:
             headers = self.make_row(content[0])
             body = list(map(self.make_row, content[1:]))
-            ctx.add(tabulate(body, headers=headers, tablefmt="github"), prefix_eol=2)
+
+            if self.compact:
+                rows = [headers, *body]
+                column_count = max(len(row) for row in rows)
+
+                def render_row(row):
+                    cells = [*row, *([""] * (column_count - len(row)))]
+                    return "| " + " | ".join(cells) + " |"
+
+                table = "\n".join(
+                    [
+                        render_row(headers),
+                        render_row(["---"] * column_count),
+                        *(render_row(row) for row in body),
+                    ]
+                )
+            else:
+                table = tabulate(body, headers=headers, tablefmt="github")
+
+            ctx.add(table, prefix_eol=2)
+
         return ctx.make()
 
 
