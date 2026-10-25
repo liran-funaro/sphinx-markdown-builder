@@ -190,3 +190,35 @@ def test_download_references(tmp_path: Path):
     assert f"](../{download_uri})" in markdown
     assert "](../assets/sample.pdf)" not in markdown
     assert "](https://example.com/sample.pdf)" in markdown
+
+
+def test_same_page_references(tmp_path: Path):
+    """Same-page references retain their fragment without an internal flag."""
+    source_path = tmp_path / "source"
+    output_path = tmp_path / "output"
+    source_path.mkdir()
+
+    (source_path / "conf.py").write_text(
+        'extensions = ["sphinx_markdown_builder"]\n'
+        'root_doc = "index"\n'
+        'markdown_anchor_sections = True\n',
+        encoding="utf-8",
+    )
+    (source_path / "index.rst").write_text(
+        "Reference links\n"
+        "===============\n\n"
+        "Setup\n"
+        "-----\n\n"
+        "See `Setup`_.\n\n"
+        "Visit `External <https://example.com/>`_.\n",
+        encoding="utf-8",
+    )
+
+    ret_code = main(["-b", "markdown", str(source_path), str(output_path)])
+    assert ret_code == 0
+
+    markdown = (output_path / "index.md").read_text(encoding="utf-8")
+
+    assert "[Setup](#setup)" in markdown
+    assert '<a id="setup"></a>' in markdown
+    assert "[External](https://example.com/)" in markdown
