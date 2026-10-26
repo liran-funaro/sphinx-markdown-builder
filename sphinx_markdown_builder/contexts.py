@@ -287,20 +287,15 @@ class TableContext(SubContext):  # pylint: disable=too-many-instance-attributes
             body = list(map(self.make_row, content[1:]))
 
             if self.compact:
-                rows = [headers, *body]
-                column_count = max(len(row) for row in rows)
+                column_count = max(len(headers), max((len(r) for r in body), default=0))
+                delimiter = ["---"] * column_count
 
-                def render_row(row):
-                    cells = [*row, *([""] * (column_count - len(row)))]
-                    return "| " + " | ".join(cells) + " |"
+                def render_row(row: List[str]) -> str:
+                    cells = row + [""] * (column_count - len(row))
+                    return f"| {' | '.join(cells)} |"
 
-                table = "\n".join(
-                    [
-                        render_row(headers),
-                        render_row(["---"] * column_count),
-                        *(render_row(row) for row in body),
-                    ]
-                )
+                all_rows = [headers, delimiter, *body]
+                table = "\n".join(render_row(r) for r in all_rows)
             else:
                 table = tabulate(body, headers=headers, tablefmt="github")
 

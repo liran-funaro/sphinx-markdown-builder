@@ -43,6 +43,11 @@ test-diff:
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-summery.md" "$(BUILD_DIR)/markdown/overrides-auto-summery.md"
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-module.md" "$(BUILD_DIR)/markdown/overrides-auto-module.md"
 
+	@echo "Building markdown with compact tables..."
+	@$(SPHINX_BUILD) -M markdown "$(SOURCE_DIR)" "$(BUILD_DIR)/compact" $(SPHINX_OPTS) $(O) -a -t Partners -j 8 \
+			-D markdown_compact_tables=1
+	@cp "$(BUILD_DIR)/compact/markdown/tables.md" "$(BUILD_DIR)/markdown/compact-tables.md"
+
 	@echo "Verifies outputs..."
 	@diff --recursive --color=always --side-by-side --text --suppress-common-lines \
 			--exclude=_downloads \
