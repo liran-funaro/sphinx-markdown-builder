@@ -37,16 +37,13 @@ test-diff:
 	@$(SPHINX_BUILD) -M markdown "$(SOURCE_DIR)" "$(BUILD_DIR)/overrides" $(SPHINX_OPTS) $(O) -a \
 			-D markdown_http_base="https://localhost" -D markdown_uri_doc_suffix=".html" \
 			-D markdown_docinfo=1 -D markdown_anchor_sections=1 -D markdown_anchor_signatures=1 \
-			-D autodoc_typehints=signature -D markdown_bullet=- -D markdown_flavor=github
+			-D autodoc_typehints=signature -D markdown_bullet=- -D markdown_flavor=github \
+			-D markdown_compact_tables=1
 
 	@# Copy just the files for verification
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-summery.md" "$(BUILD_DIR)/markdown/overrides-auto-summery.md"
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-module.md" "$(BUILD_DIR)/markdown/overrides-auto-module.md"
-
-	@echo "Building markdown with compact tables..."
-	@$(SPHINX_BUILD) -M markdown "$(SOURCE_DIR)" "$(BUILD_DIR)/compact" $(SPHINX_OPTS) $(O) -a -t Partners -j 8 \
-			-D markdown_compact_tables=1
-	@cp "$(BUILD_DIR)/compact/markdown/tables.md" "$(BUILD_DIR)/markdown/compact-tables.md"
+	@cp "$(BUILD_DIR)/overrides/markdown/tables.md" "$(BUILD_DIR)/markdown/compact-tables.md"
 
 	@echo "Verifies outputs..."
 	@diff --recursive --color=always --side-by-side --text --suppress-common-lines \
