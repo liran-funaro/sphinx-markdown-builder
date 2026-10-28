@@ -39,6 +39,8 @@ You can add the following configurations to your `conf.py` file:
 * `markdown_file_suffix`: Sets the file extension for generated markdown files (default: `.md`).
 * `markdown_bullet`: Sets the bullet marker.
 * `markdown_flavor`: If set to `github`, output will suit GitHub's flavor of Markdown.
+* `markdown_compact_tables`: If set to `True`, generates Markdown tables without
+  column-alignment padding. Defaults to `False`, preserving the existing formatting.
 
 For example, if your `conf.py` file have the following configuration:
 

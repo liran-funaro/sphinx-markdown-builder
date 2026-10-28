@@ -13,8 +13,8 @@
 
 ## Documentation
 
-| [`my_module`](https://localhost/library/my_module.html#module-my_module)   | Example module   |
-|----------------------------------------------------------------------------|------------------|
+| [`my_module`](https://localhost/library/my_module.html#module-my_module) | Example module |
+| --- | --- |
 
 Some link to a class [`my_module.module_class.ModuleClass`](https://localhost/library/my_module.module_class.html#my_module.module_class.ModuleClass)
 
