@@ -33,7 +33,9 @@ You can add the following configurations to your `conf.py` file:
 * `markdown_anchor_sections`/`markdown_anchor_signatures`: If set to `True`, 
   then anchors will be added before each section/function/class signature. 
   This allows references to a specific anchor in the document.
-* `markdown_docinfo`: Adds metadata to the top of each document containing author, copyright, and version.
+* `markdown_docinfo`: If set to `True`, adds YAML frontmatter at the beginning of each document
+  containing available author, contact, copyright, date, organization, revision, status, and version
+  metadata (default: `False`).
 * `markdown_http_base`: If set, all references will link to this prefix address
 * `markdown_uri_doc_suffix`: If set, all references will link to documents with this suffix.
 * `markdown_file_suffix`: Sets the file extension for generated markdown files (default: `.md`).
