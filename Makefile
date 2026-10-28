@@ -17,7 +17,7 @@ help:
 
 
 clean:
-	rm -rf "$(BUILD_DIR)" "$(DIST_DIR)" "$(SOURCE_DIR)/library"
+	rm -rf "$(BUILD_DIR)" "$(DIST_DIR)" "$(SOURCE_DIR)/library" .coverage coverage.xml
 
 
 # Catch-all target: route all unknown targets to Sphinx using the new "make mode" option.
@@ -53,7 +53,7 @@ test-diff:
 
 test: test-diff
 	@echo "Unit testing and coverage report..."
-	@pytest --cov=sphinx_markdown_builder
+	@pytest --cov=sphinx_markdown_builder --cov-report=term --cov-report=xml
 
 
 diff:
