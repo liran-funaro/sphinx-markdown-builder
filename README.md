@@ -3,7 +3,6 @@
 [![PyPI version](https://img.shields.io/pypi/v/sphinx-markdown-builder.svg)](https://pypi.org/project/sphinx-markdown-builder/)
 [![PyPI downloads](https://img.shields.io/pypi/dm/sphinx-markdown-builder.svg)](https://pypi.org/project/sphinx-markdown-builder/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/sphinx-markdown-builder.svg)](https://pypi.org/project/sphinx-markdown-builder/)
-
 [![Coverage Status](https://coveralls.io/repos/github/liran-funaro/sphinx-markdown-builder/badge.svg?branch=main&cache-bust=1)](https://coveralls.io/github/liran-funaro/sphinx-markdown-builder?branch=main)
 
 A Sphinx extension to add markdown generation support.
