@@ -528,6 +528,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def _fetch_ref_uri(self, node):
         uri = node.get("refuri", "")
 
+        # Same-document references can have a refid without an internal flag.
+        if node.get("refid") and not uri:
+            return f"#{node['refid']}"
+
         # Do not modify external URL in any way
         if not node.get("internal", self.status.default_ref_internal):
             return uri
