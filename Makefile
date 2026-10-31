@@ -17,7 +17,7 @@ help:
 
 
 clean:
-	rm -rf "$(BUILD_DIR)" "$(DIST_DIR)" "$(SOURCE_DIR)/library"
+	rm -rf "$(BUILD_DIR)" "$(DIST_DIR)" "$(SOURCE_DIR)/library" .coverage coverage.xml
 
 
 # Catch-all target: route all unknown targets to Sphinx using the new "make mode" option.
@@ -37,11 +37,13 @@ test-diff:
 	@$(SPHINX_BUILD) -M markdown "$(SOURCE_DIR)" "$(BUILD_DIR)/overrides" $(SPHINX_OPTS) $(O) -a \
 			-D markdown_http_base="https://localhost" -D markdown_uri_doc_suffix=".html" \
 			-D markdown_docinfo=1 -D markdown_anchor_sections=1 -D markdown_anchor_signatures=1 \
-			-D autodoc_typehints=signature -D markdown_bullet=- -D markdown_flavor=github
+			-D autodoc_typehints=signature -D markdown_bullet=- -D markdown_flavor=github \
+			-D markdown_compact_tables=1
 
 	@# Copy just the files for verification
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-summery.md" "$(BUILD_DIR)/markdown/overrides-auto-summery.md"
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-module.md" "$(BUILD_DIR)/markdown/overrides-auto-module.md"
+	@cp "$(BUILD_DIR)/overrides/markdown/tables.md" "$(BUILD_DIR)/markdown/compact-tables.md"
 
 	@echo "Verifies outputs..."
 	@diff --recursive --color=always --side-by-side --text --suppress-common-lines \
@@ -52,7 +54,7 @@ test-diff:
 
 test: test-diff
 	@echo "Unit testing and coverage report..."
-	@pytest --cov=sphinx_markdown_builder
+	@pytest --cov=sphinx_markdown_builder --cov-report=term --cov-report=xml
 
 
 diff:

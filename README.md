@@ -1,5 +1,8 @@
 # sphinx-markdown-builder
 
+[![PyPI version](https://img.shields.io/pypi/v/sphinx-markdown-builder.svg)](https://pypi.org/project/sphinx-markdown-builder/)
+[![PyPI downloads](https://img.shields.io/pypi/dm/sphinx-markdown-builder.svg)](https://pypi.org/project/sphinx-markdown-builder/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/sphinx-markdown-builder.svg)](https://pypi.org/project/sphinx-markdown-builder/)
 [![Coverage Status](https://coveralls.io/repos/github/liran-funaro/sphinx-markdown-builder/badge.svg?branch=main&cache-bust=1)](https://coveralls.io/github/liran-funaro/sphinx-markdown-builder?branch=main)
 
 A Sphinx extension to add markdown generation support.
@@ -39,6 +42,8 @@ You can add the following configurations to your `conf.py` file:
 * `markdown_file_suffix`: Sets the file extension for generated markdown files (default: `.md`).
 * `markdown_bullet`: Sets the bullet marker.
 * `markdown_flavor`: If set to `github`, output will suit GitHub's flavor of Markdown.
+* `markdown_compact_tables`: If set to `True`, generates Markdown tables without
+  column-alignment padding. Defaults to `False`, preserving the existing formatting.
 
 For example, if your `conf.py` file have the following configuration:
 
