@@ -77,3 +77,11 @@ def test_problematic():
         mt.dispatch_visit(node)
     mt.add("suffix")
     assert mt.astext() == "prefix\n\n```\ntext\n```\n\nsuffix\n"
+
+
+@pytest.mark.parametrize("kwargs", [{}, {"builder": None}])
+def test_writer_requires_sphinx_builder(kwargs):
+    from sphinx_markdown_builder.writer import MarkdownWriter
+
+    with pytest.raises(ValueError, match="MarkdownWriter requires a Sphinx builder"):
+        MarkdownWriter(**kwargs)

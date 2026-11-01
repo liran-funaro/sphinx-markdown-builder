@@ -43,6 +43,8 @@ class MarkdownWriter(writers.Writer):
     translator_class = MarkdownTranslator
 
     def __init__(self, builder=None):
+        if builder is None:
+            raise ValueError("MarkdownWriter requires a Sphinx builder")
         super().__init__()
         self.builder = builder
 
