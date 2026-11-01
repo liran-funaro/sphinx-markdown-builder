@@ -439,6 +439,12 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self.add("$")
         self._pop_status()
 
+    def visit_abbreviation(self, _node):
+        """docutils abbreviation node (e.g., the keyword-only '*' in signatures): emit its text as is"""
+
+    def depart_abbreviation(self, _node):
+        pass
+
     def visit_literal(self, _node):
         self._push_status(escape_text=False)
         self.add("`")

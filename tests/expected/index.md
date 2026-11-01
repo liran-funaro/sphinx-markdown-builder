@@ -46,6 +46,7 @@
         * [`default_var`](library/my_module.module_class.md#my_module.module_class.default_var)
         * [`ModuleClass`](library/my_module.module_class.md#my_module.module_class.ModuleClass)
           * [`ModuleClass.function()`](library/my_module.module_class.md#my_module.module_class.ModuleClass.function)
+          * [`ModuleClass.create()`](library/my_module.module_class.md#my_module.module_class.ModuleClass.create)
       * [my_module.submodule](library/my_module.submodule.md)
         * [my_module.submodule.my_class](library/my_module.submodule.my_class.md)
           * [`SubmoduleClass`](library/my_module.submodule.my_class.md#my_module.submodule.my_class.SubmoduleClass)

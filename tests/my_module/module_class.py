@@ -1,6 +1,8 @@
 """
 A module class file.
 """
+from typing import Optional, overload
+
 from .submodule.my_class import SubmoduleClass
 
 default_var = "some_default_value"
@@ -32,3 +34,15 @@ class ModuleClass:
            :py:meth:`~my_module.submodule.my_class.SubmoduleClass.function`
         """
         self.submodule_class.function(param1, param2)
+
+    @overload
+    def create(self, *, username: str, email: str) -> str:
+        """Create by username and email"""
+
+    @overload
+    def create(self, *, job_id: str) -> int:
+        """Create by job id"""
+
+    def create(self, *, username: Optional[str] = None, email: Optional[str] = None, job_id: Optional[str] = None):
+        """Create something with keyword-only arguments"""
+        return job_id if username is None else f"{username}:{email}"
