@@ -1,11 +1,11 @@
 """
-Custom docutils builder for markdown.
+Custom docutils builder for Markdown.
 """
 
 import os
 import shutil
 from contextlib import contextmanager
-from typing import Set
+from typing import AbstractSet
 
 from docutils import nodes
 from docutils.io import StringOutput
@@ -47,7 +47,7 @@ class MarkdownBuilder(Builder):
     out_suffix = ".md"
     download_dir = "_downloads"
 
-    def __init__(self, app: Sphinx, env: BuildEnvironment = None):
+    def __init__(self, app: Sphinx, env: BuildEnvironment):
         super().__init__(app, env)
         self.writer = None
         self.sec_numbers = None
@@ -76,15 +76,15 @@ class MarkdownBuilder(Builder):
             if source_mtime is None or target_mtime is None or source_mtime > target_mtime:
                 yield doc_name
 
-    def get_target_uri(self, docname: str, typ: str = None):
+    def get_target_uri(self, docname: str, typ: str | None = None):
         """
         Returns the target file name.
-        By default, we link to the currently generated markdown files.
-        But, we also support linking to external document (e.g., an html web page).
+        By default, we link to the currently generated Markdown files.
+        But, we also support linking to external document (e.g., an HTML web page).
         """
         return f"{docname}{self.config.markdown_uri_doc_suffix}"
 
-    def prepare_writing(self, docnames: Set[str]):
+    def prepare_writing(self, docnames: AbstractSet[str]) -> None:
         self.writer = MarkdownWriter(self)
 
     def write_doc(self, docname: str, doctree: nodes.document):
