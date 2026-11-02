@@ -32,3 +32,14 @@ This is a dummy function that does not do anything.
 > ### See also
 > 
 > [`function()`](my_module.submodule.my_class.md#my_module.submodule.my_class.SubmoduleClass.function)
+
+#### create(\*, username: [str](https://docs.python.org/3/library/stdtypes.html#str), email: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+#### create(\*, job_id: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [int](https://docs.python.org/3/library/functions.html#int)
+
+Create something with keyword-only arguments
+
+* **Parameters:**
+  * **username** ([*str*](https://docs.python.org/3/library/stdtypes.html#str) *|* *None*)
+  * **email** ([*str*](https://docs.python.org/3/library/stdtypes.html#str) *|* *None*)
+  * **job_id** ([*str*](https://docs.python.org/3/library/stdtypes.html#str) *|* *None*)

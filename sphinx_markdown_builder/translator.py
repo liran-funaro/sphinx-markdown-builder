@@ -106,6 +106,7 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
         document=None,
         container=None,
         inline=None,
+        abbreviation=None,  # e.g., the keyword-only '*' in signatures
         definition_list=None,
         definition_list_item=None,
         glossary=None,
