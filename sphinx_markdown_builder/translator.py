@@ -106,6 +106,7 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
         document=None,
         container=None,
         inline=None,
+        abbreviation=None,  # e.g., the keyword-only '*' in signatures
         definition_list=None,
         definition_list_item=None,
         glossary=None,
@@ -438,12 +439,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         """docutils math node"""
         self.add("$")
         self._pop_status()
-
-    def visit_abbreviation(self, _node):
-        """docutils abbreviation node (e.g., the keyword-only '*' in signatures): emit its text as is"""
-
-    def depart_abbreviation(self, _node):
-        pass
 
     def visit_literal(self, _node):
         self._push_status(escape_text=False)
