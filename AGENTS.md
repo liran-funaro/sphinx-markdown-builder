@@ -57,6 +57,7 @@ RST documentation sources.
 
 ## Pull Requests
 
+- Create project skills in `.agents/skills/<skill-name>/` and add a corresponding relative symlink at `.claude/skills/<skill-name>` pointing to `../../.agents/skills/<skill-name>`, keeping `.claude/skills/` as a real directory.
 - Before submitting a PR, run `ponytail review` to validate your changes. See
   the [ponytail-review skill](https://github.com/DietrichGebert/ponytail/blob/main/skills/ponytail-review/SKILL.md) for
   details.
