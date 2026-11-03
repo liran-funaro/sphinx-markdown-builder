@@ -47,6 +47,7 @@ RST documentation sources.
 - Test source docs: `tests/source` (RST files + `conf.py`).
 - Test sample module: `tests/my_module` (used with `sphinx.ext.autodoc`).
 - Expected test output: `tests/expected`.
+- Project skills: `.agents/skills/`, with individual skill symlinks in `.claude/skills/` for Claude compatibility.
 - **Debugging**: `make doc-xml` generates the intermediate XML doctree — this is the input to the markdown translator and is essential for debugging translation issues.
 
 ## Versioning
