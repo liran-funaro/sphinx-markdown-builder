@@ -528,19 +528,16 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def _fetch_ref_uri(self, node):
         uri = node.get("refuri", "")
+        ref_id = node.get("refid", None)
 
-        # Same-document references can have a refid without an internal flag.
-        if node.get("refid") and not uri:
-            return f"#{node['refid']}"
-
-        # Do not modify external URL in any way
-        if not node.get("internal", self.status.default_ref_internal):
+        # Same-document references may lack an internal flag, but still need
+        # the anchor handling below.
+        same_document = bool(ref_id) and not uri
+        if not node.get("internal", self.status.default_ref_internal) and not same_document:
             return uri
 
         uri = self._adjust_url(uri)
 
-        # Whatever the URL is, add the anchor to it
-        ref_id = node.get("refid", None)
         if ref_id is not None:
             uri = f"#{ref_id}"
 
