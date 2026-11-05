@@ -58,9 +58,7 @@ RST documentation sources.
 
 ## Pull Requests
 
-- Before submitting a PR, run `ponytail review` to validate your changes. See
-  the [ponytail-review skill](https://github.com/DietrichGebert/ponytail/blob/main/skills/ponytail-review/SKILL.md) for
-  details.
+- Before submitting a PR, use the [ponytail-review skill](.agents/skills/ponytail-review/SKILL.md) to validate your changes.
 
 ## Non-Goals
 
