@@ -1,0 +1,29 @@
+name: Publish GitHub release
+
+on:
+  push:
+    tags:
+      # bumpver creates bare version tags, e.g. 0.6.11, not v0.6.11.
+      - "[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: read
+
+jobs:
+  publish-release:
+    if: github.repository == 'liran-funaro/sphinx-markdown-builder'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      # release-drafter/release-drafter v7.3.1
+      # https://github.com/release-drafter/release-drafter/releases/tag/v7.3.1
+      - uses: release-drafter/release-drafter@693d20e7c1ce1a81d3a41962f85914253b518449
+        with:
+          name: ${{ github.ref_name }}
+          tag: ${{ github.ref_name }}
+          version: ${{ github.ref_name }}
+          publish: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
