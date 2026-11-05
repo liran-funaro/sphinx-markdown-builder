@@ -1,7 +1,7 @@
 :orphan:
 
-Signature headings
-==================
+Object signatures
+=================
 
 .. py:function:: top_level()
 
@@ -36,7 +36,7 @@ Signature headings
 .. py:function:: overloaded(value: int)
                  overloaded(value: str)
 
-   Both signatures have the same heading level.
+   Both signatures are separate paragraphs.
 
 .. autofunction:: my_module.func1
    :no-index:
@@ -54,7 +54,7 @@ Subsection
    Details
    ^^^^^^^
 
-   Details belong under the function.
+   Details remain a document section.
 
    More details
    """"""""""""
@@ -77,7 +77,7 @@ Level five
 
 .. py:class:: AtFive
 
-   .. py:method:: capped_method()
+   .. py:method:: deep_method()
 
 Level six
 +++++++++
@@ -93,3 +93,34 @@ Sibling section
 ---------------
 
 .. py:function:: restored_section()
+
+Signature markup
+----------------
+
+.. py:function:: generic[T](value: list[T], *args, marker="*`<tag>", **kwargs) -> list[T]
+
+.. cpp:class:: Box
+
+   .. cpp:function:: template<typename T> T *get(T *value)
+
+   .. cpp:class:: Inner
+
+      .. cpp:member:: int value
+
+.. c:function:: int *lookup(const char *name)
+
+.. js:class:: Widget(options)
+
+   .. js:method:: run(value)
+
+.. rst:directive:: sample
+
+.. option:: --sample <value>
+
+.. describe:: raw *name* `value` <tag>
+
+.. describe:: `edge`
+
+.. http:get:: /objects/(int:object_id)
+
+   An HTTP signature.

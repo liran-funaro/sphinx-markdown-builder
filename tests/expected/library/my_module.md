@@ -10,11 +10,11 @@ Example module
 
 ### Classes and Functions
 
-## *class* Point(x, y)
+**Class `my_module.Point`(x, y)**
 
 A Point
 
-### Attributes
+## Attributes
 
 x: int
 : The x value
@@ -22,11 +22,11 @@ x: int
 y: str
 : The y value
 
-#### x *: [int](https://docs.python.org/3/library/functions.html#int)*
+**Attribute `my_module.Point.x` *: [int](https://docs.python.org/3/library/functions.html#int)***
 
 X value
 
-#### y *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+**Attribute `my_module.Point.y` *: [str](https://docs.python.org/3/library/stdtypes.html#str)***
 
 Y value
 
@@ -34,14 +34,14 @@ Y value
   * **x** ([*int*](https://docs.python.org/3/library/functions.html#int))
   * **y** ([*str*](https://docs.python.org/3/library/stdtypes.html#str))
 
-## deprecated_function()
+**Function `my_module.deprecated_function`()**
 
 Some old function.
 
 > [!WARNING]
 > Deprecated since version 3.1: Use `other()` instead.
 
-## func1(param1)
+**Function `my_module.func1`(param1)**
 
 This is a function with a single parameter.
 Thanks to github.com/remiconnesson.
@@ -51,15 +51,15 @@ Thanks to github.com/remiconnesson.
 * **Return type:**
   [int](https://docs.python.org/3/library/functions.html#int)
 
-### Details
+## Details
 
-This section belongs under the function signature.
+This is a document section after the function signature.
 
-#### More details
+### More details
 
 This section belongs under Details.
 
-## func2(param1, param2)
+**Function `my_module.func2`(param1, param2)**
 
 This is a function with two parameters.
 
@@ -69,7 +69,7 @@ This is a function with two parameters.
 * **Return type:**
   [str](https://docs.python.org/3/library/stdtypes.html#str)
 
-## func3(param1, param2)
+**Function `my_module.func3`(param1, param2)**
 
 This is a function with two parameters.
 
@@ -77,7 +77,7 @@ This is a function with two parameters.
   * **param1** ([*int*](https://docs.python.org/3/library/functions.html#int)) – Alice <sup>[1](#id3)</sup>.
   * **param2** ([*int*](https://docs.python.org/3/library/functions.html#int)) – Bon <sup>[2](#id4)</sup>.
 
-### References
+## References
 
 * <a id='id3'>**[1]**</a> Alice is commonly used to describe the first actor.
 * <a id='id4'>**[2]**</a> Bob is commonly used to describe the second actor.

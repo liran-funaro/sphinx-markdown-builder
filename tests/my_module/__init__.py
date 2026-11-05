@@ -40,7 +40,7 @@ def func1(param1: int) -> int:
 
     Details
     -------
-    This section belongs under the function signature.
+    This is a document section after the function signature.
 
     More details
     ~~~~~~~~~~~~

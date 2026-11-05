@@ -1,6 +1,6 @@
-# Signature headings
+# Object signatures
 
-## top_level()
+**Function `top_level`()**
 
 ### Object rubric
 
@@ -14,29 +14,29 @@
 |-----------|
 | Cell      |
 
-## Standalone.method()
+**Method Standalone.`method`()**
 
-## *class* Outer
+**Class `Outer`**
 
-### value
+**Attribute `Outer.value`**
 
-### method()
+**Method `Outer.method`()**
 
-### *class* Inner
+**Class `Outer.Inner`**
 
-#### method()
+**Method `Outer.Inner.method`()**
 
-### sibling()
+**Method `Outer.sibling`()**
 
-## after_class()
+**Function `after_class`()**
 
-## overloaded(value: [int](https://docs.python.org/3/library/functions.html#int))
+**Function `overloaded`(value: [int](https://docs.python.org/3/library/functions.html#int))**
 
-## overloaded(value: [str](https://docs.python.org/3/library/stdtypes.html#str))
+**Function `overloaded`(value: [str](https://docs.python.org/3/library/stdtypes.html#str))**
 
-Both signatures have the same heading level.
+Both signatures are separate paragraphs.
 
-## func1(param1)
+**Function `my_module.func1`(param1)**
 
 This is a function with a single parameter.
 Thanks to github.com/remiconnesson.
@@ -46,54 +46,84 @@ Thanks to github.com/remiconnesson.
 * **Return type:**
   [int](https://docs.python.org/3/library/functions.html#int)
 
-### Details
+## Details
 
-This section belongs under the function signature.
+This is a document section after the function signature.
 
-#### More details
+### More details
 
 This section belongs under Details.
 
 ## Section
 
-### in_section()
+**Function `in_section`()**
 
 ### Subsection
 
-#### in_subsection()
+**Function `in_subsection`()**
 
-##### Details
+#### Details
 
-Details belong under the function.
+Details remain a document section.
 
-###### More details
+##### More details
 
 A nested docstring section.
 
-###### *class* Local
+**Class `Local`**
 
-###### method()
+**Method `Local.method`()**
 
-#### after_docstring()
+**Function `after_docstring`()**
 
 #### Level four
 
-##### at_four()
+**Function `at_four`()**
 
 ##### Level five
 
-###### *class* AtFive
+**Class `AtFive`**
 
-###### capped_method()
+**Method `AtFive.deep_method`()**
 
 ###### Level six
 
-###### at_six()
+**Function `at_six`()**
 
-###### Level seven
+####### Level seven
 
-###### at_seven()
+**Function `at_seven`()**
 
 ## Sibling section
 
-### restored_section()
+**Function `restored_section`()**
+
+## Signature markup
+
+**Function `generic`\[T\](value: [list](https://docs.python.org/3/library/stdtypes.html#list)\[T\], \*args, marker='\*\`&lt;tag&gt;', \*\*kwargs) → [list](https://docs.python.org/3/library/stdtypes.html#list)\[T\]**
+
+**class `Box`**
+
+**Function template&lt;typename `T`&gt;<br/>[T](#_CPPv4I0EN3Box3getEP1TP1T) \*`Box::get`([T](#_CPPv4I0EN3Box3getEP1TP1T) \*value)**
+
+**class `Box::Inner`**
+
+**Member int `Box::Inner::value`**
+
+**Function int \*`lookup`(const char \*name)**
+
+**Class `Widget`(options)**
+
+**Method Widget.`run`(value)**
+
+**Directive `.. sample::`**
+
+**Option `--sample` &lt;value&gt;**
+
+**Describe ``raw *name* `value` <tag>``**
+
+**Describe `` `edge` ``**
+
+**`GET` `/objects/`(*int:* object_id)**
+
+An HTTP signature.

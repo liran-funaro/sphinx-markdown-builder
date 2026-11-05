@@ -4,14 +4,14 @@ A submodule class file.
 
 ### Classes and Functions
 
-## *class* SubmoduleClass(var)
+**Class `my_module.submodule.my_class.SubmoduleClass`(var)**
 
 A class inside a submodule.
 
 * **Parameters:**
   **var** ([*str*](https://docs.python.org/3/library/stdtypes.html#str)) – Does nothing
 
-### function(param1, param2)
+**Method `my_module.submodule.my_class.SubmoduleClass.function`(param1, param2)**
 
 Do nothing
 

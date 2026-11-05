@@ -29,9 +29,14 @@ Build markdown files with `sphinx-build` command
 sphinx-build -M markdown ./docs ./build
 ```
 
-Object signatures use a heading one level below their enclosing section. Nested objects, such as methods inside a
-class description, add another level. Section headings inside object descriptions follow the same nesting.
-These headings stop at level six, the deepest heading Markdown supports.
+Object signatures render as separate bold paragraphs, not section headings. Object-kind labels and qualified
+member names identify classes, methods, and other objects without heading nesting. Identifiers use inline code,
+and signature type references remain links. Real section headings, including sections in docstrings, keep their
+normal document levels.
+
+Signatures no longer create automatic entries in Markdown viewers' heading-based tables of contents. Enable
+`markdown_anchor_signatures` to preserve explicit object targets for cross-references. Without it, signature links
+cannot rely on automatically generated heading anchors.
 
 ## Configurations
 
