@@ -29,6 +29,10 @@ Build markdown files with `sphinx-build` command
 sphinx-build -M markdown ./docs ./build
 ```
 
+Object signatures use a heading one level below their enclosing section. Nested objects, such as methods inside a
+class description, add another level. Section headings inside object descriptions follow the same nesting.
+These headings stop at level six, the deepest heading Markdown supports.
+
 ## Configurations
 
 You can add the following configurations to your `conf.py` file:

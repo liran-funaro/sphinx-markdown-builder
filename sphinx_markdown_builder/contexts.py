@@ -81,6 +81,7 @@ class ContextStatus:
     section_level: int = 0  # Current section heading level
     list_marker: Optional[ListMarker] = None  # Current list marker
     desc_type: Optional[str] = None  # Current descriptor type
+    desc_depth: int = 0  # Number of enclosing object descriptions
     default_ref_internal: bool = False  # Current default for internal reference
 
 

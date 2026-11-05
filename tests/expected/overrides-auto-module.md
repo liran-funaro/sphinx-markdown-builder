@@ -8,13 +8,13 @@
 
 Example module
 
-### *class* Point(x: [int](https://docs.python.org/3/library/functions.html#int), y: [str](https://docs.python.org/3/library/stdtypes.html#str))
+## *class* Point(x: [int](https://docs.python.org/3/library/functions.html#int), y: [str](https://docs.python.org/3/library/stdtypes.html#str))
 
 A Point
 
 <a id="attributes"></a>
 
-## Attributes
+### Attributes
 
 x: int
 : The x value
@@ -30,21 +30,33 @@ X value
 
 Y value
 
-### deprecated_function()
+## deprecated_function()
 
 Some old function.
 
 > [!WARNING]
 > Deprecated since version 3.1: Use `other()` instead.
 
-### func1(param1: [int](https://docs.python.org/3/library/functions.html#int)) → [int](https://docs.python.org/3/library/functions.html#int)
+## func1(param1: [int](https://docs.python.org/3/library/functions.html#int)) → [int](https://docs.python.org/3/library/functions.html#int)
 
 This is a function with a single parameter. Thanks to github.com/remiconnesson.
 
 * **Parameters:**
   **param1** – This is a single parameter.
 
-### func2(param1: [int](https://docs.python.org/3/library/functions.html#int), param2: [int](https://docs.python.org/3/library/functions.html#int)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+<a id="details"></a>
+
+### Details
+
+This section belongs under the function signature.
+
+<a id="more-details"></a>
+
+#### More details
+
+This section belongs under Details.
+
+## func2(param1: [int](https://docs.python.org/3/library/functions.html#int), param2: [int](https://docs.python.org/3/library/functions.html#int)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 This is a function with two parameters.
 
@@ -52,7 +64,7 @@ This is a function with two parameters.
   - **param1** – This is the first parameter.
   - **param2** – This is the second parameter.
 
-### func3(param1: [int](https://docs.python.org/3/library/functions.html#int), param2: [int](https://docs.python.org/3/library/functions.html#int))
+## func3(param1: [int](https://docs.python.org/3/library/functions.html#int), param2: [int](https://docs.python.org/3/library/functions.html#int))
 
 This is a function with two parameters.
 
@@ -62,7 +74,7 @@ This is a function with two parameters.
 
 <a id="references"></a>
 
-## References
+### References
 
 * <a id='id3'>**[1]**</a> Alice is commonly used to describe the first actor.
 * <a id='id4'>**[2]**</a> Bob is commonly used to describe the second actor.

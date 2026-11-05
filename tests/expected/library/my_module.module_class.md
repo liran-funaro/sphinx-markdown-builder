@@ -4,17 +4,17 @@ A module class file.
 
 ### Classes and Functions
 
-### default_var *= 'some_default_value'*
+## default_var *= 'some_default_value'*
 
 A default variable to be used by `SubmoduleClass`
 
-### *class* ModuleClass
+## *class* ModuleClass
 
 A class inside a module.
 
 Initialize a module class object
 
-#### function(param1, param2)
+### function(param1, param2)
 
 Do nothing
 
@@ -33,9 +33,9 @@ This is a dummy function that does not do anything.
 > 
 > [`function()`](my_module.submodule.my_class.md#my_module.submodule.my_class.SubmoduleClass.function)
 
-#### create(\*, username: [str](https://docs.python.org/3/library/stdtypes.html#str), email: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### create(\*, username: [str](https://docs.python.org/3/library/stdtypes.html#str), email: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
-#### create(\*, job_id: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [int](https://docs.python.org/3/library/functions.html#int)
+### create(\*, job_id: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [int](https://docs.python.org/3/library/functions.html#int)
 
 Create something with keyword-only arguments
 

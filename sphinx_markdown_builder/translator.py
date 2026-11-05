@@ -483,9 +483,12 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_status(section_level=self.status.section_level + 1)
 
     @pushing_context
-    def visit_title(self, _node):
+    def visit_title(self, node):
         if isinstance(self.ctx, TableContext):
             level = 4
+        elif isinstance(node.parent, nodes.section):
+            # Docstring sections live inside desc_content; other titles keep their special levels.
+            level = min(6, self.status.section_level + self.status.desc_depth)
         else:
             level = self.status.section_level
         self._push_context(TitleContext(level))
@@ -643,7 +646,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_status
     def visit_desc(self, node):
-        self._push_status(desc_type=node.attributes.get("desctype", ""))
+        self._push_status(desc_type=node.attributes.get("desctype", ""), desc_depth=self.status.desc_depth + 1)
 
     @pushing_context
     def visit_desc_signature(self, node):
@@ -654,10 +657,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             for anchor in node.get("ids", []):
                 self._add_anchor(anchor)
 
-        # We don't want methods to be at the same level as classes,
-        # If signature has a non-null class, that's means it is a signature
-        # of a class method
-        h_level = 4 if node.get("class", None) else 3
+        h_level = min(6, self.status.section_level + self.status.desc_depth)
         self._push_context(TitleContext(h_level))
 
     def visit_desc_parameterlist(self, _node):
