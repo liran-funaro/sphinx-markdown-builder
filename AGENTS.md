@@ -58,7 +58,7 @@ RST documentation sources.
 
 ## Pull Requests
 
-- Before submitting a PR, use the [ponytail-review skill](.agents/skills/ponytail-review/SKILL.md) to validate your changes.
+- Before submitting a PR, use the [pr-review skill](.agents/skills/pr-review/SKILL.md) to validate your changes.
 
 ## Non-Goals
 
