@@ -13,7 +13,8 @@ Review the requested pull request against this repository's diff-based test work
 6. If generated output changes, inspect `make diff` with the repository's configured diff tool and verify that the files under `tests/expected` intentionally and completely express the new behavior.
 7. Confirm that Sphinx core behavior, other builders, and the public API remain unchanged unless the issue explicitly requests a change.
 8. Check the diff against every rule in [`RULES.md`](RULES.md). The step is done when each rule is either tied to the specific hunks that pass or break it, or marked as not touched by this diff.
-9. Report the result with:
+9. Use the [ponytail-review skill](../ponytail-review/SKILL.md) on the diff and connected code, and include its findings in the review.
+10. Report the result with:
     - A two-sentence summary of the change.
     - Commands run and whether they passed.
     - Behavioral risks, especially changes to generated Markdown or compatibility.
