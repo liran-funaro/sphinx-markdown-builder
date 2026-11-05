@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Review a pull request for the Sphinx Markdown Builder against the maintainer's conventions, generated Markdown output, tests, lint, and documentation.
+description: Use when reviewing a pull request, or when checking your own changes before opening one.
 ---
 
 Review the requested pull request against this repository's diff-based test workflow and the maintainer's conventions.
