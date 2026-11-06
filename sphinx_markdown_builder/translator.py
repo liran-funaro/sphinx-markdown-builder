@@ -195,7 +195,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(IndentContext(prefix="> ", empty=True, params=SubContextParams(1, 2)))
         self._push_status(section_level=3)
         if heading is not None:
-            self.add(f"### {heading}")
+            self.add(f"**{heading}**" if self.status.desc_type is not None else f"### {heading}")
 
     @property
     def status(self) -> ContextStatus:
@@ -485,6 +485,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_title(self, _node):
+        # desc_type is scoped to the enclosing object, including nested
+        # desc_content sections, topics, admonitions and table titles.
+        if self.status.desc_type is not None:
+            self._push_context(WrappedContext("**", params=SubContextParams(2, 2)))
+            return
         if isinstance(self.ctx, TableContext):
             level = 4
         else:
@@ -499,12 +504,18 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         However, we keep it here in case some future version will change this behaviour.
         """
         self._push_status(section_level=self.status.section_level + 1)
-        self._push_context(TitleContext(self.status.section_level))
+        if self.status.desc_type is not None:
+            self._push_context(WrappedContext("**", params=SubContextParams(2, 2)))
+        else:
+            self._push_context(TitleContext(self.status.section_level))
 
     @pushing_context
     def visit_rubric(self, _node):
         """Sphinx Rubric, a heading without relation to the document sectioning"""
-        self._push_context(TitleContext(3))
+        if self.status.desc_type is not None:
+            self._push_context(WrappedContext("**", params=SubContextParams(2, 2)))
+        else:
+            self._push_context(TitleContext(3))
 
     def visit_transition(self, _node):
         """Simply replace a transition by a horizontal rule."""

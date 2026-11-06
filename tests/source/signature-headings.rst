@@ -11,6 +11,18 @@ Object signatures
 
       Topic text.
 
+   .. admonition:: Object admonition
+
+      Admonition text.
+
+   .. seealso::
+
+      Related object text.
+
+   .. sidebar:: Object sidebar
+
+      Sidebar text.
+
    .. list-table:: Object table
       :header-rows: 1
 
@@ -25,9 +37,20 @@ Object signatures
 
    .. py:method:: method()
 
+      .. rubric:: Method rubric
+
+   .. rubric:: Outer rubric after method
+
    .. py:class:: Inner
 
       .. py:method:: method()
+
+         Nested details
+         ^^^^^^^^^^^^^^
+
+         Details inside a nested method.
+
+      .. rubric:: Inner rubric after method
 
    .. py:method:: sibling()
 
@@ -54,10 +77,14 @@ Subsection
    Details
    ^^^^^^^
 
-   Details remain a document section.
+   Details are a bold object label.
 
-   More details
-   """"""""""""
+   See :ref:`object-details-link` for the next label.
+
+   .. _object-details-link:
+
+   More *details* with :class:`Outer` and ``code`` and \*literal\*
+   """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
    A nested docstring section.
 
@@ -124,3 +151,40 @@ Signature markup
 .. http:get:: /objects/(int:object_id)
 
    An HTTP signature.
+
+Outside descriptions
+--------------------
+
+.. rubric:: Outside rubric
+
+.. topic:: Outside topic
+
+   Topic text.
+
+.. admonition:: Outside admonition
+
+   Admonition text.
+
+.. seealso::
+
+   Related page text.
+
+.. list-table:: Outside table
+   :header-rows: 1
+
+   * - Heading
+   * - Cell
+
+.. py:function:: final_object()
+
+   Final object details
+   ~~~~~~~~~~~~~~~~~~~~
+
+   .. rubric:: Final object rubric
+
+After final object
+------------------
+
+.. rubric:: Restored page rubric
+
+Page content after leaving the object description.

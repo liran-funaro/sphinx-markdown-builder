@@ -14,7 +14,7 @@ A Point
 
 <a id="attributes"></a>
 
-## Attributes
+**Attributes**
 
 x: int
 : The x value
@@ -46,15 +46,15 @@ This is a function with a single parameter. Thanks to github.com/remiconnesson.
 
 <a id="details"></a>
 
-## Details
+**Details**
 
-This is a document section after the function signature.
+Details about this function.
 
 <a id="more-details"></a>
 
-### More details
+**More details**
 
-This section belongs under Details.
+More information about this function.
 
 **Function `my_module.func2`(param1: [int](https://docs.python.org/3/library/functions.html#int), param2: [int](https://docs.python.org/3/library/functions.html#int)) → [str](https://docs.python.org/3/library/stdtypes.html#str)**
 
@@ -74,7 +74,7 @@ This is a function with two parameters.
 
 <a id="references"></a>
 
-## References
+**References**
 
 * <a id='id3'>**[1]**</a> Alice is commonly used to describe the first actor.
 * <a id='id4'>**[2]**</a> Bob is commonly used to describe the second actor.

@@ -10,13 +10,27 @@
 
 **Function `top_level`()**
 
-### Object rubric
+**Object rubric**
 
-> ##### Object topic
+> **Object topic**
 > 
 > Topic text.
+> [!NOTE]
+> **Object admonition**
+> 
+> Admonition text.
 
-#### Object table
+> [!NOTE]
+> **See also**
+> 
+> Related object text.
+
+> [!TIP]
+> **Object sidebar**
+> 
+> Sidebar text.
+
+**Object table**
 
 | Heading |
 | --- |
@@ -38,6 +52,10 @@
 
 **Method `Outer.method`()**
 
+**Method rubric**
+
+**Outer rubric after method**
+
 <a id="Outer.Inner"></a>
 
 **Class `Outer.Inner`**
@@ -45,6 +63,14 @@
 <a id="Outer.Inner.method"></a>
 
 **Method `Outer.Inner.method`()**
+
+<a id="nested-details"></a>
+
+**Nested details**
+
+Details inside a nested method.
+
+**Inner rubric after method**
 
 <a id="Outer.sibling"></a>
 
@@ -71,15 +97,15 @@ This is a function with a single parameter. Thanks to github.com/remiconnesson.
 
 <a id="details"></a>
 
-## Details
+**Details**
 
-This is a document section after the function signature.
+Details about this function.
 
 <a id="more-details"></a>
 
-### More details
+**More details**
 
-This section belongs under Details.
+More information about this function.
 
 <a id="section"></a>
 
@@ -99,13 +125,17 @@ This section belongs under Details.
 
 <a id="id1"></a>
 
-#### Details
+**Details**
 
-Details remain a document section.
+Details are a bold object label.
 
-<a id="id2"></a>
+See [More details with Outer and code and \*literal\*](#object-details-link) for the next label.
 
-##### More details
+<a id="object-details-link"></a>
+
+<a id="more-details-with-outer-and-code-and-literal"></a>
+
+**More *details* with [`Outer`](#Outer) and `code` and \*literal\***
 
 A nested docstring section.
 
@@ -240,3 +270,46 @@ A nested docstring section.
 **`GET` `/objects/`(*int:* object_id)**
 
 An HTTP signature.
+
+<a id="outside-descriptions"></a>
+
+## Outside descriptions
+
+### Outside rubric
+
+> ##### Outside topic
+> 
+> Topic text.
+> [!NOTE]
+> ### Outside admonition
+> 
+> Admonition text.
+
+> [!NOTE]
+> ### See also
+> 
+> Related page text.
+
+#### Outside table
+
+| Heading |
+| --- |
+| Cell |
+
+<a id="final_object"></a>
+
+**Function `final_object`()**
+
+<a id="final-object-details"></a>
+
+**Final object details**
+
+**Final object rubric**
+
+<a id="after-final-object"></a>
+
+## After final object
+
+### Restored page rubric
+
+Page content after leaving the object description.

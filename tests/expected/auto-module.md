@@ -6,7 +6,7 @@ Example module
 
 A Point
 
-## Attributes
+**Attributes**
 
 x: int
 : The x value
@@ -43,13 +43,13 @@ Thanks to github.com/remiconnesson.
 * **Return type:**
   [int](https://docs.python.org/3/library/functions.html#int)
 
-## Details
+**Details**
 
-This is a document section after the function signature.
+Details about this function.
 
-### More details
+**More details**
 
-This section belongs under Details.
+More information about this function.
 
 **Function `my_module.func2`(param1, param2)**
 
@@ -69,7 +69,7 @@ This is a function with two parameters.
   * **param1** ([*int*](https://docs.python.org/3/library/functions.html#int)) – Alice <sup>[1](#id3)</sup>.
   * **param2** ([*int*](https://docs.python.org/3/library/functions.html#int)) – Bon <sup>[2](#id4)</sup>.
 
-## References
+**References**
 
 * <a id='id3'>**[1]**</a> Alice is commonly used to describe the first actor.
 * <a id='id4'>**[2]**</a> Bob is commonly used to describe the second actor.

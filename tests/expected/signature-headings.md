@@ -2,13 +2,27 @@
 
 **Function `top_level`()**
 
-### Object rubric
+**Object rubric**
 
-> ##### Object topic
+> **Object topic**
 > 
 > Topic text.
+> [!NOTE]
+> **Object admonition**
+> 
+> Admonition text.
 
-#### Object table
+> [!NOTE]
+> **See also**
+> 
+> Related object text.
+
+> [!TIP]
+> **Object sidebar**
+> 
+> Sidebar text.
+
+**Object table**
 
 | Heading   |
 |-----------|
@@ -22,9 +36,19 @@
 
 **Method `Outer.method`()**
 
+**Method rubric**
+
+**Outer rubric after method**
+
 **Class `Outer.Inner`**
 
 **Method `Outer.Inner.method`()**
+
+**Nested details**
+
+Details inside a nested method.
+
+**Inner rubric after method**
 
 **Method `Outer.sibling`()**
 
@@ -46,13 +70,13 @@ Thanks to github.com/remiconnesson.
 * **Return type:**
   [int](https://docs.python.org/3/library/functions.html#int)
 
-## Details
+**Details**
 
-This is a document section after the function signature.
+Details about this function.
 
-### More details
+**More details**
 
-This section belongs under Details.
+More information about this function.
 
 ## Section
 
@@ -62,11 +86,15 @@ This section belongs under Details.
 
 **Function `in_subsection`()**
 
-#### Details
+**Details**
 
-Details remain a document section.
+Details are a bold object label.
 
-##### More details
+See [More details with Outer and code and \*literal\*](#object-details-link) for the next label.
+
+<a id="object-details-link"></a>
+
+**More *details* with [`Outer`](#Outer) and `code` and \*literal\***
 
 A nested docstring section.
 
@@ -127,3 +155,38 @@ A nested docstring section.
 **`GET` `/objects/`(*int:* object_id)**
 
 An HTTP signature.
+
+## Outside descriptions
+
+### Outside rubric
+
+> ##### Outside topic
+> 
+> Topic text.
+> [!NOTE]
+> ### Outside admonition
+> 
+> Admonition text.
+
+> [!NOTE]
+> ### See also
+> 
+> Related page text.
+
+#### Outside table
+
+| Heading   |
+|-----------|
+| Cell      |
+
+**Function `final_object`()**
+
+**Final object details**
+
+**Final object rubric**
+
+## After final object
+
+### Restored page rubric
+
+Page content after leaving the object description.

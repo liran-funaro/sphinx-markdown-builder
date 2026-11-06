@@ -40,11 +40,11 @@ def func1(param1: int) -> int:
 
     Details
     -------
-    This is a document section after the function signature.
+    Details about this function.
 
     More details
     ~~~~~~~~~~~~
-    This section belongs under Details.
+    More information about this function.
     """
     pass
 
