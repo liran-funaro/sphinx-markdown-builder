@@ -81,6 +81,7 @@ class ContextStatus:
     section_level: int = 0  # Current section heading level
     list_marker: Optional[ListMarker] = None  # Current list marker
     desc_type: Optional[str] = None  # Current descriptor type
+    in_signature: bool = False  # Whether text belongs to an object signature
     default_ref_internal: bool = False  # Current default for internal reference
 
 
@@ -187,6 +188,20 @@ class WrappedContext(SubContext):
         if self.prefix in ["*", "_"] and not is_letter(text[0]) and len(prefix_space) == 0:
             prefix_space = SPACE
         return f"{prefix_space}{self.prefix}{text}{self.suffix}{suffix_space}"
+
+
+class CodeContext(SubContext):
+    """Inline code with a delimiter longer than any backtick run in its content."""
+
+    def make(self):
+        content = super().make().replace("\n", " ")
+        match = WRAP_REGEXP.fullmatch(content)
+        if match is None:
+            return content
+        prefix_space, text, suffix_space = match.groups()
+        delimiter = "`" * (max((len(run) for run in re.findall(r"`+", text)), default=0) + 1)
+        padding = " " if text.startswith("`") or text.endswith("`") else ""
+        return f"{prefix_space}{delimiter}{padding}{text}{padding}{delimiter}{suffix_space}"
 
 
 class CommaSeparatedContext(SubContext):

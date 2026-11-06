@@ -34,6 +34,7 @@ from sphinx.util.osutil import relative_uri
 
 from sphinx_markdown_builder.contexts import (
     CommaSeparatedContext,
+    CodeContext,
     ContextStatus,
     DOC_INFO_CONTEXT,
     IndentContext,
@@ -70,7 +71,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
         strong=STRONG_CONTEXT,
         subscript=SUBSCRIPT_CONTEXT,
         superscript=SUBSCRIPT_CONTEXT,
-        desc_annotation=ITALIC_CONTEXT,
         literal_strong=STRONG_CONTEXT,
         literal_emphasis=ITALIC_CONTEXT,
         field_name=PushContext(WrappedContext, "**", ":**"),  # e.g 'returns', 'parameters'
@@ -116,7 +116,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
         compound=None,
         desc_addname=None,  # module pre-roll for class/method
         desc_content=None,  # the description of the class/method
-        desc_name=None,  # name of the class/method
         title_reference=None,
         autosummary_table=None,  # Sphinx autosummary
         # See https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html.
@@ -127,7 +126,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
         tgroup=None,
         figure=None,
         legend=None,
-        desc_signature_line=None,
     )
 )
 
@@ -197,7 +195,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(IndentContext(prefix="> ", empty=True, params=SubContextParams(1, 2)))
         self._push_status(section_level=3)
         if heading is not None:
-            self.add(f"### {heading}")
+            self.add(f"**{heading}**" if self.status.desc_type is not None else f"### {heading}")
 
     @property
     def status(self) -> ContextStatus:
@@ -353,6 +351,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             text = text.replace("\n", " ")
         if self.status.escape_text:
             text = escape_markdown_chars(text)
+            if self.status.in_signature:
+                text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                text = text.replace("[", "\\[").replace("]", "\\]")
         self.add(text)
 
     @pushing_context
@@ -484,6 +485,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_title(self, _node):
+        # desc_type is scoped to the enclosing object, including nested
+        # desc_content sections, topics, admonitions and table titles.
+        if self.status.desc_type is not None:
+            self._push_context(WrappedContext("**", params=SubContextParams(2, 2)))
+            return
         if isinstance(self.ctx, TableContext):
             level = 4
         else:
@@ -498,12 +504,18 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         However, we keep it here in case some future version will change this behaviour.
         """
         self._push_status(section_level=self.status.section_level + 1)
-        self._push_context(TitleContext(self.status.section_level))
+        if self.status.desc_type is not None:
+            self._push_context(WrappedContext("**", params=SubContextParams(2, 2)))
+        else:
+            self._push_context(TitleContext(self.status.section_level))
 
     @pushing_context
     def visit_rubric(self, _node):
         """Sphinx Rubric, a heading without relation to the document sectioning"""
-        self._push_context(TitleContext(3))
+        if self.status.desc_type is not None:
+            self._push_context(WrappedContext("**", params=SubContextParams(2, 2)))
+        else:
+            self._push_context(TitleContext(3))
 
     def visit_transition(self, _node):
         """Simply replace a transition by a horizontal rule."""
@@ -643,9 +655,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_status
     def visit_desc(self, node):
-        self._push_status(desc_type=node.attributes.get("desctype", ""))
+        self._push_status(desc_type=node.get("objtype", node.get("desctype", "")))
 
     @pushing_context
+    @pushing_status
     def visit_desc_signature(self, node):
         """the main signature of class/method"""
 
@@ -654,11 +667,59 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             for anchor in node.get("ids", []):
                 self._add_anchor(anchor)
 
-        # We don't want methods to be at the same level as classes,
-        # If signature has a non-null class, that's means it is a signature
-        # of a class method
-        h_level = 4 if node.get("class", None) else 3
-        self._push_context(TitleContext(h_level))
+        self._push_status(in_signature=True)
+        self._push_context(WrappedContext("**", params=SubContextParams(2, 2)))
+        # C/C++ signatures spell out their kind as a keyword. Python/JS use
+        # a desc_annotation, replaced by the label below.
+        kind = self.status.desc_type
+        if kind and (
+            not node.astext().casefold().startswith(f"{kind} ".casefold()) or node[0].tagname == "desc_annotation"
+        ):
+            self.add(escape_markdown_chars(kind.capitalize()) + " ")
+
+    @pushing_context
+    def visit_desc_annotation(self, node):
+        is_leading_annotation = node.parent.tagname == "desc_signature" and node is node.parent[0]
+        if self.status.in_signature and is_leading_annotation and node.astext().strip() == self.status.desc_type:
+            raise nodes.SkipNode
+        self._push_context(WrappedContext("*"))
+
+    def visit_desc_signature_line(self, node):
+        # C/C++ templates have a separate line before the primary signature.
+        if node is not node.parent[0]:
+            self.add("<br/>")
+
+    @pushing_context
+    @pushing_status
+    def visit_desc_name(self, node):
+        # A domain may put references inside a name. Keep those as links,
+        # rather than placing Markdown link syntax inside a code span.
+        has_links = any(node.findall(nodes.reference))
+        self._push_status(escape_text=has_links)
+        self._push_context(SubContext() if has_links else CodeContext())
+        signature = node.parent
+        # C/C++ names live in signature_line; template parameter names must not
+        # be qualified. Python/JS names live directly in desc_signature.
+        if signature.tagname == "desc_signature_line":
+            if not signature.get("add_permalink"):
+                return
+            signature = signature.parent
+        if signature.tagname != "desc_signature":
+            return
+        domain = signature.parent.get("domain")
+        separator = "::" if domain == "cpp" else "."
+        parts = signature.get("_toc_parts", ())
+        if not parts:
+            parts = signature.get("fullname", "").split(separator)
+        # Domains omit enclosing names in nested directives. Do not duplicate
+        # a visible desc_addname or qualify names that are not the object itself.
+        if parts and parts[-1] == node.astext() and not any(child.tagname == "desc_addname" for child in node.parent):
+            if len(parts) > 1:
+                self.add(separator.join(parts[:-1]) + separator)
+
+    def visit_desc_type_parameter_list(self, _node):
+        self._push_context(WrappedContext("\\[", "\\]", wrap_empty=True))
+        self._push_context(CommaSeparatedContext(", "))
 
     def visit_desc_parameterlist(self, _node):
         self._push_context(WrappedContext("(", ")", wrap_empty=True))
@@ -666,6 +727,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def depart_desc_parameterlist(self, _node):
         self._pop_context(count=2)
+
+    depart_desc_type_parameter_list = depart_desc_parameterlist
 
     @property
     def sep_ctx(self) -> CommaSeparatedContext:
@@ -679,6 +742,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def depart_desc_parameter(self, _node):
         self.sep_ctx.exit_parameter()  # workaround pylint: disable=no-member
+
+    visit_desc_type_parameter = visit_desc_parameter
+    depart_desc_type_parameter = depart_desc_parameter
 
     def visit_field_list(self, _node):
         self._start_list("*")

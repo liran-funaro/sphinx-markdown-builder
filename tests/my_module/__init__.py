@@ -37,6 +37,14 @@ def func1(param1: int) -> int:
     Thanks to github.com/remiconnesson.
 
     :param param1: This is a single parameter.
+
+    Details
+    -------
+    Details about this function.
+
+    More details
+    ~~~~~~~~~~~~
+    More information about this function.
     """
     pass
 
