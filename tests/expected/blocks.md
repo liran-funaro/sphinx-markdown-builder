@@ -57,3 +57,7 @@ Some other text that refers to [Glossary2-Term2](glossaries.md#term-Glossary2-Te
 ## C domain
 
 ### [PyObject](https://docs.python.org/3/c-api/structures.html#c.PyObject) \*PyType_GenericAlloc([PyTypeObject](https://docs.python.org/3/c-api/type.html#c.PyTypeObject) \*type, [Py_ssize_t](https://docs.python.org/3/c-api/intro.html#c.Py_ssize_t) nitems)
+
+## Same-page references
+
+See [Same-page references](#same-page-references).

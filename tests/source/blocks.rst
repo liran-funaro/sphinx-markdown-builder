@@ -71,3 +71,8 @@ C domain
 --------
 
 .. c:function:: PyObject *PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
+
+Same-page references
+--------------------
+
+See `Same-page references`_.
