@@ -61,8 +61,16 @@ add_module_names = False  # Remove namespaces from class/method signatures
 autodoc_member_order = "bysource"
 
 templates_path = ["_templates"]
-exclude_patterns = ["expected"]
+exclude_patterns = ["expected", "numpydoc.rst"]  # numpydoc.rst has its own build (see below)
 # image-target.rst links to a missing download on purpose, to test the unregistered-file fallback.
 suppress_warnings = ["download.not_readable"]
 
 language = "en"
+
+# `make test-diff` builds numpydoc.rst alone with `-t numpydoc`.
+# numpydoc rewrites every autodoc docstring, so the other pages are left out of that build.
+if tags.has("numpydoc"):  # noqa: F821 (Sphinx injects `tags`)
+    extensions.append("numpydoc")
+    root_doc = "numpydoc"
+    include_patterns = ["numpydoc.rst"]
+    exclude_patterns = ["expected"]
