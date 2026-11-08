@@ -53,6 +53,7 @@ PREDEFINED_ELEMENTS: Dict[str, Union[contexts.PushContext, contexts.PushBox, con
         desc_annotation=contexts.ITALIC,
         literal_strong=contexts.STRONG,
         literal_emphasis=contexts.ITALIC,
+        classifier=contexts.PushContext(contexts.Wrapped, " : *", "*"),  # e.g., numpydoc parameter types
         # Doc info elements
         docinfo=contexts.DOC_INFO,
         docinfo_item=contexts.DOC_INFO,
@@ -437,6 +438,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     #     definition_list_item
     #       term
     #         index entries
+    #       classifier (optional, repeatable; e.g., "term : type")
     #       definition
     #         paragraph
     ################################################################################

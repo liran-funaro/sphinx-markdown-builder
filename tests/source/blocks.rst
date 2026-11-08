@@ -8,6 +8,9 @@ Formula 1
 
    Some more text related to the definition.
 
+Formula 2 : float : optional
+   A term with classifiers (e.g., numpydoc parameter types).
+
 
 Display math:
 
