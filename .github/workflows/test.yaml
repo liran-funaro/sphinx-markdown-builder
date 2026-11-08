@@ -44,17 +44,18 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install --upgrade pytest pytest-cov
-          pip install .[dev]
+          pip install -e .[dev]
       - name: Test
         run: make test
       - name: Coveralls
         if: ${{ !env.ACT }} # skip during local actions testing
         uses: coverallsapp/github-action@v2
         with:
-          format: cobertura
-          file: coverage.xml
+          format: lcov
+          file: coverage.lcov
           flag-name: python-${{ matrix.python-version }}
           parallel: true
+          debug: true
         continue-on-error: true
 
   coveralls:
@@ -66,4 +67,5 @@ jobs:
       - uses: coverallsapp/github-action@v2
         with:
           parallel-finished: true
+          debug: true
         continue-on-error: true

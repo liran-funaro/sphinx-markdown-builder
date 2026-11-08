@@ -17,7 +17,7 @@ help:
 
 
 clean:
-	rm -rf "$(BUILD_DIR)" "$(DIST_DIR)" "$(SOURCE_DIR)/library" .coverage coverage.xml
+	rm -rf "$(BUILD_DIR)" "$(DIST_DIR)" "$(SOURCE_DIR)/library" .coverage coverage.lcov
 
 
 # Catch-all target: route all unknown targets to Sphinx using the new "make mode" option.
@@ -53,7 +53,7 @@ test-diff:
 
 test: test-diff
 	@echo "Unit testing and coverage report..."
-	@pytest --cov --cov-report=term --cov-report=xml
+	@pytest --cov --cov-report=term --cov-report=lcov:coverage.lcov
 
 
 diff:
