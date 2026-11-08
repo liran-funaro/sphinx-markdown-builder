@@ -526,27 +526,23 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
                 url = posixpath.normpath(f"{this_dir}/{url}")
         return f"{self.config.markdown_http_base}/{url}"
 
-    def _fetch_ref_uri(self, node):
-        uri = node.get("refuri", "")
-        ref_id = node.get("refid", None)
-
-        # Same-document references may lack an internal flag, but still need
-        # the anchor handling below.
-        same_document = bool(ref_id) and not uri
-        if not node.get("internal", self.status.default_ref_internal) and not same_document:
-            return uri
-
-        uri = self._adjust_url(uri)
-
-        if ref_id is not None:
-            uri = f"#{ref_id}"
-
-        return uri
-
     @pushing_context
-    def visit_reference(self, node):
-        url = self._fetch_ref_uri(node)
-        self._push_context(WrappedContext("[", f"]({url})"))
+    def visit_reference(self, node: nodes.reference):
+        ref_id: str | None = node.get("refid")
+        ref_uri: str = node.get("refuri", "")
+        is_internal = bool(node.get("internal", self.status.default_ref_internal))
+
+        if ref_id:
+            # Same-document reference: docutils uses refid for targets in the same document
+            target = f"#{ref_id}"
+        elif is_internal:
+            # Internal reference: adjust relative URL to destination
+            target = self._adjust_url(ref_uri)
+        else:
+            # External reference: preserve target URL verbatim
+            target = ref_uri
+
+        self._push_context(WrappedContext("[", f"]({target})"))
 
     @pushing_context
     def visit_download_reference(self, node):
