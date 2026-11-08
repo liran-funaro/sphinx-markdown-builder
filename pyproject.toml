@@ -83,3 +83,6 @@ line-length = 120
 max-line-length = 120
 max-args = 6
 max-positional-arguments = 6
+
+[tool.coverage.run]
+source_pkgs = ["sphinx_markdown_builder"]
