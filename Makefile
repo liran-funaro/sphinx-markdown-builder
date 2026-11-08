@@ -53,7 +53,7 @@ test-diff:
 
 test: test-diff
 	@echo "Unit testing and coverage report..."
-	@pytest --cov=sphinx_markdown_builder --cov-report=term --cov-report=xml
+	@pytest --cov --cov-report=term --cov-report=xml
 
 
 diff:

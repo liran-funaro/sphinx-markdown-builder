@@ -51,6 +51,7 @@ jobs:
         if: ${{ !env.ACT }} # skip during local actions testing
         uses: coverallsapp/github-action@v2
         with:
+          format: cobertura
           file: coverage.xml
           flag-name: python-${{ matrix.python-version }}
           parallel: true
