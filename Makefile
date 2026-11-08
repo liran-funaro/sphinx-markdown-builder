@@ -40,12 +40,16 @@ test-diff:
 			-D autodoc_typehints=signature -D markdown_bullet=- -D markdown_file_suffix=".markdown" \
 			-D markdown_flavor=github -D markdown_compact_tables=1 -D markdown_suppress_comments=1 -D markdown_include_raw_types=markdown
 
+	@echo "Building markdown with numpydoc..."
+	@$(SPHINX_BUILD) -M markdown "$(SOURCE_DIR)" "$(BUILD_DIR)/numpydoc" $(SPHINX_OPTS) $(O) -a -t numpydoc
+
 	@# Copy just the files for verification
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-summery.markdown" "$(BUILD_DIR)/markdown/overrides-auto-summery.markdown"
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-module.markdown" "$(BUILD_DIR)/markdown/overrides-auto-module.markdown"
 	@cp "$(BUILD_DIR)/overrides/markdown/tables.markdown" "$(BUILD_DIR)/markdown/compact-tables.markdown"
 	@cp "$(BUILD_DIR)/overrides/markdown/image-target.markdown" "$(BUILD_DIR)/markdown/overrides-image-target.markdown"
 	@cp "$(BUILD_DIR)/overrides/markdown/blocks.markdown" "$(BUILD_DIR)/markdown/overrides-blocks.markdown"
+	@cp "$(BUILD_DIR)/numpydoc/markdown/numpydoc.md" "$(BUILD_DIR)/markdown/numpydoc.md"
 
 	@echo "Verifies outputs..."
 	@diff --recursive --color=always --side-by-side --text --suppress-common-lines \
