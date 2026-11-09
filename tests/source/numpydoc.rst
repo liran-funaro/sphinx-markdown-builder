@@ -1,6 +1,8 @@
+:orphan:
+
 Numpydoc
 ========
 
-Built with the ``numpydoc`` extension, which renders parameter types as definition list classifiers.
+Parameter types in numpydoc-style docstrings are rendered as definition list classifiers.
 
 .. autofunction:: numpydoc_module.downside_risk
