@@ -765,6 +765,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     # footnote
     #   label
     #   paragraph
+    #
+    # citation (e.g., numpydoc's References section) is rendered like a footnote
+    # citation_reference is a reference node, so it links to the citation's id
     ###############################################################################
 
     @property
@@ -785,6 +788,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         if isinstance(names, (list, tuple)):
             names = ",".join(names)
         self._push_context(FootNoteContext(ids, names, params=SubContextParams(1, 1)))
+
+    @pushing_context
+    def visit_citation(self, node):
+        self.visit_footnote(node)
 
     def visit_label(self, _node):
         self.footnote_ctx.visit_label()  # workaround pylint: disable=no-member

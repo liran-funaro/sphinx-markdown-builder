@@ -8,27 +8,32 @@
 
 Example module
 
+<!-- !! processed by numpydoc !! -->
+
 ### *class* Point(x: [int](https://docs.python.org/3/library/functions.html#int), y: [str](https://docs.python.org/3/library/stdtypes.html#str))
 
 A Point
 
-<a id="attributes"></a>
+* **Attributes:**
+  **x: int**
+  : The x value
 
-## Attributes
+  **y: str**
+  : The y value
 
-x: int
-: The x value
-
-y: str
-: The y value
+<!-- !! processed by numpydoc !! -->
 
 #### x *: [int](https://docs.python.org/3/library/functions.html#int)*
 
 X value
 
+<!-- !! processed by numpydoc !! -->
+
 #### y *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
 
 Y value
+
+<!-- !! processed by numpydoc !! -->
 
 ### deprecated_function()
 
@@ -37,12 +42,16 @@ Some old function.
 > [!WARNING]
 > Deprecated since version 3.1: Use `other()` instead.
 
+<!-- !! processed by numpydoc !! -->
+
 ### func1(param1: [int](https://docs.python.org/3/library/functions.html#int)) → [int](https://docs.python.org/3/library/functions.html#int)
 
 This is a function with a single parameter. Thanks to github.com/remiconnesson.
 
 * **Parameters:**
   **param1** – This is a single parameter.
+
+<!-- !! processed by numpydoc !! -->
 
 ### func2(param1: [int](https://docs.python.org/3/library/functions.html#int), param2: [int](https://docs.python.org/3/library/functions.html#int)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
@@ -52,17 +61,18 @@ This is a function with two parameters.
   - **param1** – This is the first parameter.
   - **param2** – This is the second parameter.
 
+<!-- !! processed by numpydoc !! -->
+
 ### func3(param1: [int](https://docs.python.org/3/library/functions.html#int), param2: [int](https://docs.python.org/3/library/functions.html#int))
 
 This is a function with two parameters.
 
 * **Parameters:**
-  - **param1** – Alice <sup>[1](#id3)</sup>.
-  - **param2** – Bon <sup>[2](#id4)</sup>.
+  - **param1** – Alice [[1]](https://localhost/library/my_module.html#r9b3957318714-1).
+  - **param2** – Bon [[2]](https://localhost/library/my_module.html#r9b3957318714-2).
 
-<a id="references"></a>
+### References
 
-## References
-
-* <a id='id3'>**[1]**</a> Alice is commonly used to describe the first actor.
-* <a id='id4'>**[2]**</a> Bob is commonly used to describe the second actor.
+* <a id='r9b3957318714-1'>**[1]**</a> Alice is commonly used to describe the first actor.
+* <a id='r9b3957318714-2'>**[2]**</a> Bob is commonly used to describe the second actor.
+<!-- !! processed by numpydoc !! -->
