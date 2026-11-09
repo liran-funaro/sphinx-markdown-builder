@@ -48,6 +48,7 @@ test-diff:
 	@echo "Verifies outputs..."
 	@diff --recursive --color=always --side-by-side --text --suppress-common-lines \
 			--exclude=_downloads \
+			--exclude=_sphinx_design_static \
 			"$(BUILD_DIR)/markdown" "$(EXPECTED_DIR)"
 
 
