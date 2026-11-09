@@ -86,3 +86,5 @@ max-positional-arguments = 6
 
 [tool.coverage.run]
 source_pkgs = ["sphinx_markdown_builder"]
+concurrency = ["multiprocessing", "thread"]
+parallel = true

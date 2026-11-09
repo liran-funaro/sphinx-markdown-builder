@@ -19,6 +19,8 @@ Documentation
 
 Some link to a class :py:class:`my_module.module_class.ModuleClass`
 
+Some link to this page :doc:`auto-summery`
+
 ----
 
 Indices and tables
