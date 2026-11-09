@@ -77,6 +77,7 @@ Not this:
 ```
 
 This: add `-D markdown_compact_tables=1` to the existing "Building markdown with configuration overrides..." step.
+Also add this flag to `tests/test_builder.py` to ensure all paths are covered in the test report.
 
 ## Translator architecture
 
