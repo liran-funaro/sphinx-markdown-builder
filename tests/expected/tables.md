@@ -1,5 +1,7 @@
 # Tables
 
+#### Example table
+
 | Name        | Description                                 |
 |-------------|---------------------------------------------|
 | Short       | A much longer description                   |

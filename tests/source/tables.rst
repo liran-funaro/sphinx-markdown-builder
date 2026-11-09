@@ -3,7 +3,7 @@
 Tables
 ======
 
-.. list-table::
+.. list-table:: Example table
    :header-rows: 1
 
    * - Name
