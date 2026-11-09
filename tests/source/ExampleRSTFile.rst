@@ -84,6 +84,11 @@ own line number for commenting in reviews.
 
    Sidebar body.
 
+A sentence with an :abbr:`LLM (Large Language Model)` in the middle.
+Repeating an :abbr:`LLM` reuses the same footnote, without repeating its explanation,
+while an :abbr:`ANN (Artificial Neural Network)` gets a footnote of its own.
+An :abbr:`API` may be explained only later, as an :abbr:`API (Application Programming Interface)`.
+A bare :abbr:`RST` has no explanation to spell out.
 
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.
