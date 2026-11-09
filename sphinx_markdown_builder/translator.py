@@ -26,7 +26,7 @@ https://github.com/docutils/docutils/blob/master/docutils/docutils/writers/html5
 import dataclasses
 import posixpath
 import re
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Type, TypeVar, Union
 
 from docutils import languages, nodes
 from sphinx.util.docutils import SphinxTranslator
@@ -58,6 +58,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from sphinx_markdown_builder import MarkdownBuilder
 
 VISIT_DEPART_PATTERN = re.compile("(visit|depart)_(.+)")
+CtxT = TypeVar("CtxT", bound=SubContext)
 SKIP = UniqueString("skip")
 
 DOC_INFO_FIELDS = "author", "contact", "copyright", "date", "organization", "revision", "status", "version"
@@ -151,6 +152,10 @@ def pushing_status(method):
     return _assign_visit_method(method, "__pushing_status__")
 
 
+class UnknownVisit(Exception):
+    """A visit/depart handler met a node outside the context it supports (e.g., a `label` outside a footnote)."""
+
+
 class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-methods
     def __init__(self, document: nodes.document, builder: "MarkdownBuilder"):
         super().__init__(document, builder)
@@ -179,6 +184,13 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @property
     def ctx(self) -> SubContext:
         return self._ctx_queue[-1]
+
+    def _typed_ctx(self, ctx_type: Type[CtxT]) -> CtxT:
+        """The current context, if it is of the type the visited node requires"""
+        ctx = self.ctx
+        if not isinstance(ctx, ctx_type):
+            raise UnknownVisit
+        return ctx
 
     def _push_context(self, ctx: SubContext):
         self._ctx_queue.append(ctx)
@@ -319,6 +331,14 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             return self._pass
 
         return None
+
+    def dispatch_visit(self, node):
+        # A handler raises UnknownVisit when the node is outside the context it supports.
+        # unknown_visit() then raises SkipNode, so the node's children and departure are skipped too.
+        try:
+            super().dispatch_visit(node)
+        except UnknownVisit:
+            self.unknown_visit(node)
 
     def unknown_visit(self, node):
         """Warn once per instance for unsupported nodes."""
@@ -664,9 +684,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @property
     def sep_ctx(self) -> CommaSeparatedContext:
-        ctx = self.ctx
-        assert isinstance(ctx, CommaSeparatedContext)
-        return ctx
+        return self._typed_ctx(CommaSeparatedContext)
 
     def visit_desc_parameter(self, _node):
         """single method/class ctr param"""
@@ -707,9 +725,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @property
     def table_ctx(self) -> TableContext:
-        ctx = self.ctx
-        assert isinstance(ctx, TableContext)
-        return ctx
+        return self._typed_ctx(TableContext)
 
     @pushing_context
     def visit_table(self, _node):
@@ -756,9 +772,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @property
     def footnote_ctx(self) -> FootNoteContext:
-        ctx = self.ctx
-        assert isinstance(ctx, FootNoteContext)
-        return ctx
+        return self._typed_ctx(FootNoteContext)
 
     @pushing_context
     def visit_footnote_reference(self, node):
@@ -775,14 +789,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             names = ",".join(names)
         self._push_context(FootNoteContext(ids, names, params=SubContextParams(1, 1)))
 
-    def visit_label(self, node):
-        try:
-            self.footnote_ctx.visit_label()  # workaround pylint: disable=no-member
-        except AssertionError:
-            self.unknown_visit(node)
+    def visit_label(self, _node):
+        self.footnote_ctx.visit_label()  # workaround pylint: disable=no-member
 
-    def depart_label(self, node):
-        try:
-            self.footnote_ctx.depart_label()  # workaround pylint: disable=no-member
-        except AssertionError:
-            self.unknown_visit(node)
+    def depart_label(self, _node):
+        self.footnote_ctx.depart_label()  # workaround pylint: disable=no-member

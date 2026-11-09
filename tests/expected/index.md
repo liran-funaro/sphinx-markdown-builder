@@ -68,6 +68,7 @@
   * [Http domain directive](blocks.md#http-domain-directive)
   * [C domain](blocks.md#c-domain)
     * [`PyType_GenericAlloc()`](blocks.md#c.PyType_GenericAlloc)
+  * [Inline tabs](blocks.md#inline-tabs)
   * [Same-page references](blocks.md#same-page-references)
 * [Test Image With Target](image-target.md)
 * [Empty package](empty.md)

@@ -72,6 +72,17 @@ C domain
 
 .. c:function:: PyObject *PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
 
+Inline tabs
+-----------
+
+.. tab:: First tab
+
+   Content of the first tab.
+
+.. tab:: Second tab
+
+   Content of the second tab.
+
 Same-page references
 --------------------
 
