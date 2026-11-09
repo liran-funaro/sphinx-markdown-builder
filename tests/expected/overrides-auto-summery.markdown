@@ -18,6 +18,8 @@
 
 Some link to a class [`my_module.module_class.ModuleClass`](https://localhost/library/my_module.module_class.html#my_module.module_class.ModuleClass)
 
+Some link to this page [Welcome to Sphinx-Markdown-Builder TocTree Test’s documentation!](https://localhost/auto-summery.html)
+
 ---
 
 <a id="indices-and-tables"></a>

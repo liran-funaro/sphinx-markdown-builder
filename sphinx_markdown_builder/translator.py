@@ -520,11 +520,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         this_doc = self.builder.current_doc_name
         if url == "":  # Reference to this doc
             url = self.builder.get_target_uri(this_doc)
-        else:  # URL is relative to the current docname.
-            this_dir = posixpath.dirname(this_doc)
-            if this_dir:
-                url = posixpath.normpath(f"{this_dir}/{url}")
-        return f"{self.config.markdown_http_base}/{url}"
+        else:  # URL is relative to the current docname, or absolute from the source root.
+            url = posixpath.normpath(posixpath.join(posixpath.dirname(this_doc), url))
+        return posixpath.join(self.config.markdown_http_base, url.lstrip("/"))
 
     @pushing_context
     def visit_reference(self, node: nodes.reference):

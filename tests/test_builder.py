@@ -19,9 +19,9 @@ SOURCE_FLAGS = [
     [],
     [
         "-D",
-        'markdown_http_base="https://localhost"',
+        "markdown_http_base=https://localhost",
         "-D",
-        'markdown_uri_doc_suffix=".html"',
+        "markdown_uri_doc_suffix=.html",
         "-D",
         "markdown_docinfo=1",
         "-D",
@@ -33,7 +33,7 @@ SOURCE_FLAGS = [
         "-D",
         "markdown_bullet=-",
         "-D",
-        "markdown_file_suffix=.html.md",
+        "markdown_file_suffix=.markdown",
         "-D",
         "markdown_flavor=github",
         "-D",
@@ -117,7 +117,7 @@ def _has_suffix_in_path(path: str, suffix: str) -> bool:
 def test_custom_file_suffix():
     """Test that markdown_file_suffix configuration generates files with correct suffix"""
     build_path = os.path.join(BUILD_PATH, "test_suffix")
-    suffix = ".html.md"
+    suffix = ".markdown"
 
     # Clean and build
     _rm_build_path(build_path)

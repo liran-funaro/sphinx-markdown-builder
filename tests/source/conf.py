@@ -61,5 +61,7 @@ autodoc_member_order = "bysource"
 
 templates_path = ["_templates"]
 exclude_patterns = ["expected"]
+# image-target.rst links to a missing download on purpose, to test the unregistered-file fallback.
+suppress_warnings = ["download.not_readable"]
 
 language = "en"
