@@ -45,7 +45,6 @@ test-diff:
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-module.markdown" "$(BUILD_DIR)/markdown/overrides-auto-module.markdown"
 	@cp "$(BUILD_DIR)/overrides/markdown/tables.markdown" "$(BUILD_DIR)/markdown/compact-tables.markdown"
 	@cp "$(BUILD_DIR)/overrides/markdown/image-target.markdown" "$(BUILD_DIR)/markdown/overrides-image-target.markdown"
-	@cp "$(BUILD_DIR)/overrides/markdown/numpydoc.markdown" "$(BUILD_DIR)/markdown/numpydoc-enabled.md"
 
 	@echo "Verifies outputs..."
 	@diff --recursive --color=always --side-by-side --text --suppress-common-lines \

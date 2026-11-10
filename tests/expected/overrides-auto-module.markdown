@@ -68,11 +68,27 @@ This is a function with two parameters.
 This is a function with two parameters.
 
 * **Parameters:**
-  - **param1** – Alice [[1]](https://localhost/library/my_module.html#r9b3957318714-1).
-  - **param2** – Bon [[2]](https://localhost/library/my_module.html#r9b3957318714-2).
+  - **param1** – Alice <sup>[1](#r9b3957318714-1)</sup>.
+  - **param2** – Bon <sup>[2](#r9b3957318714-2)</sup>.
 
 ### References
 
 * <a id='r9b3957318714-1'>**[1]**</a> Alice is commonly used to describe the first actor.
 * <a id='r9b3957318714-2'>**[2]**</a> Bob is commonly used to describe the second actor.
+<!-- !! processed by numpydoc !! -->
+
+### downside_risk(returns, min_acceptable_return=0.0)
+
+Compute the downside risk of a series of returns.
+
+* **Parameters:**
+  **returns** : *ndarray of shape (n_observations,)*
+  : The observed returns.
+
+  **min_acceptable_return** : *float, optional*
+  : Returns below this value count as downside.
+* **Returns:**
+  **risk** : *float*
+  : The downside risk.
+
 <!-- !! processed by numpydoc !! -->

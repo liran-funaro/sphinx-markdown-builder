@@ -124,3 +124,9 @@ Content of the second tab.
 ## Same-page references
 
 See [Same-page references](#same-page-references).
+
+## Citations
+
+A citation reference <sup>[CIT2002](#cit2002)</sup> on the same page.
+
+* <a id='cit2002'>**[CIT2002]**</a> A citation definition.

@@ -541,11 +541,27 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             url = posixpath.normpath(posixpath.join(posixpath.dirname(this_doc), url))
         return posixpath.join(self.config.markdown_http_base, url.lstrip("/"))
 
+    def _citation_id(self, node: nodes.reference) -> str | None:
+        """Return the id of the citation that this resolved reference points to, if it is a citation reference."""
+        # Same-page references use `refid`, references to other pages use `refuri` with an anchor.
+        label_id = node.get("refid") or node.get("refuri", "").partition("#")[2]
+        known_ids = {known for _, known, _ in self.builder.env.domains.citation_domain.citations.values()}
+        return label_id if label_id in known_ids else None
+
     @pushing_context
     def visit_reference(self, node: nodes.reference):
         ref_id: str | None = node.get("refid")
         ref_uri: str = node.get("refuri", "")
         is_internal = bool(node.get("internal", self.status.default_ref_internal))
+
+        # Sphinx resolves `citation_reference` nodes into plain internal references to the citation.
+        # Render them like footnote references: `<sup>[label](#id)</sup>`.
+        citation_id = self._citation_id(node)
+        if citation_id:
+            # Keep the anchor local when the citation is on this page, otherwise point to the page that holds it.
+            target = f"#{citation_id}" if citation_id in self.document.ids else self._adjust_url(ref_uri)
+            self._push_context(WrappedContext("<sup>", f"({target})</sup>"))
+            return
 
         if ref_id:
             # Same-document reference: docutils uses refid for targets in the same document
@@ -767,7 +783,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     #   paragraph
     #
     # citation (e.g., numpydoc's References section) is rendered like a footnote
-    # citation_reference is a reference node, so it links to the citation's id
+    # citation_reference is resolved by Sphinx into a reference node (see `visit_reference`)
     ###############################################################################
 
     @property

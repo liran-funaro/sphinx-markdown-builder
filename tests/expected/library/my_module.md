@@ -73,3 +73,20 @@ This is a function with two parameters.
 
 * <a id='id3'>**[1]**</a> Alice is commonly used to describe the first actor.
 * <a id='id4'>**[2]**</a> Bob is commonly used to describe the second actor.
+
+### downside_risk(returns, min_acceptable_return=0.0)
+
+Compute the downside risk of a series of returns.
+
+## Parameters
+
+returns : *ndarray of shape (n_observations,)*
+: The observed returns.
+
+min_acceptable_return : *float, optional*
+: Returns below this value count as downside.
+
+## Returns
+
+risk : *float*
+: The downside risk.

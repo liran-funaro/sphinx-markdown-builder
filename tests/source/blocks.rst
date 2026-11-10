@@ -144,3 +144,10 @@ Same-page references
 --------------------
 
 See `Same-page references`_.
+
+Citations
+---------
+
+A citation reference [CIT2002]_ on the same page.
+
+.. [CIT2002] A citation definition.
