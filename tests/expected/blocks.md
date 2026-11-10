@@ -9,6 +9,9 @@ Formula 1
 Formula 2 : *float* : *optional*
 : A term with classifiers (e.g., numpydoc parameter types).
 
+Formula 3 : *float*
+: An already-emphasized classifier.
+
 Display math:
 
 $$

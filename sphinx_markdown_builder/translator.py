@@ -78,7 +78,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
         literal_strong=STRONG_CONTEXT,
         literal_emphasis=ITALIC_CONTEXT,
         field_name=PushContext(WrappedContext, "**", ":**"),  # e.g 'returns', 'parameters'
-        classifier=PushContext(WrappedContext, " : *", "*"),  # e.g., numpydoc parameter types
         # Doc info elements
         docinfo=DOC_INFO_CONTEXT,
         docinfo_item=DOC_INFO_CONTEXT,
@@ -435,6 +434,13 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         for anchor in node.get("ids", []):
             self._add_anchor(anchor)
         self.ensure_eol(2)
+
+    @pushing_context
+    def visit_classifier(self, node):
+        """A definition list classifier, e.g., numpydoc parameter types: rendered as `term : *type*`"""
+        # An already-emphasized classifier (`term : *type*` in rst) keeps its own emphasis instead of doubling it.
+        is_emphasized = len(node.children) == 1 and isinstance(node.children[0], nodes.emphasis)
+        self._push_context(WrappedContext(" : ", "") if is_emphasized else WrappedContext(" : *", "*"))
 
     @pushing_context
     def visit_definition(self, _node):
