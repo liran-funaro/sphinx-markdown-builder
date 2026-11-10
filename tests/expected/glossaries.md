@@ -35,3 +35,7 @@ Glossary2-Term2
 
 Glossary3-Term1
 : Some random text for term 1 in glossary 3.
+
+## Citation from another page
+
+A citation reference <sup>[CIT2002](blocks.md#cit2002)</sup> to a citation defined in another page.

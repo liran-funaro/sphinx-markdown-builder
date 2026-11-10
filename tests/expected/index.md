@@ -63,6 +63,7 @@
       * [`get_query()`](library/my_module.md#my_module.get_query)
       * [`func2()`](library/my_module.md#my_module.func2)
       * [`func3()`](library/my_module.md#my_module.func3)
+      * [`downside_risk()`](library/my_module.md#my_module.downside_risk)
 * [Indices and tables](auto-summery.md#indices-and-tables)
 * [Math Example](blocks.md)
 * [Code Example](blocks.md#code-example)
@@ -101,4 +102,5 @@
   * [Section for first glossary](glossaries.md#section-for-first-glossary)
   * [Section for second glossary](glossaries.md#section-for-second-glossary)
   * [Section for third glossary](glossaries.md#section-for-third-glossary)
+  * [Citation from another page](glossaries.md#citation-from-another-page)
 * [Auto Module](auto-module.md)

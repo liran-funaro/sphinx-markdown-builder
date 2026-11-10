@@ -272,3 +272,10 @@ A footnote [#target-note]_, and links to `the footnote alias`_ and `the paragrap
 .. _the paragraph alias:
 
 A paragraph with a target right before it, which moves its id onto the paragraph.
+
+Citations
+---------
+
+A citation reference [CIT2002]_ on the same page.
+
+.. [CIT2002] A citation definition.
