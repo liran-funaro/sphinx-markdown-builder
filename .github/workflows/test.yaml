@@ -57,6 +57,23 @@ jobs:
           parallel: true
         continue-on-error: true
 
+  test-min-sphinx:
+    # Build the test docs with the oldest Sphinx allowed by `dependencies` in pyproject.toml.
+    # The output differs between Sphinx versions, so this only checks that the builds succeed.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11  # Sphinx 5.1 imports `imghdr`, which Python 3.13 removed
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install . "sphinx==5.1.0" pytest sphinxcontrib-plantuml sphinxcontrib.httpdomain sphinx-inline-tabs
+      - name: Test
+        run: pytest tests/test_builder.py
+
   coveralls:
     if: ${{ always() && !github.event.act }} # skip during local actions testing
     name: Indicate completion to coveralls.io
