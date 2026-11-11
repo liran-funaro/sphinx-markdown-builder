@@ -70,7 +70,10 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install . "sphinx==5.1.0" pytest sphinxcontrib-plantuml sphinxcontrib.httpdomain sphinx-inline-tabs
+          pip install .[dev]
+          # Downgrade Sphinx (and its pinned dependencies, e.g., docutils) after the regular install.
+          # pip reports that the dev extra and some extensions ask for a newer Sphinx; the builds still work.
+          pip install "sphinx==5.1.0"
       - name: Test
         run: pytest tests/test_builder.py
 
