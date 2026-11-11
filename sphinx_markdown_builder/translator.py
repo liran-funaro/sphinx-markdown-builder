@@ -383,6 +383,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @pushing_context
     @pushing_status
     def visit_comment(self, node):
+        if self.config.markdown_suppress_comments:
+            raise nodes.SkipNode  # Nothing was pushed yet, and SkipNode also skips the departure.
         self._push_status(escape_text=False)
         self._push_context(CommentContext(SubContextParams(1)))
 
