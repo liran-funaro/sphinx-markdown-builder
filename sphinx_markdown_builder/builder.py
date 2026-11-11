@@ -80,6 +80,9 @@ class MarkdownBuilder(Builder):
         """
         return f"{docname}{self.config.markdown_uri_doc_suffix}"
 
+    def prepare_writing(self, docnames):
+        """Nothing to prepare. Sphinx < 8.1 requires this override (its default raises NotImplementedError)."""
+
     def write_doc(self, docname: str, doctree: nodes.document):
         self.current_doc_name = docname
         self.sec_numbers = self.env.toc_secnumbers.get(docname, {})
