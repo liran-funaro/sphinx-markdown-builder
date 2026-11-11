@@ -38,6 +38,8 @@ SOURCE_FLAGS = [
         "markdown_flavor=github",
         "-D",
         "markdown_compact_tables=1",
+        "-D",
+        "markdown_suppress_comments=1",
         "-j",
         "8",
     ],
