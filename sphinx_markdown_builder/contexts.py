@@ -23,6 +23,7 @@ DEFAULT_TARGET = "body"
 CONTENT_START = UniqueString("content start")
 EOL = "\n"
 SPACE = " "
+SEPARATOR = ", "
 SPACE_CHARS = re.compile(r"\s+")
 LETTERS = re.compile(r"[a-z0-9]", re.I)
 WRAP_REGEXP = re.compile(r"(\s*)(?=\S)([\s\S]+?)(?<=\S)(\s*)", re.M)
@@ -237,72 +238,52 @@ class CodeBlockContext(SubContext):
         return EOL.join(lines)
 
 
-class OptionalGroup(list):
-    """The parameters (and nested groups) of an optional `[`…`]` group"""
+# Parameter markers in ParameterListContext's body; they are empty, so they add no output.
+REQUIRED_PARAMETER = UniqueString("")
+OPTIONAL_PARAMETER = UniqueString("")
+PARAMETER_END = UniqueString("")
 
 
 class ParameterListContext(SubContext):
     """
-    A signature's parameter list. While visiting, it records in order each parameter's output (a list), each optional
-    group, and any text outside a parameter (a string). `make()` then places the separators like Sphinx's HTML writer:
-    after a parameter while required parameters are still to come, and before it otherwise, so they stay inside the
-    brackets: `f([a, ]b, c[, d])`.
+    A signature's parameter list. While visiting, it marks where each parameter starts and ends.
+    `make()` then places the separators like Sphinx's HTML writer: after a parameter while required parameters
+    are still to come, and before it otherwise, so they stay inside the brackets: `f([a, ]b, c[, d])`.
     """
 
-    def __init__(self, sep: str = ", ", params=SubContextParams()):
+    def __init__(self, params=SubContextParams()):
         super().__init__(params)
-        self.sep = sep
-        self.groups: List[list] = [self.body]  # The open groups; the innermost receives new items
-        self.parameter: Optional[List[str]] = None  # The output of the parameter being visited
-
-    @property
-    def content(self) -> List[str]:
-        return self.parameter if self.parameter is not None else self.groups[-1]
+        self.optional_level = 0
 
     def enter_parameter(self):
-        self.parameter = []
-        self.groups[-1].append(self.parameter)
+        self.body.append(OPTIONAL_PARAMETER if self.optional_level else REQUIRED_PARAMETER)
 
     def exit_parameter(self):
-        self.parameter = None
+        self.body.append(PARAMETER_END)
 
     def enter_optional(self):
-        group = OptionalGroup()
-        self.groups[-1].append(group)
-        self.groups.append(group)
+        self.optional_level += 1
+        self.body.append("[")
 
     def exit_optional(self):
-        self.groups.pop()
+        self.optional_level -= 1
+        self.body.append("]")
 
     def make(self):
-        # The parameters outside any optional group are the required ones.
-        required_left = sum(isinstance(item, list) and not isinstance(item, OptionalGroup) for item in self.body)
-        is_first = True
-        output = ["("]
-
-        def render(items: list, is_optional: bool):
-            nonlocal required_left, is_first
-            for item in items:
-                if isinstance(item, str):
-                    output.append(item)  # Text outside a parameter (e.g., httpdomain's `int:` annotation)
-                    continue
-                if isinstance(item, OptionalGroup):
-                    output.append("[")
-                    render(item, True)
-                    output.append("]")
-                    continue
+        required_left = sum(value is REQUIRED_PARAMETER for value in self.body)
+        output, is_first = [], True
+        for value in self.body:
+            if value is REQUIRED_PARAMETER or value is OPTIONAL_PARAMETER:
                 if not is_first and not required_left:
-                    output.append(self.sep)
+                    output.append(SEPARATOR)
                 is_first = False
-                if not is_optional:
-                    required_left -= 1
-                output.append("".join(item))
+                required_left -= value is REQUIRED_PARAMETER
+            elif value is PARAMETER_END:
                 if required_left:
-                    output.append(self.sep)
-
-        render(self.body, False)
-        output.append(")")
-        return "".join(output)
+                    output.append(SEPARATOR)
+            else:
+                output.append(value)
+        return f"({''.join(output)})"
 
 
 class TableContext(SubContext):  # pylint: disable=too-many-instance-attributes

@@ -675,7 +675,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     def visit_desc_parameterlist(self, _node):
-        self._push_context(ParameterListContext(", "))
+        self._push_context(ParameterListContext())
 
     @property
     def param_list_ctx(self) -> ParameterListContext:
