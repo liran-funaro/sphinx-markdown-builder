@@ -185,6 +185,17 @@ class WrappedContext(SubContext):
         return f"{prefix_space}{self.prefix}{text}{self.suffix}{suffix_space}"
 
 
+class CommentContext(WrappedContext):
+    """An HTML comment. Its text can't contain `-->`, which would end the comment early."""
+
+    def __init__(self, params=SubContextParams()):
+        super().__init__("<!-- ", " -->", params=params)
+
+    def make(self):
+        self.body = ["".join(self.body).replace("-->", "- ->")]
+        return super().make()
+
+
 class CommaSeparatedContext(SubContext):
     def __init__(self, sep: str = ", ", params=SubContextParams()):
         super().__init__(params)

@@ -93,6 +93,8 @@ accent characters is rendered in monospace font.
 
 .. comments can be added in a file by starting a line with 2 periods and a space.
 
+.. a comment can contain --> without ending early.
+
 In English source files, look for comments addressed to translators from writers.
 
 ``.. Translators:  In this code example, do not translate such and such.``
