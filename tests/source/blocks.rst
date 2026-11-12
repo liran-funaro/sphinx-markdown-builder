@@ -88,19 +88,16 @@ other text
 Text that looks like Markdown
 -----------------------------
 
-\# not a heading
+# not a heading
 
-\1. not a list
+> not a quote
 
-\2) not a list
+Text with [brackets](not a link) and List<int>.
 
-\> not a quote
-
-\+ not a list
-
-Text with \[brackets](not a link) and List<int>.
-
-The temperature dropped by
+reStructuredText would start a list at these markers, but not on the continuation lines of a paragraph:
+1. not a list
+2) not a list
++ not a list
 - 5 degrees overnight, a mid-line - stays.
 
 
