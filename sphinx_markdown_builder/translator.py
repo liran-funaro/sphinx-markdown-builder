@@ -125,7 +125,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
         autosummary_table=None,  # Sphinx autosummary
         # See https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html.
         # Ignored table elements
-        raw=None,
         tabular_col_spec=None,
         colspec=None,
         tgroup=None,
@@ -374,6 +373,15 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         if self.status.escape_text:
             text = escape_markdown_chars(text)
         self.add(text)
+
+    def visit_raw(self, node):
+        # `format` holds one or more space-separated output formats (e.g., "html" or "html latex").
+        # The raw directive puts the node in the body, while a raw role puts it inside a paragraph.
+        include = {raw_type.lower() for raw_type in self.config.markdown_include_raw_types}
+        if include.intersection(node["format"].lower().split()):
+            eol = 0 if isinstance(node.parent, nodes.TextElement) else 2
+            self.add(node.astext(), prefix_eol=eol, suffix_eol=eol)
+        raise nodes.SkipNode
 
     @pushing_context
     @pushing_status
