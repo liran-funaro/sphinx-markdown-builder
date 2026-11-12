@@ -55,7 +55,7 @@ from sphinx_markdown_builder.contexts import (
     WrappedContext,
     FootNoteContext,
 )
-from sphinx_markdown_builder.escape import escape_html_quote, escape_markdown_chars
+from sphinx_markdown_builder.escape import escape_html_quote, escape_link_destination, escape_markdown_chars
 
 if TYPE_CHECKING:  # pragma: no cover
     from sphinx_markdown_builder import MarkdownBuilder
@@ -354,8 +354,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def visit_image(self, node):
         """Image directive."""
-        uri = node["uri"]
-        alt = node.attributes.get("alt", "image")
+        uri = escape_link_destination(node["uri"])
+        alt = re.sub(r"([\\\[\]])", r"\\\1", node.attributes.get("alt", "image"))
         # We don't need to add EOL before/after the image.
         # It will be handled by the visit/depart handlers of the paragraph.
         self.add(f"![{alt}]({uri})")
@@ -555,7 +555,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             # External reference: preserve target URL verbatim
             target = ref_uri
 
-        self._push_context(WrappedContext("[", f"]({target})"))
+        self._push_context(WrappedContext("[", f"]({escape_link_destination(target)})"))
 
     @pushing_context
     def visit_download_reference(self, node):
@@ -574,7 +574,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         # `reftarget` remains; retain the previous URL-adjustment fallback.
         else:
             target = self._adjust_url(node.get("reftarget", ""))
-        self._push_context(WrappedContext("[", f"]({target})"))
+        self._push_context(WrappedContext("[", f"]({escape_link_destination(target)})"))
 
     def _add_anchor(self, anchor: str):
         content = f'<a id="{escape_html_quote(anchor)}"></a>'

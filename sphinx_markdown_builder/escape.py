@@ -59,5 +59,16 @@ def escape_markdown_chars(txt: str):
     return ORDERED_LIST_RE.sub(r"\1\\\2", txt)
 
 
+# A bare link destination: no spaces or angle brackets, and parentheses only in balanced pairs (one level deep).
+BARE_LINK_DESTINATION_RE = re.compile(r"[^\s<>()]*(?:\([^\s<>()]*\)[^\s<>()]*)*")
+
+
+def escape_link_destination(url: str):
+    """Wrap a link destination in <...> only when it cannot be written bare"""
+    if BARE_LINK_DESTINATION_RE.fullmatch(url):
+        return url
+    return "<" + url.replace("<", "\\<").replace(">", "\\>") + ">"
+
+
 def escape_html_quote(value: str):
     return value.replace('"', "&quot;")
