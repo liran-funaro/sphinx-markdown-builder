@@ -297,7 +297,7 @@ class TableContext(SubContext):  # pylint: disable=too-many-instance-attributes
                 all_rows = [headers, delimiter, *body]
                 table = "\n".join(render_row(r) for r in all_rows)
             else:
-                table = tabulate(body, headers=headers, tablefmt="github")
+                table = tabulate(body, headers=headers, tablefmt="github", disable_numparse=True)
 
             ctx.add(table, prefix_eol=2)
 
