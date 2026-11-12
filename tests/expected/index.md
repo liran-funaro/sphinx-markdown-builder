@@ -80,6 +80,7 @@
     * [`inner_first()`](blocks.md#inner_first)
     * [`deep()`](blocks.md#deep)
     * [`after_required()`](blocks.md#after_required)
+    * [`two_groups()`](blocks.md#two_groups)
     * [`unbalanced()`](blocks.md#unbalanced)
   * [Inline tabs](blocks.md#inline-tabs)
   * [Same-page references](blocks.md#same-page-references)

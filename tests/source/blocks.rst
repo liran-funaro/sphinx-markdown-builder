@@ -157,6 +157,10 @@ JavaScript domain
 
    A nested optional group inside an optional group after a required parameter.
 
+.. js:function:: two_groups([a[, b]], [c, d])
+
+   An optional group that contains another, then an optional group with two parameters.
+
 .. js:function:: unbalanced([[a], b]])
 
    Unbalanced brackets: Sphinx cannot parse them, so it keeps the signature as text.

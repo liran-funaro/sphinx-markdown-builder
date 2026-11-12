@@ -6,7 +6,7 @@ import re
 import textwrap
 import typing
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Set, Type, TypeVar, Union
 
 from tabulate import tabulate
 
@@ -238,10 +238,6 @@ class CodeBlockContext(SubContext):
         return EOL.join(lines)
 
 
-class OptionalGroup(str):
-    """A finished `[`…`]` group in a ParameterListContext body"""
-
-
 class ParameterListContext(SubContext):
     """
     A signature's parameter list. Each finished parameter or optional group becomes one string in the body, and the
@@ -253,6 +249,7 @@ class ParameterListContext(SubContext):
         super().__init__(params)
         self.item_start = 0  # Where the item being visited starts (text before a parameter becomes part of it)
         self.optional_starts: List[int] = []  # Where each open optional group's `[` is
+        self.optional_items: Set[int] = set()  # Where each finished optional group is
 
     def exit_parameter(self):
         self._close_item(self.item_start)
@@ -273,14 +270,17 @@ class ParameterListContext(SubContext):
         first_item_start = self.optional_starts[-1] + 1 if self.optional_starts else 0
         if start > first_item_start:  # A previous item exists, so a separator is needed
             previous_item = self.body[start - 1]
-            previous_is_first_optional = start - 1 == first_item_start and isinstance(previous_item, OptionalGroup)
+            previous_is_first_optional = start - 1 == first_item_start and start - 1 in self.optional_items
             if is_optional:
                 item = f"[{SEPARATOR}{item[1:]}"  # `a[, b]`
             elif previous_is_first_optional:
-                self.body[start - 1] = OptionalGroup(f"{previous_item[:-1]}{SEPARATOR}]")  # `[a, ]b`
+                self.body[start - 1] = f"{previous_item[:-1]}{SEPARATOR}]"  # `[a, ]b`
             else:
                 item = f"{SEPARATOR}{item}"  # `a, b` and `a[, b], c`
-        self.body[start:] = [OptionalGroup(item) if is_optional else item]
+        self.optional_items.difference_update(range(start, len(self.body)))  # They are merged into this item
+        self.body[start:] = [item]
+        if is_optional:
+            self.optional_items.add(start)
         self.item_start = len(self.body)
 
     def make(self):

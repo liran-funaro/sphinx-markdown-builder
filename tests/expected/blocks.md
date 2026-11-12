@@ -142,6 +142,10 @@ Nested optional groups, each the first item of its group.
 
 A nested optional group inside an optional group after a required parameter.
 
+### two_groups([a[, b]][, c, d])
+
+An optional group that contains another, then an optional group with two parameters.
+
 ### unbalanced(\[\[a\], b\]\])
 
 Unbalanced brackets: Sphinx cannot parse them, so it keeps the signature as text.
