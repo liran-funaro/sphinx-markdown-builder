@@ -264,27 +264,23 @@ class ParameterListContext(SubContext):
 
     def exit_optional(self):
         self.body.append("]")
-        self._close_item(self.optional_starts[-1])
+        self._close_item(self.optional_starts.pop(), is_optional=True)
 
-    def _close_item(self, start: int):
+    def _close_item(self, start: int, is_optional: bool = False):
         """Join the body from `start` into one finished item, after placing the separator before it"""
-        # An optional group starts at the top of the stack; a parameter always starts after the top's `[`.
-        item_is_optional = self.optional_starts[-1:] == [start]
-        if item_is_optional:
-            self.optional_starts.pop()
         item = "".join(self.body[start:])
         # Where the first item of the innermost open optional group (or of the whole list) starts.
         first_item_start = self.optional_starts[-1] + 1 if self.optional_starts else 0
         if start > first_item_start:  # A previous item exists, so a separator is needed
             previous_item = self.body[start - 1]
             previous_is_first_optional = start - 1 == first_item_start and isinstance(previous_item, OptionalGroup)
-            if item_is_optional:
+            if is_optional:
                 item = f"[{SEPARATOR}{item[1:]}"  # `a[, b]`
             elif previous_is_first_optional:
                 self.body[start - 1] = OptionalGroup(f"{previous_item[:-1]}{SEPARATOR}]")  # `[a, ]b`
             else:
                 item = f"{SEPARATOR}{item}"  # `a, b` and `a[, b], c`
-        self.body[start:] = [OptionalGroup(item) if item_is_optional else item]
+        self.body[start:] = [OptionalGroup(item) if is_optional else item]
         self.item_start = len(self.body)
 
     def make(self):
