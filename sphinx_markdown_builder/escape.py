@@ -51,13 +51,29 @@ import re
 ESCAPE_RE = re.compile(r"([\\*`\[\]<]|^[#>+-]|(?:^|(?<=\s|_))_)", re.M)
 # The `.` or `)` of an ordered-list marker at the start of a line (`1. `), but not of a number (`1.10`).
 ORDERED_LIST_RE = re.compile(r"^(\d+)([.)])(?=\s|$)", re.M)
+# A bare link destination: no spaces or angle brackets, and parentheses only in balanced pairs (one level deep).
+BARE_LINK_DESTINATION_RE = re.compile(r"[^\s<>()]*(?:\([^\s<>()]*\)[^\s<>()]*)*")
+# A `[`, `]` or `\` in image alt text, which would end or break the `![alt]` brackets.
+ALT_TEXT_ESCAPE_RE = re.compile(r"([\\\[\]])")
 
 
-def escape_markdown_chars(txt: str):
+def markdown_chars(txt: str):
     """Escape (some) characters with special meaning for Markdown"""
     txt = ESCAPE_RE.sub(r"\\\1", txt)
     return ORDERED_LIST_RE.sub(r"\1\\\2", txt)
 
 
-def escape_html_quote(value: str):
+def link_destination(url: str):
+    """Wrap a link destination in <...> only when it cannot be written bare"""
+    if BARE_LINK_DESTINATION_RE.fullmatch(url):
+        return url
+    return "<" + url.replace("<", "\\<").replace(">", "\\>") + ">"
+
+
+def alt_text(alt: str):
+    """Escape the characters that end or break the alt text of an image (`![alt](uri)`)"""
+    return ALT_TEXT_ESCAPE_RE.sub(r"\\\1", alt)
+
+
+def html_quote(value: str):
     return value.replace('"', "&quot;")

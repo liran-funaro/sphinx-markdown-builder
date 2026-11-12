@@ -55,7 +55,7 @@ from sphinx_markdown_builder.contexts import (
     WrappedContext,
     FootNoteContext,
 )
-from sphinx_markdown_builder.escape import escape_html_quote, escape_markdown_chars
+from sphinx_markdown_builder import escape
 
 if TYPE_CHECKING:  # pragma: no cover
     from sphinx_markdown_builder import MarkdownBuilder
@@ -354,8 +354,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def visit_image(self, node):
         """Image directive."""
-        uri = node["uri"]
-        alt = node.attributes.get("alt", "image")
+        uri = escape.link_destination(node["uri"])
+        alt = escape.alt_text(node.attributes.get("alt", "image"))
         # We don't need to add EOL before/after the image.
         # It will be handled by the visit/depart handlers of the paragraph.
         self.add(f"![{alt}]({uri})")
@@ -372,7 +372,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         if self.config.markdown_flavor == "github" and not self.status.preserve_line_breaks:
             text = text.replace("\n", " ")
         if self.status.escape_text:
-            text = escape_markdown_chars(text)
+            text = escape.markdown_chars(text)
         self.add(text)
 
     @pushing_context
@@ -555,7 +555,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             # External reference: preserve target URL verbatim
             target = ref_uri
 
-        self._push_context(WrappedContext("[", f"]({target})"))
+        self._push_context(WrappedContext("[", f"]({escape.link_destination(target)})"))
 
     @pushing_context
     def visit_download_reference(self, node):
@@ -574,10 +574,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         # `reftarget` remains; retain the previous URL-adjustment fallback.
         else:
             target = self._adjust_url(node.get("reftarget", ""))
-        self._push_context(WrappedContext("[", f"]({target})"))
+        self._push_context(WrappedContext("[", f"]({escape.link_destination(target)})"))
 
     def _add_anchor(self, anchor: str):
-        content = f'<a id="{escape_html_quote(anchor)}"></a>'
+        content = f'<a id="{escape.html_quote(anchor)}"></a>'
         # Prevent adding the same anchor twice in the same context
         if content not in self.ctx.content:
             self.add(content, prefix_eol=2, suffix_eol=1)

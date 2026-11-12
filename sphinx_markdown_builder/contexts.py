@@ -10,7 +10,7 @@ from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type,
 
 from tabulate import tabulate
 
-from sphinx_markdown_builder.escape import escape_html_quote
+from sphinx_markdown_builder import escape
 
 
 class UniqueString(str):
@@ -420,7 +420,7 @@ class MetaContext(NoLineBreakContext):
         content = super().make()
         if not content:
             return ""
-        return f'<meta name="{escape_html_quote(self.name)}" content="{escape_html_quote(content)}"/>'
+        return f'<meta name="{escape.html_quote(self.name)}" content="{escape.html_quote(content)}"/>'
 
 
 class FootNoteContext(NoLineBreakContext):
