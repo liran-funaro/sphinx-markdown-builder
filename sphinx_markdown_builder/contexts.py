@@ -269,12 +269,10 @@ class ParameterListContext(SubContext):
         # Where the first item of the innermost open optional group (or of the whole list) starts.
         first_item_start = self.optional_starts[-1] + 1 if self.optional_starts else 0
         if start > first_item_start:  # A previous item exists, so a separator is needed
-            previous_item = self.body[start - 1]
-            previous_is_first_optional = start - 1 == first_item_start and start - 1 in self.optional_items
             if is_optional:
                 item = f"[{SEPARATOR}{item[1:]}"  # `a[, b]`
-            elif previous_is_first_optional:
-                self.body[start - 1] = f"{previous_item[:-1]}{SEPARATOR}]"  # `[a, ]b`
+            elif start - 1 == first_item_start and start - 1 in self.optional_items:  # The previous is a first optional
+                self.body[start - 1] = f"{self.body[start - 1][:-1]}{SEPARATOR}]"  # `[a, ]b`
             else:
                 item = f"{SEPARATOR}{item}"  # `a, b` and `a[, b], c`
         self.optional_items.difference_update(range(start, len(self.body)))  # They are merged into this item
