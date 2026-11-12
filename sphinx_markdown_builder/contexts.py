@@ -3,7 +3,6 @@ Custom context handlers for markdown.
 """
 
 import re
-import sys
 import textwrap
 import typing
 from dataclasses import dataclass
@@ -18,10 +17,7 @@ class UniqueString(str):
     pass
 
 
-if sys.version_info >= (3, 8):
-    Target = typing.Literal["body", "head"]
-else:
-    Target = str  # pragma: no cover
+Target = typing.Literal["body", "head"]
 
 DEFAULT_TARGET = "body"
 CONTENT_START = UniqueString("content start")
@@ -164,7 +160,7 @@ class WrappedContext(SubContext):
         suffix: Optional[str] = None,
         wrap_empty=False,
         params=SubContextParams(),
-    ):  # pylint: disable=too-many-arguments
+    ):
         super().__init__(params)
         self.prefix = prefix
         self.suffix = suffix if suffix is not None else prefix

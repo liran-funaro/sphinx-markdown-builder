@@ -23,11 +23,6 @@ keywords = ["sphinx", "sphinx-extension", "markdown", "docs", "documentation", "
 dependencies = ["sphinx>=5.1.0", "tabulate", "docutils"]
 requires-python = ">=3.11"
 
-[tool.poetry.plugins] # Optional super table
-
-[tool.poetry.plugins."sphinx.builders"]
-"markdown" = "sphinx_markdown_builder"
-
 [project.entry-points."sphinx.builders"]
 "markdown" = "sphinx_markdown_builder"
 

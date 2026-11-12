@@ -311,7 +311,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def _is_element_defined(self, element: str):
         return self._has_attr(f"visit_{element}") or self._has_attr(f"depart_{element}")
 
-    def _find_predefined_method(self, item) -> Optional[Callable]:  # pylint: disable=too-many-return-statements
+    def _find_predefined_method(self, item) -> Optional[Callable]:
         match = VISIT_DEPART_PATTERN.fullmatch(item)
         if match is None:
             # We only care about visit/depart methods
