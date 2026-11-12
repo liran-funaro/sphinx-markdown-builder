@@ -46,12 +46,17 @@ Escape char: \
 
 import re
 
-ESCAPE_RE = re.compile(r"([\\*`]|(?:^|(?<=\s|_))_)", re.M)
+# Markdown syntax anywhere in the text (`_` only at the start of a word),
+# and a heading, quote or bullet-list marker at the start of a line.
+ESCAPE_RE = re.compile(r"([\\*`\[\]<]|^[#>+-]|(?:^|(?<=\s|_))_)", re.M)
+# The `.` or `)` of an ordered-list marker at the start of a line (`1. `), but not of a number (`1.10`).
+ORDERED_LIST_RE = re.compile(r"^(\d+)([.)])(?=\s|$)", re.M)
 
 
 def escape_markdown_chars(txt: str):
     """Escape (some) characters with special meaning for Markdown"""
-    return ESCAPE_RE.sub(r"\\\1", txt)
+    txt = ESCAPE_RE.sub(r"\\\1", txt)
+    return ORDERED_LIST_RE.sub(r"\1\\\2", txt)
 
 
 def escape_html_quote(value: str):
