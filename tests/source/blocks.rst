@@ -42,6 +42,31 @@ Multi-line Code Block
 
    x = 1
 
+.. code:: python
+
+   docutils_code_directive = True
+
+.. code-block:: python
+   :class: extra
+
+   class_before_language = True
+
+.. sourcecode:: yaml
+
+   key: value
+
+.. literalinclude:: conf.py
+   :language: python
+   :lines: 1
+
+.. highlight:: c
+
+A literal block after a ``highlight`` directive::
+
+   int x = 1;
+
+.. highlight:: default
+
 
 ==========
 Line Block

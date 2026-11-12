@@ -36,6 +36,28 @@ usage: command [-h] [--option1 VALUE1]
 x = 1
 ```
 
+```python
+docutils_code_directive = True
+```
+
+```python
+class_before_language = True
+```
+
+```yaml
+key: value
+```
+
+```python
+"""Configuration file for the Sphinx documentation builder."""
+```
+
+A literal block after a `highlight` directive:
+
+```c
+int x = 1;
+```
+
 # Line Block
 
 text
