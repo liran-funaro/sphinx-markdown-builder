@@ -109,6 +109,33 @@ reStructuredText would start a list at these markers, but not on the continuatio
 - 5 degrees overnight, a mid-line - stays.
 
 
+Raw blocks
+----------
+
+.. role:: raw-html(raw)
+   :format: html
+
+Before the raw blocks, with inline :raw-html:`<b>*bold*</b>` HTML.
+
+.. raw:: html
+
+   <div class="note">
+     <b>*Not* escaped</b>
+   </div>
+
+.. raw:: markdown
+
+   | Raw | Markdown |
+   |-----|----------|
+   | *a* | b        |
+
+.. raw:: latex
+
+   \newpage
+
+After the raw blocks.
+
+
 Referencing terms from a glossary
 ---------------------------------
 

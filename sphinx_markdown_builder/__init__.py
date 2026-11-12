@@ -19,6 +19,7 @@ def setup(app):
     app.add_config_value("markdown_bullet", "*", "env", str)
     app.add_config_value("markdown_flavor", "", "env", str)
     app.add_config_value("markdown_compact_tables", False, "env", bool)
+    app.add_config_value("markdown_include_raw_types", ["html", "markdown"], "env", list)
 
     return {
         "version": __version__,

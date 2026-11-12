@@ -65,6 +65,7 @@
 * [Line Block](blocks.md#line-block)
   * [Other text](blocks.md#other-text)
   * [Text that looks like Markdown](blocks.md#text-that-looks-like-markdown)
+  * [Raw blocks](blocks.md#raw-blocks)
   * [Referencing terms from a glossary](blocks.md#referencing-terms-from-a-glossary)
   * [Http domain directive](blocks.md#http-domain-directive)
   * [C domain](blocks.md#c-domain)
