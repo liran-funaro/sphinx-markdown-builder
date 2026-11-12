@@ -79,7 +79,6 @@ class ContextStatus:
     list_marker: Optional[ListMarker] = None  # Current list marker
     desc_type: Optional[str] = None  # Current descriptor type
     default_ref_internal: bool = False  # Current default for internal reference
-    code_fence_end: str = ""  # Closing marker of the current inline code or code block
 
 
 class SubContext:
@@ -196,6 +195,25 @@ class CommentContext(WrappedContext):
     def make(self):
         self.body = [COMMENT_END.sub(r"- -\1", "".join(self.content))]
         return super().make()
+
+
+class CodeContext(SubContext):
+    """Inline code or a fenced code block. Its fence is longer than any backtick run in the code."""
+
+    def __init__(self, language: Optional[str] = None, params=SubContextParams()):
+        super().__init__(params)
+        self.language = language  # None for inline code
+
+    def make(self):
+        code = super().make()
+        longest = max((len(run) for run in re.findall("`+", code)), default=0)
+        if self.language is None:
+            fence = "`" * (longest + 1)
+            # CommonMark strips one space from each side, so a space keeps a leading/trailing backtick off the fence.
+            pad = " " if code.startswith("`") or code.endswith("`") else ""
+            return f"{fence}{pad}{code}{pad}{fence}"
+        fence = "`" * max(3, longest + 1)
+        return "\n".join(filter(None, (f"{fence}{self.language}", code.removesuffix("\n"), fence)))
 
 
 class CommaSeparatedContext(SubContext):

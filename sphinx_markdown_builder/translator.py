@@ -33,6 +33,7 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.osutil import relative_uri
 
 from sphinx_markdown_builder.contexts import (
+    CodeContext,
     CommaSeparatedContext,
     CommentContext,
     ContextStatus,
@@ -151,12 +152,6 @@ def pushing_context(method):
 def pushing_status(method):
     """Marks method as status context"""
     return _assign_visit_method(method, "__pushing_status__")
-
-
-def _code_fence(node: nodes.Node, min_len: int) -> str:
-    """Backticks one longer than the longest backtick run in the code, so the code cannot close its own fence."""
-    longest = max((len(run) for run in re.findall("`+", node.astext())), default=0)
-    return "`" * max(min_len, longest + 1)
 
 
 class UnknownVisit(Exception):
@@ -464,34 +459,25 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self.add("$")
         self._pop_status()
 
-    def visit_literal(self, node):
-        fence = _code_fence(node, 1)
-        # CommonMark strips one space from each side, so a space keeps a leading/trailing backtick off the fence.
-        pad = " " if node.astext().startswith("`") or node.astext().endswith("`") else ""
-        self._push_status(escape_text=False, code_fence_end=pad + fence)
-        self.add(fence + pad)
+    @pushing_context
+    @pushing_status
+    def visit_literal(self, _node):
+        self._push_status(escape_text=False)
+        self._push_context(CodeContext())
 
-    def depart_literal(self, _node):
-        self.add(self.status.code_fence_end)
-        self._pop_status()
-
+    @pushing_context
+    @pushing_status
     def visit_literal_block(self, node):
-        fence = _code_fence(node, 3)
-        self._push_status(escape_text=False, preserve_line_breaks=True, code_fence_end=fence)
+        self._push_status(escape_text=False, preserve_line_breaks=True)
         # Sphinx sets `language` on every literal_block (the `Code` directive and `HighlightLanguageTransform`).
         # docutils and Sphinx < 2 kept it in `classes` (["code", <lang>]), which no supported Sphinx produces.
-        self.add(f"{fence}{node.get('language', '')}", prefix_eol=1, suffix_eol=1)
+        self._push_context(CodeContext(node.get("language", ""), params=SubContextParams(1, 2)))
 
-    def depart_literal_block(self, _node):
-        self.add(self.status.code_fence_end, prefix_eol=1, suffix_eol=2)
-        self._pop_status()
-
-    def visit_doctest_block(self, node):
-        fence = _code_fence(node, 3)
-        self._push_status(escape_text=False, preserve_line_breaks=True, code_fence_end=fence)
-        self.add(f"{fence}pycon", prefix_eol=1, suffix_eol=1)
-
-    depart_doctest_block = depart_literal_block
+    @pushing_context
+    @pushing_status
+    def visit_doctest_block(self, _node):
+        self._push_status(escape_text=False, preserve_line_breaks=True)
+        self._push_context(CodeContext("pycon", params=SubContextParams(1, 2)))
 
     @pushing_context
     def visit_block_quote(self, _node):
