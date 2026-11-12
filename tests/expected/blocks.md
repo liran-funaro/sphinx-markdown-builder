@@ -78,6 +78,23 @@ more text
 
 other text
 
+## Text that looks like Markdown
+
+\# not a heading
+
+1\. not a list
+
+2\) not a list
+
+\> not a quote
+
+\+ not a list
+
+Text with \[brackets\](not a link) and List\<int>.
+
+The temperature dropped by
+\- 5 degrees overnight, a mid-line - stays.
+
 ## Referencing terms from a glossary
 
 Some other text that refers to [Glossary2-Term2](glossaries.md#term-Glossary2-Term2).

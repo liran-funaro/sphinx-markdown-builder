@@ -46,12 +46,13 @@ Escape char: \
 
 import re
 
-ESCAPE_RE = re.compile(r"([\\*`]|(?:^|(?<=\s|_))_)", re.M)
+# Each match ends with the character to escape (line-leading markers may follow spaces or digits).
+ESCAPE_RE = re.compile(r"[\\*`\[\]<]|(?:^|(?<=\s|_))_|^[ \t]*(?:[#>+-]|\d+[.)])", re.M)
 
 
 def escape_markdown_chars(txt: str):
     """Escape (some) characters with special meaning for Markdown"""
-    return ESCAPE_RE.sub(r"\\\1", txt)
+    return ESCAPE_RE.sub(lambda m: m[0][:-1] + "\\" + m[0][-1], txt)
 
 
 def escape_html_quote(value: str):
