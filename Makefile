@@ -75,7 +75,7 @@ lint:
 .PHONY: dist
 dist:
 	@mkdir -p "$(DIST_DIR)"
-	@rm -rf "$(DIST_DIR)/*"
+	@rm -rf "$(DIST_DIR)"/*
 	python3 -m build
 
 
