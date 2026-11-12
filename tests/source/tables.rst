@@ -19,6 +19,8 @@ Tables
      - Description
    * - Short
      - A much longer description
+   * - Union
+     - int | None
    * - ``example()``
      - **Important**
    * - Empty

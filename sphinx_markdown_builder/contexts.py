@@ -281,7 +281,7 @@ class TableContext(SubContext):  # pylint: disable=too-many-instance-attributes
 
     @staticmethod
     def make_row(row):
-        return ["".join(entries).replace("\n", "<br/>") for entries in row]
+        return ["".join(entries).replace("\n", "<br/>").replace("|", r"\|") for entries in row]
 
     def make(self):
         ctx = SubContext()
