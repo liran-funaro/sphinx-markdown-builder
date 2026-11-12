@@ -112,6 +112,72 @@ Some other text that refers to [Glossary2-Term2](glossaries.md#term-Glossary2-Te
 
 ### [PyObject](https://docs.python.org/3/c-api/structures.html#c.PyObject) \*PyType_GenericAlloc([PyTypeObject](https://docs.python.org/3/c-api/type.html#c.PyTypeObject) \*type, [Py_ssize_t](https://docs.python.org/3/c-api/intro.html#c.Py_ssize_t) nitems)
 
+## JavaScript domain
+
+### no_params()
+
+No parameters in a JavaScript signature.
+
+### all_required(a, b, c)
+
+No optional parameters in a JavaScript signature.
+
+### empty_param_name(a, b)
+
+Empty parameter name in a JavaScript signature.
+
+### empty_opt_param_name(a, b[, ])
+
+Empty optional parameter in a JavaScript signature.
+
+### mid_empty_param_name(a[, ], b)
+
+Middle empty optional parameter in a JavaScript signature.
+
+### last_required([a, ][b, ]c)
+
+Last parameter is required.
+
+### multiple(a[, b][, c], d)
+
+Multiple required parameter between optional.
+
+### span([start, ]stop[, step])
+
+Optional parameters in a JavaScript signature.
+
+### trailing(a[, b[, c]])
+
+Nested optional parameters after a required one.
+
+### middle(a[, b], c)
+
+An optional parameter between required ones.
+
+### two_required(a, b[, c])
+
+An optional parameter after two required ones.
+
+### inner_first([[a, ]b])
+
+A nested optional group as the first item of a group.
+
+### deep([[[a, ]b, ]c])
+
+Nested optional groups, each the first item of its group.
+
+### after_required(x[, [a, ]b])
+
+A nested optional group inside an optional group after a required parameter.
+
+### two_groups([a[, b]][, c, d])
+
+An optional group that contains another, then an optional group with two parameters.
+
+### unbalanced(\[\[a\], b\]\])
+
+Unbalanced brackets: Sphinx cannot parse them, so it keeps the signature as text.
+
 ## Inline tabs
 
 Content of the first tab.

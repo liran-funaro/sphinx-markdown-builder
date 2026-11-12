@@ -34,7 +34,6 @@ from sphinx.util.osutil import relative_uri
 
 from sphinx_markdown_builder.contexts import (
     CodeBlockContext,
-    CommaSeparatedContext,
     CommentContext,
     ContextStatus,
     DOC_INFO_CONTEXT,
@@ -43,6 +42,7 @@ from sphinx_markdown_builder.contexts import (
     ITALIC_CONTEXT,
     ListMarker,
     MetaContext,
+    ParameterListContext,
     PushBox,
     PushContext,
     STRONG_CONTEXT,
@@ -136,23 +136,28 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
 )
 
 
-def _assign_visit_method(method, variable: str):
+def _assign_visit_method(method, variable: str, value):
     match = VISIT_DEPART_PATTERN.fullmatch(method.__name__)
     assert match is not None
     state, _ = match.groups()
     assert state == "visit"
-    setattr(method, variable, True)
+    setattr(method, variable, value)
     return method
 
 
 def pushing_context(method):
     """Marks method as pushing context"""
-    return _assign_visit_method(method, "__pushing_context__")
+    return _assign_visit_method(method, "__pushing_context__", 1)
+
+
+def pushing_multi_context(count):
+    """Marks method as pushing multiple context"""
+    return lambda method: _assign_visit_method(method, "__pushing_context__", count)
 
 
 def pushing_status(method):
     """Marks method as status context"""
-    return _assign_visit_method(method, "__pushing_status__")
+    return _assign_visit_method(method, "__pushing_status__", True)
 
 
 class UnknownVisit(Exception):
@@ -222,8 +227,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         count = min(len(self._status_queue) - 1, count)
         self._status_queue = self._status_queue[:-count]
 
-    def _pop_context_and_status(self, node=None):
-        self._pop_context(node)
+    def _pop_context_and_status(self, node=None, count=1):
+        self._pop_context(node, count=count)
         self._pop_status(node)
 
     def astext(self):
@@ -299,12 +304,12 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
         # If the visit method is marked as pushing, then pop the context/status
         visit_method = self._get_attr(f"visit_{element}", None)
-        is_pushing_ctx = getattr(visit_method, "__pushing_context__", False)
+        pushing_ctx_count = getattr(visit_method, "__pushing_context__", 0)
         is_pushing_status = getattr(visit_method, "__pushing_status__", False)
-        if is_pushing_ctx and is_pushing_status:
-            return self._pop_context_and_status
-        if is_pushing_ctx:
-            return self._pop_context
+        if pushing_ctx_count and is_pushing_status:
+            return lambda node: self._pop_context_and_status(node, count=pushing_ctx_count)
+        if pushing_ctx_count:
+            return lambda node: self._pop_context(node, count=pushing_ctx_count)
         if is_pushing_status:
             return self._pop_status
         return None
@@ -641,8 +646,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     #         desc_name
     #           desc_annotation (optional)
     #         desc_parameterlist
-    #           desc_annotation
-    #           desc_parameter
+    #           desc_annotation (optional, outside any parameter, e.g., httpdomain's `int:`)
+    #           desc_parameter (also the `/` and `*` markers of Python signatures)
+    #           desc_optional (e.g., `f(a[, b[, c]])`, from textual signatures only)
+    #             desc_parameter
+    #             desc_optional (optional nesting)
     #         desc_returns
     #   desc_content
     #     field_list
@@ -670,23 +678,25 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         h_level = 4 if node.get("class", None) else 3
         self._push_context(TitleContext(h_level))
 
+    @pushing_multi_context(2)
     def visit_desc_parameterlist(self, node):
         self._push_context(WrappedContext("(", ")", wrap_empty=True))
-        self._push_context(CommaSeparatedContext(", "))
-
-    def depart_desc_parameterlist(self, node):
-        self._pop_context(count=2)
+        self._push_context(ParameterListContext())
 
     @property
-    def sep_ctx(self) -> CommaSeparatedContext:
-        return self._typed_ctx(CommaSeparatedContext)
+    def param_list_ctx(self) -> ParameterListContext:
+        return self._typed_ctx(ParameterListContext)
 
+    @pushing_context
     def visit_desc_parameter(self, node):
         """single method/class ctr param"""
-        self.sep_ctx.enter_parameter()
+        self.param_list_ctx.enter_parameter(is_required=True)
+        self._push_context(SubContext())
 
-    def depart_desc_parameter(self, node):
-        self.sep_ctx.exit_parameter()
+    @pushing_context
+    def visit_desc_optional(self, node):
+        self.param_list_ctx.enter_parameter(is_required=False)
+        self._push_context(ParameterListContext())
 
     def visit_field_list(self, node):
         self._start_list("*")
