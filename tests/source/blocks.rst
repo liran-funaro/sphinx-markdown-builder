@@ -126,6 +126,13 @@ C domain
 
 .. c:function:: PyObject *PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
 
+JavaScript domain
+-----------------
+
+.. js:function:: span([start, ]stop[, step])
+
+   Optional parameters in a JavaScript signature.
+
 Inline tabs
 -----------
 

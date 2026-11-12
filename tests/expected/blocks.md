@@ -112,6 +112,12 @@ Some other text that refers to [Glossary2-Term2](glossaries.md#term-Glossary2-Te
 
 ### [PyObject](https://docs.python.org/3/c-api/structures.html#c.PyObject) \*PyType_GenericAlloc([PyTypeObject](https://docs.python.org/3/c-api/type.html#c.PyTypeObject) \*type, [Py_ssize_t](https://docs.python.org/3/c-api/intro.html#c.Py_ssize_t) nitems)
 
+## JavaScript domain
+
+### span([start, ]stop[, step])
+
+Optional parameters in a JavaScript signature.
+
 ## Inline tabs
 
 Content of the first tab.
