@@ -242,6 +242,9 @@ class OptionalGroup(str):
     """A finished `[`…`]` group in a ParameterListContext body"""
 
 
+OPTIONAL_START = UniqueString("[")  # Marks where an open optional group starts in a ParameterListContext body
+
+
 class ParameterListContext(SubContext):
     """
     A signature's parameter list. Each finished parameter or optional group becomes one string in the body, and the
@@ -252,32 +255,35 @@ class ParameterListContext(SubContext):
     def __init__(self, params=SubContextParams()):
         super().__init__(params)
         self.item_start = 0  # Where the item being visited starts (text before a parameter becomes part of it)
-        self.optional_starts: List[int] = []  # Where each open optional group starts
+        self.optional_starts: List[int] = []  # Where each open optional group's `[` is
 
-    def _close_item(self, text: str, start: int):
-        """Replace the body from `start` with the finished item `text`, after placing the separator before it"""
-        group_start = self.optional_starts[-1] if self.optional_starts else 0
+    def exit_parameter(self):
+        self._close_item(self.item_start)
+
+    def enter_optional(self):
+        self.optional_starts.append(len(self.body))
+        self.body.append(OPTIONAL_START)
+        self.item_start = len(self.body)
+
+    def exit_optional(self):
+        self.body.append("]")
+        self._close_item(self.optional_starts.pop())
+
+    def _close_item(self, start: int):
+        """Join the body from `start` into one finished item, after placing the separator before it"""
+        is_group = self.body[start] is OPTIONAL_START
+        text = "".join(self.body[start:])
+        group_start = self.optional_starts[-1] + 1 if self.optional_starts else 0  # The group's first item
         if start > group_start:  # Not the first item of its group
             previous = self.body[start - 1]
-            if isinstance(text, OptionalGroup):
-                text = OptionalGroup(f"[{SEPARATOR}{text[1:]}")  # `a[, b]`
+            if is_group:
+                text = f"[{SEPARATOR}{text[1:]}"  # `a[, b]`
             elif isinstance(previous, OptionalGroup) and not previous.startswith(f"[{SEPARATOR}"):
                 self.body[start - 1] = OptionalGroup(f"{previous[:-1]}{SEPARATOR}]")  # `[a, ]b`
             else:
                 text = f"{SEPARATOR}{text}"  # `a, b` and `a[, b], c`
-        self.body[start:] = [text]
+        self.body[start:] = [OptionalGroup(text) if is_group else text]
         self.item_start = len(self.body)
-
-    def exit_parameter(self):
-        start = self.item_start
-        self._close_item("".join(self.body[start:]), start)
-
-    def enter_optional(self):
-        self.optional_starts.append(len(self.body))
-
-    def exit_optional(self):
-        start = self.optional_starts.pop()
-        self._close_item(OptionalGroup(f"[{''.join(self.body[start:])}]"), start)
 
     def make(self):
         return f"({''.join(self.body)})"
