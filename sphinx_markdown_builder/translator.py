@@ -470,6 +470,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def visit_literal_block(self, node):
         self._push_status(escape_text=False, preserve_line_breaks=True)
+        # Sphinx sets `language` on every literal_block (the `Code` directive and `HighlightLanguageTransform`).
+        # docutils and Sphinx < 2 kept it in `classes` (["code", <lang>]), which no supported Sphinx produces.
         self.add(f"```{node.get('language', '')}", prefix_eol=1, suffix_eol=1)
 
     def depart_literal_block(self, _node):
