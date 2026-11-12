@@ -271,18 +271,20 @@ class ParameterListContext(SubContext):
 
     def _close_item(self, start: int):
         """Join the body from `start` into one finished item, after placing the separator before it"""
-        is_group = self.body[start] is OPTIONAL_START
-        text = "".join(self.body[start:])
-        group_start = self.optional_starts[-1] + 1 if self.optional_starts else 0  # The group's first item
-        if start > group_start:  # Not the first item of its group
-            previous = self.body[start - 1]
-            if is_group:
-                text = f"[{SEPARATOR}{text[1:]}"  # `a[, b]`
-            elif isinstance(previous, OptionalGroup) and not previous.startswith(f"[{SEPARATOR}"):
-                self.body[start - 1] = OptionalGroup(f"{previous[:-1]}{SEPARATOR}]")  # `[a, ]b`
+        item_is_optional = self.body[start] is OPTIONAL_START
+        item = "".join(self.body[start:])
+        # Where the first item of the innermost open optional group (or of the whole list) starts.
+        first_item_start = self.optional_starts[-1] + 1 if self.optional_starts else 0
+        if start > first_item_start:  # A previous item exists, so a separator is needed
+            previous_item = self.body[start - 1]
+            previous_is_first_optional = start - 1 == first_item_start and isinstance(previous_item, OptionalGroup)
+            if item_is_optional:
+                item = f"[{SEPARATOR}{item[1:]}"  # `a[, b]`
+            elif previous_is_first_optional:
+                self.body[start - 1] = OptionalGroup(f"{previous_item[:-1]}{SEPARATOR}]")  # `[a, ]b`
             else:
-                text = f"{SEPARATOR}{text}"  # `a, b` and `a[, b], c`
-        self.body[start:] = [OptionalGroup(text) if is_group else text]
+                item = f"{SEPARATOR}{item}"  # `a, b` and `a[, b], c`
+        self.body[start:] = [OptionalGroup(item) if item_is_optional else item]
         self.item_start = len(self.body)
 
     def make(self):
