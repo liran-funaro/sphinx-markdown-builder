@@ -27,6 +27,7 @@ SPACE_CHARS = re.compile(r"\s+")
 LETTERS = re.compile(r"[a-z0-9]", re.I)
 WRAP_REGEXP = re.compile(r"(\s*)(?=\S)([\s\S]+?)(?<=\S)(\s*)", re.M)
 MULTI_LINE_BREAK = re.compile(r"(?<=\n)\n")
+COMMENT_END = re.compile(r"--(!?>)")  # HTML ends a comment at `-->` and also at `--!>`
 
 
 def is_content_start(value: str) -> bool:
@@ -186,13 +187,13 @@ class WrappedContext(SubContext):
 
 
 class CommentContext(WrappedContext):
-    """An HTML comment. Its text can't contain `-->`, which would end the comment early."""
+    """An HTML comment. Its text can't contain `-->` or `--!>`, which would end the comment early."""
 
     def __init__(self, params=SubContextParams()):
         super().__init__("<!-- ", " -->", params=params)
 
     def make(self):
-        self.content[:] = ["".join(self.content).replace("-->", "- ->")]
+        self.content[:] = [COMMENT_END.sub(r"- -\1", "".join(self.content))]
         return super().make()
 
 
