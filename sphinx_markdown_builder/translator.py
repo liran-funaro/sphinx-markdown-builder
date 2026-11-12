@@ -683,7 +683,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def visit_desc_parameter(self, _node):
         """single method/class ctr param"""
-        self.param_list_ctx.enter_parameter()  # workaround pylint: disable=no-member
+        self._typed_ctx(ParameterListContext)  # A parameter outside a parameter list is an unknown visit
 
     def depart_desc_parameter(self, _node):
         self.param_list_ctx.exit_parameter()  # workaround pylint: disable=no-member

@@ -238,52 +238,49 @@ class CodeBlockContext(SubContext):
         return EOL.join(lines)
 
 
-# Parameter markers in ParameterListContext's body; they are empty, so they add no output.
-REQUIRED_PARAMETER = UniqueString("")
-OPTIONAL_PARAMETER = UniqueString("")
-PARAMETER_END = UniqueString("")
+class OptionalGroup(str):
+    """A finished `[`…`]` group in a ParameterListContext body"""
 
 
 class ParameterListContext(SubContext):
     """
-    A signature's parameter list. While visiting, it marks where each parameter starts and ends.
-    `make()` then places the separators like Sphinx's HTML writer: after a parameter while required parameters
-    are still to come, and before it otherwise, so they stay inside the brackets: `f([a, ]b, c[, d])`.
+    A signature's parameter list. Each finished parameter or optional group becomes one string in the body, and the
+    separator before it goes inside the adjacent bracket, so the list reads correctly with or without any optional
+    group: `f(a[, b], c)`, `f([a, ]b)`, `f([[a, ]b])`.
     """
 
     def __init__(self, params=SubContextParams()):
         super().__init__(params)
-        self.optional_level = 0
+        self.item_start = 0  # Where the item being visited starts (text before a parameter becomes part of it)
+        self.optional_starts: List[int] = []  # Where each open optional group starts
 
-    def enter_parameter(self):
-        self.body.append(OPTIONAL_PARAMETER if self.optional_level else REQUIRED_PARAMETER)
+    def _close_item(self, text: str, start: int):
+        """Replace the body from `start` with the finished item `text`, after placing the separator before it"""
+        group_start = self.optional_starts[-1] if self.optional_starts else 0
+        if start > group_start:  # Not the first item of its group
+            previous = self.body[start - 1]
+            if isinstance(text, OptionalGroup):
+                text = OptionalGroup(f"[{SEPARATOR}{text[1:]}")  # `a[, b]`
+            elif isinstance(previous, OptionalGroup) and not previous.startswith(f"[{SEPARATOR}"):
+                self.body[start - 1] = OptionalGroup(f"{previous[:-1]}{SEPARATOR}]")  # `[a, ]b`
+            else:
+                text = f"{SEPARATOR}{text}"  # `a, b` and `a[, b], c`
+        self.body[start:] = [text]
+        self.item_start = len(self.body)
 
     def exit_parameter(self):
-        self.body.append(PARAMETER_END)
+        start = self.item_start
+        self._close_item("".join(self.body[start:]), start)
 
     def enter_optional(self):
-        self.optional_level += 1
-        self.body.append("[")
+        self.optional_starts.append(len(self.body))
 
     def exit_optional(self):
-        self.optional_level -= 1
-        self.body.append("]")
+        start = self.optional_starts.pop()
+        self._close_item(OptionalGroup(f"[{''.join(self.body[start:])}]"), start)
 
     def make(self):
-        required_left = sum(value is REQUIRED_PARAMETER for value in self.body)
-        output, is_first = [], True
-        for value in self.body:
-            if value is REQUIRED_PARAMETER or value is OPTIONAL_PARAMETER:
-                if not is_first and not required_left:
-                    output.append(SEPARATOR)
-                is_first = False
-                required_left -= value is REQUIRED_PARAMETER
-            elif value is PARAMETER_END:
-                if required_left:
-                    output.append(SEPARATOR)
-            else:
-                output.append(value)
-        return f"({''.join(output)})"
+        return f"({''.join(self.body)})"
 
 
 class TableContext(SubContext):  # pylint: disable=too-many-instance-attributes

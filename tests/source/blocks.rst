@@ -145,6 +145,22 @@ JavaScript domain
 
    An optional parameter after two required ones.
 
+.. js:function:: inner_first([[a], b])
+
+   A nested optional group as the first item of a group.
+
+.. js:function:: deep([[[a, ]b, ]c])
+
+   Nested optional groups, each the first item of its group.
+
+.. js:function:: after_required(x[, [a], b])
+
+   A nested optional group inside an optional group after a required parameter.
+
+.. js:function:: unbalanced([[a], b]])
+
+   Unbalanced brackets: Sphinx cannot parse them, so it keeps the signature as text.
+
 Inline tabs
 -----------
 
