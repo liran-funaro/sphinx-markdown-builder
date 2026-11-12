@@ -551,7 +551,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         """Return the id of the citation that this resolved reference points to, if it is a citation reference."""
         # Same-page references use `refid`, references to other pages use `refuri` with an anchor.
         label_id = node.get("refid") or node.get("refuri", "").partition("#")[2]
-        known_ids = {known for _, known, _ in self.builder.env.domains.citation_domain.citations.values()}
+        known_ids = {known for _, known, _ in self.builder.env.get_domain("citation").citations.values()}
         return label_id if label_id in known_ids else None
 
     @pushing_context
