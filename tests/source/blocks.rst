@@ -57,7 +57,7 @@ Multi-line Code Block
 
 .. literalinclude:: conf.py
    :language: python
-   :lines: 1
+   :lines: 1-7
 
 .. highlight:: c
 
