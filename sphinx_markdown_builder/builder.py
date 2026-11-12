@@ -46,11 +46,9 @@ class MarkdownBuilder(Builder):
 
     def __init__(self, app: Sphinx, env: BuildEnvironment):
         super().__init__(app, env)
-        self.sec_numbers = None
         self.current_doc_name = None
 
     def init(self):
-        self.sec_numbers = {}
         self.out_suffix = self.config.markdown_file_suffix
 
     def _get_source_mtime(self, doc_name: str):
@@ -85,7 +83,6 @@ class MarkdownBuilder(Builder):
 
     def write_doc(self, docname: str, doctree: nodes.document):
         self.current_doc_name = docname
-        self.sec_numbers = self.env.toc_secnumbers.get(docname, {})
         visitor = self.create_translator(doctree, self)
         doctree.walkabout(visitor)
         out_filename = os.path.join(self.outdir, f"{os_path(docname)}{self.out_suffix}")
