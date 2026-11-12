@@ -171,15 +171,12 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._status_queue: List[ContextStatus] = [ContextStatus()]
 
         if self.config.markdown_docinfo:
-            self._add_doc_info_from_config()
-
-    def _add_doc_info_from_config(self):
-        for key in DOC_INFO_FIELDS:
-            value = getattr(self.config, key, "")
-            if isinstance(value, str):
-                self._push_context(MetaContext(key))
-                self.ctx.add(value)
-                self._pop_context()
+            for key in DOC_INFO_FIELDS:
+                value = getattr(self.config, key, "")
+                if isinstance(value, str):
+                    self._push_context(MetaContext(key))
+                    self.ctx.add(value)
+                    self._pop_context()
 
     @property
     def ctx(self) -> SubContext:
