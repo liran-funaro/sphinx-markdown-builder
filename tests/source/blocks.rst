@@ -126,6 +126,45 @@ C domain
 
 .. c:function:: PyObject *PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
 
+JavaScript domain
+-----------------
+
+.. js:function:: span([start, ]stop[, step])
+
+   Optional parameters in a JavaScript signature.
+
+.. js:function:: trailing(a[, b[, c]])
+
+   Nested optional parameters after a required one.
+
+.. js:function:: middle(a[, b], c)
+
+   An optional parameter between required ones.
+
+.. js:function:: two_required(a, b[, c])
+
+   An optional parameter after two required ones.
+
+.. js:function:: inner_first([[a], b])
+
+   A nested optional group as the first item of a group.
+
+.. js:function:: deep([[[a, ]b, ]c])
+
+   Nested optional groups, each the first item of its group.
+
+.. js:function:: after_required(x[, [a], b])
+
+   A nested optional group inside an optional group after a required parameter.
+
+.. js:function:: two_groups([a[, b]], [c, d])
+
+   An optional group that contains another, then an optional group with two parameters.
+
+.. js:function:: unbalanced([[a], b]])
+
+   Unbalanced brackets: Sphinx cannot parse them, so it keeps the signature as text.
+
 Inline tabs
 -----------
 

@@ -32,6 +32,29 @@ def deprecated_function():
     pass
 
 
+# Like builtins such as `range`, these take `*args`, so their real signature
+# is only in the first docstring line (autodoc_docstring_signature).
+def span(*args):
+    """span([start, ]stop[, step])
+
+    Return the numbers from start (default 0) up to stop, by step (default 1).
+    """
+    return list(range(*args))
+
+
+def defaults(a, b=None, *args, c=1, **kwargs):
+    """Optional parameters in a real signature: rendered with their defaults, with no brackets."""
+    return a, b, args, c, kwargs
+
+
+def clock(*args):
+    """clock([hour[, minute[, second]]])
+
+    Format a time of day as ``HH:MM:SS``; missing parts are zero.
+    """
+    return ":".join(f"{part:02}" for part in (*args, 0, 0, 0)[:3])
+
+
 def func1(param1: int) -> int:
     """This is a function with a single parameter.
     Thanks to github.com/remiconnesson.

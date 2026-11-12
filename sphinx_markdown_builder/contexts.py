@@ -6,7 +6,7 @@ import re
 import textwrap
 import typing
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Set, Type, TypeVar, Union
 
 from tabulate import tabulate
 
@@ -23,6 +23,7 @@ DEFAULT_TARGET = "body"
 CONTENT_START = UniqueString("content start")
 EOL = "\n"
 SPACE = " "
+SEPARATOR = ", "
 SPACE_CHARS = re.compile(r"\s+")
 LETTERS = re.compile(r"[a-z0-9]", re.I)
 WRAP_REGEXP = re.compile(r"(\s*)(?=\S)([\s\S]+?)(?<=\S)(\s*)", re.M)
@@ -159,21 +160,17 @@ class WrappedContext(SubContext):
         self,
         prefix,
         suffix: Optional[str] = None,
-        wrap_empty=False,
         params=SubContextParams(),
     ):
         super().__init__(params)
         self.prefix = prefix
         self.suffix = suffix if suffix is not None else prefix
-        self.wrap_empty = wrap_empty
 
     def make(self):
         content = super().make()
         match = WRAP_REGEXP.fullmatch(content)
         if match is None:
             # The expression has no match only when there is no non-space character.
-            if self.wrap_empty:
-                return f"{self.prefix}{content}{self.suffix}"
             return content
 
         # We need to make sure the emphasis mark is near a non-space char,
@@ -241,30 +238,51 @@ class CodeBlockContext(SubContext):
         return EOL.join(lines)
 
 
-class CommaSeparatedContext(SubContext):
-    def __init__(self, sep: str = ", ", params=SubContextParams()):
+class ParameterListContext(SubContext):
+    """
+    A signature's parameter list. Each finished parameter or optional group becomes one string in the body, and the
+    separator before it goes inside the adjacent bracket, so the list reads correctly with or without any optional
+    group: `f(a[, b], c)`, `f([a, ]b)`, `f([[a, ]b])`.
+    """
+
+    def __init__(self, params=SubContextParams()):
         super().__init__(params)
-        self.sep = sep
-        self.parameters: List[List[str]] = []
-
-        self.is_parameter = False
-
-    def enter_parameter(self):
-        self.is_parameter = True
-        self.parameters.append([])
+        self.item_start = 0  # Where the item being visited starts (text before a parameter becomes part of it)
+        self.optional_starts: List[int] = []  # Where each open optional group's `[` is
+        self.optional_items: Set[int] = set()  # Where each finished optional group is
 
     def exit_parameter(self):
-        self.is_parameter = False
+        self._close_item(self.item_start)
 
-    @property
-    def content(self):
-        if self.is_parameter:
-            return self.parameters[-1]
-        return super().content
+    def enter_optional(self):
+        self.optional_starts.append(len(self.body))
+        self.body.append("[")
+        self.item_start = len(self.body)
+
+    def exit_optional(self):
+        self.body.append("]")
+        self._close_item(self.optional_starts.pop(), is_optional=True)
+
+    def _close_item(self, start: int, is_optional: bool = False):
+        """Join the body from `start` into one finished item, after placing the separator before it"""
+        item = "".join(self.body[start:])
+        # Where the first item of the innermost open optional group (or of the whole list) starts.
+        first_item_start = self.optional_starts[-1] + 1 if self.optional_starts else 0
+        if start > first_item_start:  # A previous item exists, so a separator is needed
+            if is_optional:
+                item = f"[{SEPARATOR}{item[1:]}"  # `a[, b]`
+            elif start - 1 == first_item_start and start - 1 in self.optional_items:  # The previous is a first optional
+                self.body[start - 1] = f"{self.body[start - 1][:-1]}{SEPARATOR}]"  # `[a, ]b`
+            else:
+                item = f"{SEPARATOR}{item}"  # `a, b` and `a[, b], c`
+        self.optional_items.difference_update(range(start, len(self.body)))  # They are merged into this item
+        self.body[start:] = [item]
+        if is_optional:
+            self.optional_items.add(start)
+        self.item_start = len(self.body)
 
     def make(self):
-        ret = super().make()
-        return ret + self.sep.join(["".join(item) for item in self.parameters])
+        return f"({''.join(self.body)})"
 
 
 class TableContext(SubContext):  # pylint: disable=too-many-instance-attributes
