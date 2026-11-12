@@ -56,6 +56,7 @@
         * [`Point.y`](library/my_module.md#my_module.Point.y)
       * [`deprecated_function()`](library/my_module.md#my_module.deprecated_function)
       * [`func1()`](library/my_module.md#my_module.func1)
+      * [`get_option()`](library/my_module.md#my_module.get_option)
       * [`func2()`](library/my_module.md#my_module.func2)
       * [`func3()`](library/my_module.md#my_module.func3)
 * [Indices and tables](auto-summery.md#indices-and-tables)

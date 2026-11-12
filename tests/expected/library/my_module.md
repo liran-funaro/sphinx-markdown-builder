@@ -51,6 +51,14 @@ Thanks to github.com/remiconnesson.
 * **Return type:**
   [int](https://docs.python.org/3/library/functions.html#int)
 
+### get_option(options, name)
+
+Get an option by name.
+
+* **Parameters:**
+  * **options** (*Optional* *\[* *Mapping* *\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*,* [*int*](https://docs.python.org/3/library/functions.html#int)*\]* *\]*) – The options, if any.
+  * **name** – The option name.
+
 ### func2(param1, param2)
 
 This is a function with two parameters.

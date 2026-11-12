@@ -41,6 +41,16 @@ def func1(param1: int) -> int:
     pass
 
 
+def get_option(options, name):
+    """Get an option by name.
+
+    :param options: The options, if any.
+    :type options: Optional[Mapping[str, int]]
+    :param name: The option name.
+    """
+    return (options or {}).get(name)
+
+
 def func2(param1: int, param2: int) -> str:
     """This is a function with two parameters.
 

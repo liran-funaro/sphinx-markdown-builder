@@ -202,6 +202,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
             last_ctx = self._ctx_queue.pop()
             ctx = self.ctx if last_ctx.params.target == "body" else self._doc_info
+            if isinstance(last_ctx, WrappedContext):
+                last_ctx.before = ctx.last_char
             ctx.add(last_ctx.make(), last_ctx.params.prefix_eol, last_ctx.params.suffix_eol)
 
     def _push_box(self, title: str, heading: str | None = None):

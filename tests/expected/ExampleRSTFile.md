@@ -43,6 +43,8 @@ This is an example of regular text in paragraph form. There are no indents. As
 a best practice, break lines at about 80 characters, so that each line has its
 own line number for commenting in reviews.
 
+Emphasis can end in punctuation right before a word: **“quoted”** word and *(paren)* x.
+
 > [!WARNING]
 > Throughout text and code examples, make sure double quotation
 > marks and apostrophes are straight (”) or (‘), not curly quotatation marks

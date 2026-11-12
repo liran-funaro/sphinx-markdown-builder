@@ -44,6 +44,14 @@ This is a function with a single parameter. Thanks to github.com/remiconnesson.
 * **Parameters:**
   **param1** – This is a single parameter.
 
+### get_option(options, name)
+
+Get an option by name.
+
+* **Parameters:**
+  - **options** (*Optional* *\[* *Mapping* *\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*,* [*int*](https://docs.python.org/3/library/functions.html#int)*\]* *\]*) – The options, if any.
+  - **name** – The option name.
+
 ### func2(param1: [int](https://docs.python.org/3/library/functions.html#int), param2: [int](https://docs.python.org/3/library/functions.html#int)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 This is a function with two parameters.
