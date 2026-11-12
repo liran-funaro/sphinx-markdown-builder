@@ -625,8 +625,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     _end_list_item = _pop_context
 
-    def visit_enumerated_list(self, _node):
-        self._start_list(0)
+    def visit_enumerated_list(self, node):
+        self._start_list(node.get("start", 1) - 1)
 
     depart_enumerated_list = _end_list
 

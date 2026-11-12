@@ -112,6 +112,11 @@ Use hash symbols for ordered lists.
 #. Find the **Course Advertised Start Date** policy key.
 #. Enter the value you want to display.
 
+An ordered list can start at another number.
+
+3. Select **Save**.
+4. Close the page.
+
 .. note::
  Ordered lists usually use numerals. Nested ordered lists (ordered lists inside
  other ordered lists) use letters.
