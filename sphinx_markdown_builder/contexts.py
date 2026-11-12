@@ -79,6 +79,7 @@ class ContextStatus:
     list_marker: Optional[ListMarker] = None  # Current list marker
     desc_type: Optional[str] = None  # Current descriptor type
     default_ref_internal: bool = False  # Current default for internal reference
+    code_fence_end: str = ""  # Closing marker of the current inline code or code block
 
 
 class SubContext:

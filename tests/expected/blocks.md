@@ -64,6 +64,14 @@ A literal block after a `highlight` directive:
 int x = 1;
 ```
 
+Inline: ``a`b`` and `` `x` ``.
+
+````markdown
+```python
+x = 1
+```
+````
+
 # Line Block
 
 text

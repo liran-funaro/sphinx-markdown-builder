@@ -67,6 +67,14 @@ A literal block after a ``highlight`` directive::
 
 .. highlight:: default
 
+Inline: ``a`b`` and ```x```.
+
+.. code-block:: markdown
+
+   ```python
+   x = 1
+   ```
+
 
 ==========
 Line Block

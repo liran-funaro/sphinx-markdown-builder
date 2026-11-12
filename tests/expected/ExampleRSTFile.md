@@ -305,7 +305,7 @@ the text that you specify.
 #### Cross-References Using the Anchor Only
 
 To add a cross-reference to a specific location in a document and use the text
-of the heading for that location as link text, use `:ref:`Anchor Text``
+of the heading for that location as link text, use `` :ref:`Anchor Text` ``
 syntax, as in the following example.
 
 For more information about using keyboard shortcuts, see [Keyboard Shortcuts for Notes](#sfd-sn-keyboard-shortcuts).
@@ -322,7 +322,7 @@ for Notes.
 #### Cross-References Using Specified Link Text
 
 For internal cross-references that use text other than the heading for the
-section that you’re linking to, use `:ref:`specified text<Anchor Text>``
+section that you’re linking to, use `` :ref:`specified text<Anchor Text>` ``
 syntax, as in the following example.
 
 If you want to, you can use [keyboard shortcuts](#sfd-sn-keyboard-shortcuts) to create, edit, and view notes.
@@ -588,7 +588,7 @@ to render correctly.
 
 In inline text, any text can be formatted as code (monospace font) by
 enclosing the selection within a pair of double “grave accent” characters (\`).
-For example, ```these words``` are formatted in a monospace font when the
+For example, ``` ``these words`` ``` are formatted in a monospace font when the
 documentation is output as PDF or HTML.
 
 ### Code blocks
