@@ -32,6 +32,10 @@ usage: command [-h] [--option1 VALUE1]
                argument
 ```
 
+```default
+x = 1
+```
+
 # Line Block
 
 text

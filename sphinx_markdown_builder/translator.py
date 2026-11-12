@@ -470,10 +470,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def visit_literal_block(self, node):
         self._push_status(escape_text=False, preserve_line_breaks=True)
-        code_type = node["classes"][1] if "code" in node["classes"] else ""
-        if "language" in node:
-            code_type = node["language"]
-        self.add(f"```{code_type}", prefix_eol=1, suffix_eol=1)
+        self.add(f"```{node.get('language', '')}", prefix_eol=1, suffix_eol=1)
 
     def depart_literal_block(self, _node):
         self.add("```", prefix_eol=1, suffix_eol=2)

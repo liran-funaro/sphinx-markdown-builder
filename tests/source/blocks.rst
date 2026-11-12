@@ -37,6 +37,11 @@ Multi-line Code Block
                   [--option3 VALUE3]
                   argument
 
+.. code-block::
+   :class: code
+
+   x = 1
+
 
 ==========
 Line Block
