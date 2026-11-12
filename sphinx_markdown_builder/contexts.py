@@ -242,29 +242,37 @@ class CodeBlockContext(SubContext):
 
 
 class CommaSeparatedContext(SubContext):
-    def __init__(self, sep: str = ", ", params=SubContextParams()):
+    """
+    Separates parameters with `sep` and wraps optional groups in brackets.
+    Like Sphinx's HTML writer, the separator goes after a parameter while required parameters are still to come,
+    and before it otherwise, so it stays inside the brackets: `f([a, ]b, c[, d[, e]])`.
+    """
+
+    def __init__(self, sep: str = ", ", required_count: int = 0, params=SubContextParams()):
         super().__init__(params)
         self.sep = sep
-        self.parameters: List[List[str]] = []
-
-        self.is_parameter = False
+        self.required_left = required_count  # Required (not optional) parameters not visited yet
+        self.optional_level = 0
+        self.is_first = True
 
     def enter_parameter(self):
-        self.is_parameter = True
-        self.parameters.append([])
+        if not self.is_first and not self.required_left:
+            self.add(self.sep)
+        self.is_first = False
+        if self.optional_level == 0:
+            self.required_left -= 1
 
     def exit_parameter(self):
-        self.is_parameter = False
+        if self.required_left:
+            self.add(self.sep)
 
-    @property
-    def content(self):
-        if self.is_parameter:
-            return self.parameters[-1]
-        return super().content
+    def enter_optional(self):
+        self.optional_level += 1
+        self.add("[")
 
-    def make(self):
-        ret = super().make()
-        return ret + self.sep.join(["".join(item) for item in self.parameters])
+    def exit_optional(self):
+        self.optional_level -= 1
+        self.add("]")
 
 
 class TableContext(SubContext):  # pylint: disable=too-many-instance-attributes

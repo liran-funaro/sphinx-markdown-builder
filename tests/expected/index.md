@@ -55,6 +55,8 @@
         * [`Point.x`](library/my_module.md#my_module.Point.x)
         * [`Point.y`](library/my_module.md#my_module.Point.y)
       * [`deprecated_function()`](library/my_module.md#my_module.deprecated_function)
+      * [`span()`](library/my_module.md#my_module.span)
+      * [`clock()`](library/my_module.md#my_module.clock)
       * [`func1()`](library/my_module.md#my_module.func1)
       * [`func2()`](library/my_module.md#my_module.func2)
       * [`func3()`](library/my_module.md#my_module.func3)

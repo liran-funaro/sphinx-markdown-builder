@@ -29,6 +29,7 @@ import re
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Type, TypeVar, Union
 
 from docutils import languages, nodes
+from sphinx import addnodes
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.osutil import relative_uri
 
@@ -643,6 +644,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     #         desc_parameterlist
     #           desc_annotation
     #           desc_parameter
+    #           desc_optional (e.g., `f(a[, b[, c]])`, from textual signatures only)
+    #             desc_parameter
+    #             desc_optional (optional nesting)
     #         desc_returns
     #   desc_content
     #     field_list
@@ -670,9 +674,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         h_level = 4 if node.get("class", None) else 3
         self._push_context(TitleContext(h_level))
 
-    def visit_desc_parameterlist(self, _node):
+    def visit_desc_parameterlist(self, node):
         self._push_context(WrappedContext("(", ")", wrap_empty=True))
-        self._push_context(CommaSeparatedContext(", "))
+        # Only the direct desc_parameter children are required; the ones under desc_optional are not.
+        required_count = sum(isinstance(child, addnodes.desc_parameter) for child in node.children)
+        self._push_context(CommaSeparatedContext(", ", required_count))
 
     def depart_desc_parameterlist(self, _node):
         self._pop_context(count=2)
@@ -687,6 +693,12 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def depart_desc_parameter(self, _node):
         self.sep_ctx.exit_parameter()  # workaround pylint: disable=no-member
+
+    def visit_desc_optional(self, _node):
+        self.sep_ctx.enter_optional()  # workaround pylint: disable=no-member
+
+    def depart_desc_optional(self, _node):
+        self.sep_ctx.exit_optional()  # workaround pylint: disable=no-member
 
     def visit_field_list(self, _node):
         self._start_list("*")

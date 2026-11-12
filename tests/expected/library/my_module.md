@@ -41,6 +41,14 @@ Some old function.
 > [!WARNING]
 > Deprecated since version 3.1: Use `other()` instead.
 
+### span([start, ]stop[, step])
+
+Return the numbers from start (default 0) up to stop, by step (default 1).
+
+### clock([hour[, minute[, second]]])
+
+Format a time of day as `HH:MM:SS`; missing parts are zero.
+
 ### func1(param1)
 
 This is a function with a single parameter.
