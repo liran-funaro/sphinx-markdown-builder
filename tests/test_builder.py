@@ -40,6 +40,8 @@ SOURCE_FLAGS = [
         "markdown_compact_tables=1",
         "-D",
         "markdown_suppress_comments=1",
+        "-D",
+        "markdown_include_raw_types=markdown",
         "-j",
         "8",
     ],

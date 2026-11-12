@@ -100,6 +100,27 @@ reStructuredText would start a list at these markers, but not on the continuatio
 \+ not a list
 \- 5 degrees overnight, a mid-line - stays.
 
+## Raw blocks
+
+Before the raw blocks, with inline <b>*bold*</b> HTML.
+
+<div class="note">
+  <b>*Not* escaped</b>
+</div>
+
+| Raw | Markdown |
+|-----|----------|
+| *a* | b        |
+
+A raw block indented after a paragraph is in a block quote.
+
+> <div>In a block quote</div>
+
+A raw block indented right after a paragraph is a definition
+: <div>In a definition</div>
+
+After the raw blocks.
+
 ## Referencing terms from a glossary
 
 Some other text that refers to [Glossary2-Term2](glossaries.md#term-Glossary2-Term2).
