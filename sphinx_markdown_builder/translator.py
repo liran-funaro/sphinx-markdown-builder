@@ -29,13 +29,11 @@ import re
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Type, TypeVar, Union
 
 from docutils import languages, nodes
-from sphinx import addnodes
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.osutil import relative_uri
 
 from sphinx_markdown_builder.contexts import (
     CodeBlockContext,
-    CommaSeparatedContext,
     CommentContext,
     ContextStatus,
     DOC_INFO_CONTEXT,
@@ -44,6 +42,7 @@ from sphinx_markdown_builder.contexts import (
     ITALIC_CONTEXT,
     ListMarker,
     MetaContext,
+    ParameterListContext,
     PushBox,
     PushContext,
     STRONG_CONTEXT,
@@ -642,8 +641,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     #         desc_name
     #           desc_annotation (optional)
     #         desc_parameterlist
-    #           desc_annotation
-    #           desc_parameter
+    #           desc_annotation (optional, outside any parameter, e.g., httpdomain's `int:`)
+    #           desc_parameter (also the `/` and `*` markers of Python signatures)
     #           desc_optional (e.g., `f(a[, b[, c]])`, from textual signatures only)
     #             desc_parameter
     #             desc_optional (optional nesting)
@@ -674,31 +673,26 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         h_level = 4 if node.get("class", None) else 3
         self._push_context(TitleContext(h_level))
 
-    def visit_desc_parameterlist(self, node):
-        self._push_context(WrappedContext("(", ")", wrap_empty=True))
-        # Only the direct desc_parameter children are required; the ones under desc_optional are not.
-        required_count = sum(isinstance(child, addnodes.desc_parameter) for child in node.children)
-        self._push_context(CommaSeparatedContext(", ", required_count))
-
-    def depart_desc_parameterlist(self, _node):
-        self._pop_context(count=2)
+    @pushing_context
+    def visit_desc_parameterlist(self, _node):
+        self._push_context(ParameterListContext(", "))
 
     @property
-    def sep_ctx(self) -> CommaSeparatedContext:
-        return self._typed_ctx(CommaSeparatedContext)
+    def param_list_ctx(self) -> ParameterListContext:
+        return self._typed_ctx(ParameterListContext)
 
     def visit_desc_parameter(self, _node):
         """single method/class ctr param"""
-        self.sep_ctx.enter_parameter()  # workaround pylint: disable=no-member
+        self.param_list_ctx.enter_parameter()  # workaround pylint: disable=no-member
 
     def depart_desc_parameter(self, _node):
-        self.sep_ctx.exit_parameter()  # workaround pylint: disable=no-member
+        self.param_list_ctx.exit_parameter()  # workaround pylint: disable=no-member
 
     def visit_desc_optional(self, _node):
-        self.sep_ctx.enter_optional()  # workaround pylint: disable=no-member
+        self.param_list_ctx.enter_optional()  # workaround pylint: disable=no-member
 
     def depart_desc_optional(self, _node):
-        self.sep_ctx.exit_optional()  # workaround pylint: disable=no-member
+        self.param_list_ctx.exit_optional()  # workaround pylint: disable=no-member
 
     def visit_field_list(self, _node):
         self._start_list("*")

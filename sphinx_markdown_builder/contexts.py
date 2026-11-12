@@ -159,21 +159,17 @@ class WrappedContext(SubContext):
         self,
         prefix,
         suffix: Optional[str] = None,
-        wrap_empty=False,
         params=SubContextParams(),
     ):
         super().__init__(params)
         self.prefix = prefix
         self.suffix = suffix if suffix is not None else prefix
-        self.wrap_empty = wrap_empty
 
     def make(self):
         content = super().make()
         match = WRAP_REGEXP.fullmatch(content)
         if match is None:
             # The expression has no match only when there is no non-space character.
-            if self.wrap_empty:
-                return f"{self.prefix}{content}{self.suffix}"
             return content
 
         # We need to make sure the emphasis mark is near a non-space char,
@@ -241,38 +237,72 @@ class CodeBlockContext(SubContext):
         return EOL.join(lines)
 
 
-class CommaSeparatedContext(SubContext):
+class OptionalGroup(list):
+    """The parameters (and nested groups) of an optional `[`…`]` group"""
+
+
+class ParameterListContext(SubContext):
     """
-    Separates parameters with `sep` and wraps optional groups in brackets.
-    Like Sphinx's HTML writer, the separator goes after a parameter while required parameters are still to come,
-    and before it otherwise, so it stays inside the brackets: `f([a, ]b, c[, d[, e]])`.
+    A signature's parameter list. While visiting, it records in order each parameter's output (a list), each optional
+    group, and any text outside a parameter (a string). `make()` then places the separators like Sphinx's HTML writer:
+    after a parameter while required parameters are still to come, and before it otherwise, so they stay inside the
+    brackets: `f([a, ]b, c[, d])`.
     """
 
-    def __init__(self, sep: str = ", ", required_count: int = 0, params=SubContextParams()):
+    def __init__(self, sep: str = ", ", params=SubContextParams()):
         super().__init__(params)
         self.sep = sep
-        self.required_left = required_count  # Required (not optional) parameters not visited yet
-        self.optional_level = 0
-        self.is_first = True
+        self.groups: List[list] = [self.body]  # The open groups; the innermost receives new items
+        self.parameter: Optional[List[str]] = None  # The output of the parameter being visited
+
+    @property
+    def content(self) -> List[str]:
+        return self.parameter if self.parameter is not None else self.groups[-1]
 
     def enter_parameter(self):
-        if not self.is_first and not self.required_left:
-            self.add(self.sep)
-        self.is_first = False
-        if self.optional_level == 0:
-            self.required_left -= 1
+        self.parameter = []
+        self.groups[-1].append(self.parameter)
 
     def exit_parameter(self):
-        if self.required_left:
-            self.add(self.sep)
+        self.parameter = None
 
     def enter_optional(self):
-        self.optional_level += 1
-        self.add("[")
+        group = OptionalGroup()
+        self.groups[-1].append(group)
+        self.groups.append(group)
 
     def exit_optional(self):
-        self.optional_level -= 1
-        self.add("]")
+        self.groups.pop()
+
+    def make(self):
+        # The parameters outside any optional group are the required ones.
+        required_left = sum(isinstance(item, list) and not isinstance(item, OptionalGroup) for item in self.body)
+        is_first = True
+        output = ["("]
+
+        def render(items: list, is_optional: bool):
+            nonlocal required_left, is_first
+            for item in items:
+                if isinstance(item, str):
+                    output.append(item)  # Text outside a parameter (e.g., httpdomain's `int:` annotation)
+                    continue
+                if isinstance(item, OptionalGroup):
+                    output.append("[")
+                    render(item, True)
+                    output.append("]")
+                    continue
+                if not is_first and not required_left:
+                    output.append(self.sep)
+                is_first = False
+                if not is_optional:
+                    required_left -= 1
+                output.append("".join(item))
+                if required_left:
+                    output.append(self.sep)
+
+        render(self.body, False)
+        output.append(")")
+        return "".join(output)
 
 
 class TableContext(SubContext):  # pylint: disable=too-many-instance-attributes
