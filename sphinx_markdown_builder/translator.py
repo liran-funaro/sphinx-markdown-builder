@@ -34,6 +34,7 @@ from sphinx.util.osutil import relative_uri
 
 from sphinx_markdown_builder.contexts import (
     CommaSeparatedContext,
+    CommentContext,
     ContextStatus,
     DOC_INFO_CONTEXT,
     IndentContext,
@@ -376,7 +377,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @pushing_status
     def visit_comment(self, _node):
         self._push_status(escape_text=False)
-        self._push_context(WrappedContext("<!-- ", " -->", params=SubContextParams(1)))
+        self._push_context(CommentContext(SubContextParams(1)))
 
     @pushing_context
     def visit_paragraph(self, _node):
