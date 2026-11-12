@@ -197,23 +197,48 @@ class CommentContext(WrappedContext):
         return super().make()
 
 
-class CodeContext(SubContext):
-    """Inline code or a fenced code block. Its fence is longer than any backtick run in the code."""
+def code_fence(code: str, min_length: int) -> str:
+    """
+    The backticks that open and close `code`.
+    The fence must be longer than the longest run of backticks in the code. Otherwise, that run would close it early.
+    """
+    longest_run = max((len(run) for run in re.findall("`+", code)), default=0)
+    return "`" * max(min_length, longest_run + 1)
 
-    def __init__(self, language: Optional[str] = None, params=SubContextParams()):
-        super().__init__(params)
-        self.language = language  # None for inline code
+
+class InlineCodeContext(SubContext):
+    """Inline code, e.g., `x`"""
 
     def make(self):
         code = super().make()
-        longest = max((len(run) for run in re.findall("`+", code)), default=0)
-        if self.language is None:
-            fence = "`" * (longest + 1)
-            # CommonMark strips one space from each side, so a space keeps a leading/trailing backtick off the fence.
-            pad = " " if code.startswith("`") or code.endswith("`") else ""
-            return f"{fence}{pad}{code}{pad}{fence}"
-        fence = "`" * max(3, longest + 1)
-        return "\n".join(filter(None, (f"{fence}{self.language}", code.removesuffix("\n"), fence)))
+        fence = code_fence(code, min_length=1)
+
+        # A backtick at either end of the code would merge with the fence.
+        # CommonMark strips one space from each end of inline code, so padding with a space keeps them apart.
+        # E.g., `x` in backticks is written as `` `x` ``.
+        if code.startswith("`") or code.endswith("`"):
+            code = f" {code} "
+
+        return f"{fence}{code}{fence}"
+
+
+class CodeBlockContext(SubContext):
+    """A fenced code block, e.g., ```python ... ```"""
+
+    def __init__(self, language: str, params=SubContextParams(1, 2)):
+        super().__init__(params)
+        self.language = language
+
+    def make(self):
+        # The closing fence goes on its own line, so a trailing line break in the code is not needed.
+        code = super().make().removesuffix(EOL)
+        fence = code_fence(code, min_length=3)
+
+        lines = [f"{fence}{self.language}"]
+        if code:
+            lines.append(code)
+        lines.append(fence)
+        return EOL.join(lines)
 
 
 class CommaSeparatedContext(SubContext):

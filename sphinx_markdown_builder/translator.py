@@ -33,12 +33,13 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.osutil import relative_uri
 
 from sphinx_markdown_builder.contexts import (
-    CodeContext,
+    CodeBlockContext,
     CommaSeparatedContext,
     CommentContext,
     ContextStatus,
     DOC_INFO_CONTEXT,
     IndentContext,
+    InlineCodeContext,
     ITALIC_CONTEXT,
     ListMarker,
     MetaContext,
@@ -463,7 +464,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @pushing_status
     def visit_literal(self, _node):
         self._push_status(escape_text=False)
-        self._push_context(CodeContext())
+        self._push_context(InlineCodeContext())
 
     @pushing_context
     @pushing_status
@@ -471,13 +472,13 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_status(escape_text=False, preserve_line_breaks=True)
         # Sphinx sets `language` on every literal_block (the `Code` directive and `HighlightLanguageTransform`).
         # docutils and Sphinx < 2 kept it in `classes` (["code", <lang>]), which no supported Sphinx produces.
-        self._push_context(CodeContext(node.get("language", ""), params=SubContextParams(1, 2)))
+        self._push_context(CodeBlockContext(node.get("language", "")))
 
     @pushing_context
     @pushing_status
     def visit_doctest_block(self, _node):
         self._push_status(escape_text=False, preserve_line_breaks=True)
-        self._push_context(CodeContext("pycon", params=SubContextParams(1, 2)))
+        self._push_context(CodeBlockContext("pycon"))
 
     @pushing_context
     def visit_block_quote(self, _node):
