@@ -47,7 +47,8 @@ Escape char: \
 import re
 
 # Each match ends with the character to escape (line-leading markers may follow spaces or digits).
-ESCAPE_RE = re.compile(r"[\\*`\[\]<]|(?:^|(?<=\s|_))_|^[ \t]*(?:[#>+-]|\d+[.)])", re.M)
+# Line-leading `#`, `-`, `+` and `N.` only start a heading or list when a space or the line end follows them.
+ESCAPE_RE = re.compile(r"[\\*`\[\]<]|(?:^|(?<=\s|_))_|^[ \t]*(?:>|(?:#+|-+|\+|\d+[.)])(?=[ \t]|$))", re.M)
 
 
 def escape_markdown_chars(txt: str):
