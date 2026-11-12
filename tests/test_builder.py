@@ -134,6 +134,22 @@ def test_custom_file_suffix():
     _rm_build_path(build_path)
 
 
+def test_config_change_rebuilds_output(tmp_path: Path):
+    """Changing a markdown_* option rebuilds the output without -a or -E."""
+    source_path = tmp_path / "source"
+    output_path = tmp_path / "output"
+    source_path.mkdir()
+    (source_path / "conf.py").write_text('extensions = ["sphinx_markdown_builder"]\n', encoding="utf-8")
+    (source_path / "index.rst").write_text("Title\n=====\n", encoding="utf-8")
+    index_path = output_path / "index.md"
+
+    assert main(["-b", "markdown", str(source_path), str(output_path)]) == 0
+    assert "<a" not in index_path.read_text(encoding="utf-8")
+
+    assert main(["-b", "markdown", str(source_path), str(output_path), "-D", "markdown_anchor_sections=1"]) == 0
+    assert '<a id="title"></a>' in index_path.read_text(encoding="utf-8")
+
+
 def test_github_flavor_preserves_block_line_breaks():
     """GitHub-flavored Markdown preserves newlines in each multiline block type."""
     build_path = os.path.join(BUILD_PATH, "github_newlines")
