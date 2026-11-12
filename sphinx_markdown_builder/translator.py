@@ -55,7 +55,12 @@ from sphinx_markdown_builder.contexts import (
     WrappedContext,
     FootNoteContext,
 )
-from sphinx_markdown_builder.escape import escape_html_quote, escape_link_destination, escape_markdown_chars
+from sphinx_markdown_builder.escape import (
+    escape_alt_text,
+    escape_html_quote,
+    escape_link_destination,
+    escape_markdown_chars,
+)
 
 if TYPE_CHECKING:  # pragma: no cover
     from sphinx_markdown_builder import MarkdownBuilder
@@ -355,7 +360,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def visit_image(self, node):
         """Image directive."""
         uri = escape_link_destination(node["uri"])
-        alt = re.sub(r"([\\\[\]])", r"\\\1", node.attributes.get("alt", "image"))
+        alt = escape_alt_text(node.attributes.get("alt", "image"))
         # We don't need to add EOL before/after the image.
         # It will be handled by the visit/depart handlers of the paragraph.
         self.add(f"![{alt}]({uri})")
