@@ -193,7 +193,7 @@ class CommentContext(WrappedContext):
         super().__init__("<!-- ", " -->", params=params)
 
     def make(self):
-        self.content[:] = [COMMENT_END.sub(r"- -\1", "".join(self.content))]
+        self.body = [COMMENT_END.sub(r"- -\1", "".join(self.content))]
         return super().make()
 
 
