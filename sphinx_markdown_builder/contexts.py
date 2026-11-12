@@ -5,9 +5,11 @@ Custom context handlers for markdown.
 import re
 import textwrap
 import typing
+import unicodedata
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type, TypeVar, Union
 
+from docutils import nodes
 from tabulate import tabulate
 
 from sphinx_markdown_builder.escape import escape_html_quote
@@ -24,10 +26,10 @@ CONTENT_START = UniqueString("content start")
 EOL = "\n"
 SPACE = " "
 SPACE_CHARS = re.compile(r"\s+")
-LETTERS = re.compile(r"[a-z0-9]", re.I)
 WRAP_REGEXP = re.compile(r"(\s*)(?=\S)([\s\S]+?)(?<=\S)(\s*)", re.M)
 MULTI_LINE_BREAK = re.compile(r"(?<=\n)\n")
 COMMENT_END = re.compile(r"--(!?>)")  # HTML ends a comment at `-->` and also at `--!>`
+EMPHASIS_MARKS = ("*", "**", "_")
 
 
 def is_content_start(value: str) -> bool:
@@ -42,8 +44,9 @@ def is_eol(value: str) -> bool:
     return value == EOL
 
 
-def is_letter(value: str) -> bool:
-    return LETTERS.fullmatch(value) is not None
+def is_word_char(value: str) -> bool:
+    """Neither whitespace nor Unicode punctuation/symbol, the character classes of CommonMark's flanking rules"""
+    return bool(value) and not value.isspace() and unicodedata.category(value)[0] not in "PS"
 
 
 def replace_multi_line_break(value: str):
@@ -96,6 +99,11 @@ class SubContext:
             yield from reversed(value)
 
         yield CONTENT_START
+
+    @property
+    def last_char(self) -> str:
+        value = next(self._iter_reverse_char())
+        return "" if is_content_start(value) else value
 
     def _count_missing_eol(self) -> int:
         """
@@ -161,11 +169,17 @@ class WrappedContext(SubContext):
         suffix: Optional[str] = None,
         wrap_empty=False,
         params=SubContextParams(),
+        *,
+        after: str = "",
     ):
         super().__init__(params)
         self.prefix = prefix
         self.suffix = suffix if suffix is not None else prefix
         self.wrap_empty = wrap_empty
+        # The characters next to this context. `before` is the end of the parent's output, set when this context is
+        # added to it. `after` is not written yet, so it comes from the doctree (see `text_after()`).
+        self.before = ""
+        self.after = after
 
     def make(self):
         content = super().make()
@@ -180,9 +194,15 @@ class WrappedContext(SubContext):
         # but we want to preserve the existing spaces.
         prefix_space, text, suffix_space = match.groups()
 
-        # Markdown requires italic/bold/etc... to have a space before it if the edge character is not a letter.
-        if self.prefix in ["*", "_"] and not is_letter(text[0]) and len(prefix_space) == 0:
-            prefix_space = SPACE
+        # CommonMark only opens/closes emphasis at a punctuation edge if the mark does not touch a word on its
+        # other side (the "flanking" rules): `**"quoted"**word` is not bold.
+        if self.prefix in EMPHASIS_MARKS and not prefix_space:
+            # A mark right after the same mark (`*[**str*`) merges with it, so it is always separated.
+            if self.before == self.prefix[0] or (is_word_char(self.before) and not is_word_char(text[0])):
+                prefix_space = SPACE
+        if self.suffix in EMPHASIS_MARKS and not suffix_space:
+            if is_word_char(self.after) and not is_word_char(text[-1]):
+                suffix_space = SPACE
         return f"{prefix_space}{self.prefix}{text}{self.suffix}{suffix_space}"
 
 
@@ -474,8 +494,17 @@ class PushContext(Generic[_ContextT]):  # pylint: disable=too-few-public-methods
         return self.ctx(*self.args, **kwargs)
 
 
-ITALIC_CONTEXT = PushContext(WrappedContext, "*")  # _ is more restrictive
-STRONG_CONTEXT = PushContext(WrappedContext, "**")  # _ is more restrictive
+def text_after(node, _elem) -> Dict[str, str]:
+    """The first character of the text node right after the node, if there is one"""
+    # ponytail: only a sibling text node is checked, since an element renders its own markup (e.g., `[` of a link).
+    # A mark before a transparent element (e.g., `inline`) or at the end of its parent is not separated from a word
+    # after it. Check the next output instead if this matters.
+    sibling = node.next_node(descend=False, siblings=True)
+    return {"after": sibling.astext()[:1] if isinstance(sibling, nodes.Text) else ""}
+
+
+ITALIC_CONTEXT = PushContext(WrappedContext, "*", translator=text_after)  # _ is more restrictive
+STRONG_CONTEXT = PushContext(WrappedContext, "**", translator=text_after)  # _ is more restrictive
 SUBSCRIPT_CONTEXT = PushContext(WrappedContext, "<sub>", "</sub>")
 DOC_INFO_CONTEXT = PushContext(
     MetaContext,
