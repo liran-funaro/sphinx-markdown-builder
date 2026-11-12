@@ -32,6 +32,38 @@ usage: command [-h] [--option1 VALUE1]
                argument
 ```
 
+```default
+x = 1
+```
+
+```python
+docutils_code_directive = True
+```
+
+```python
+class_before_language = True
+```
+
+```yaml
+key: value
+```
+
+```python
+"""Configuration file for the Sphinx documentation builder."""
+import sys
+from pathlib import Path
+
+mod_path = Path(__file__).parent.parent.absolute()
+if mod_path not in sys.path:
+    sys.path.insert(0, str(mod_path))
+```
+
+A literal block after a `highlight` directive:
+
+```c
+int x = 1;
+```
+
 # Line Block
 
 text
