@@ -118,6 +118,18 @@ Some other text that refers to [Glossary2-Term2](glossaries.md#term-Glossary2-Te
 
 Optional parameters in a JavaScript signature.
 
+### trailing(a[, b[, c]])
+
+Nested optional parameters after a required one.
+
+### middle(a, [b, ]c)
+
+An optional parameter between required ones.
+
+### two_required(a, b[, c])
+
+An optional parameter after two required ones.
+
 ## Inline tabs
 
 Content of the first tab.

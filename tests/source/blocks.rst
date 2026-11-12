@@ -133,6 +133,18 @@ JavaScript domain
 
    Optional parameters in a JavaScript signature.
 
+.. js:function:: trailing(a[, b[, c]])
+
+   Nested optional parameters after a required one.
+
+.. js:function:: middle(a[, b], c)
+
+   An optional parameter between required ones.
+
+.. js:function:: two_required(a, b[, c])
+
+   An optional parameter after two required ones.
+
 Inline tabs
 -----------
 

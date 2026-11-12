@@ -42,6 +42,11 @@ def span(*args):
     return list(range(*args))
 
 
+def defaults(a, b=None, *args, c=1, **kwargs):
+    """Optional parameters in a real signature: rendered with their defaults, with no brackets."""
+    return a, b, args, c, kwargs
+
+
 def clock(*args):
     """clock([hour[, minute[, second]]])
 

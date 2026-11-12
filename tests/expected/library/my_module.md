@@ -45,6 +45,10 @@ Some old function.
 
 Return the numbers from start (default 0) up to stop, by step (default 1).
 
+### defaults(a, b=None, \*args, c=1, \*\*kwargs)
+
+Optional parameters in a real signature: rendered with their defaults, with no brackets.
+
 ### clock([hour[, minute[, second]]])
 
 Format a time of day as `HH:MM:SS`; missing parts are zero.
