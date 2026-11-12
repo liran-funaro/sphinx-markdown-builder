@@ -242,9 +242,6 @@ class OptionalGroup(str):
     """A finished `[`…`]` group in a ParameterListContext body"""
 
 
-OPTIONAL_START = UniqueString("[")  # Marks where an open optional group starts in a ParameterListContext body
-
-
 class ParameterListContext(SubContext):
     """
     A signature's parameter list. Each finished parameter or optional group becomes one string in the body, and the
@@ -262,16 +259,19 @@ class ParameterListContext(SubContext):
 
     def enter_optional(self):
         self.optional_starts.append(len(self.body))
-        self.body.append(OPTIONAL_START)
+        self.body.append("[")
         self.item_start = len(self.body)
 
     def exit_optional(self):
         self.body.append("]")
-        self._close_item(self.optional_starts.pop())
+        self._close_item(self.optional_starts[-1])
 
     def _close_item(self, start: int):
         """Join the body from `start` into one finished item, after placing the separator before it"""
-        item_is_optional = self.body[start] is OPTIONAL_START
+        # An optional group starts at the top of the stack; a parameter always starts after the top's `[`.
+        item_is_optional = self.optional_starts[-1:] == [start]
+        if item_is_optional:
+            self.optional_starts.pop()
         item = "".join(self.body[start:])
         # Where the first item of the innermost open optional group (or of the whole list) starts.
         first_item_start = self.optional_starts[-1] + 1 if self.optional_starts else 0
