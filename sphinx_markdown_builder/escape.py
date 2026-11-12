@@ -57,23 +57,23 @@ BARE_LINK_DESTINATION_RE = re.compile(r"[^\s<>()]*(?:\([^\s<>()]*\)[^\s<>()]*)*"
 ALT_TEXT_ESCAPE_RE = re.compile(r"([\\\[\]])")
 
 
-def escape_markdown_chars(txt: str):
+def markdown_chars(txt: str):
     """Escape (some) characters with special meaning for Markdown"""
     txt = ESCAPE_RE.sub(r"\\\1", txt)
     return ORDERED_LIST_RE.sub(r"\1\\\2", txt)
 
 
-def escape_link_destination(url: str):
+def link_destination(url: str):
     """Wrap a link destination in <...> only when it cannot be written bare"""
     if BARE_LINK_DESTINATION_RE.fullmatch(url):
         return url
     return "<" + url.replace("<", "\\<").replace(">", "\\>") + ">"
 
 
-def escape_alt_text(alt: str):
+def alt_text(alt: str):
     """Escape the characters that end or break the alt text of an image (`![alt](uri)`)"""
     return ALT_TEXT_ESCAPE_RE.sub(r"\\\1", alt)
 
 
-def escape_html_quote(value: str):
+def html_quote(value: str):
     return value.replace('"', "&quot;")
