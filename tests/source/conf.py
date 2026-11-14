@@ -66,3 +66,7 @@ exclude_patterns = ["expected"]
 suppress_warnings = ["download.not_readable"]
 
 language = "en"
+
+# The overrides build (`-t numpydoc`) also runs numpydoc, which rewrites every autodoc docstring.
+if tags.has("numpydoc"):  # noqa: F821 (Sphinx injects `tags`)
+    extensions.append("numpydoc")

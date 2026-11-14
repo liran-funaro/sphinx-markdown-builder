@@ -36,3 +36,9 @@ Section for third glossary
 
     Glossary3-Term1
       Some random text for term 1 in glossary 3.
+
+
+Citation from another page
+---------------------------
+
+A citation reference [CIT2002]_ to a citation defined in another page.

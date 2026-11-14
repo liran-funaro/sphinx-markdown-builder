@@ -8,6 +8,12 @@ Formula 1
 
    Some more text related to the definition.
 
+Formula 2 : float : optional
+   A term with classifiers (e.g., numpydoc parameter types).
+
+Formula 3 : *float*
+   An already-emphasized classifier.
+
 
 Display math:
 
@@ -141,3 +147,10 @@ Same-page references
 --------------------
 
 See `Same-page references`_.
+
+Citations
+---------
+
+A citation reference [CIT2002]_ on the same page.
+
+.. [CIT2002] A citation definition.

@@ -38,6 +38,8 @@ SOURCE_FLAGS = [
         "markdown_flavor=github",
         "-D",
         "markdown_compact_tables=1",
+        "-t",
+        "numpydoc",
         "-j",
         "8",
     ],
