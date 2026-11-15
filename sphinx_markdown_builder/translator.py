@@ -188,9 +188,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def _typed_ctx(self, ctx_type: Type[CtxT]) -> CtxT:
         """The current context, if it is of the type the visited node requires"""
         ctx = self.ctx
-        if not isinstance(ctx, ctx_type):
-            raise UnknownVisit
-        return ctx
+        if isinstance(ctx, ctx_type):
+            return ctx
+        raise UnknownVisit
 
     def _push_context(self, ctx: SubContext):
         self._ctx_queue.append(ctx)
@@ -683,10 +683,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def visit_desc_parameter(self, _node):
         """single method/class ctr param"""
-        self.sep_ctx.enter_parameter()  # workaround pylint: disable=no-member
+        self.sep_ctx.enter_parameter()
 
     def depart_desc_parameter(self, _node):
-        self.sep_ctx.exit_parameter()  # workaround pylint: disable=no-member
+        self.sep_ctx.exit_parameter()
 
     def visit_field_list(self, _node):
         self._start_list("*")
@@ -732,28 +732,28 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         )
 
     def visit_thead(self, _node):
-        self.table_ctx.enter_head()  # workaround pylint: disable=no-member
+        self.table_ctx.enter_head()
 
     def depart_thead(self, _node):
-        self.table_ctx.exit_head()  # workaround pylint: disable=no-member
+        self.table_ctx.exit_head()
 
     def visit_tbody(self, _node):
-        self.table_ctx.enter_body()  # workaround pylint: disable=no-member
+        self.table_ctx.enter_body()
 
     def depart_tbody(self, _node):
-        self.table_ctx.exit_body()  # workaround pylint: disable=no-member
+        self.table_ctx.exit_body()
 
     def visit_row(self, _node):
-        self.table_ctx.enter_row()  # workaround pylint: disable=no-member
+        self.table_ctx.enter_row()
 
     def depart_row(self, _node):
-        self.table_ctx.exit_row()  # workaround pylint: disable=no-member
+        self.table_ctx.exit_row()
 
     def visit_entry(self, _node):
-        self.table_ctx.enter_entry()  # workaround pylint: disable=no-member
+        self.table_ctx.enter_entry()
 
     def depart_entry(self, _node):
-        self.table_ctx.exit_entry()  # workaround pylint: disable=no-member
+        self.table_ctx.exit_entry()
 
     ################################################################################
     # footnote
@@ -785,7 +785,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(FootNoteContext(ids, names, params=SubContextParams(1, 1)))
 
     def visit_label(self, _node):
-        self.footnote_ctx.visit_label()  # workaround pylint: disable=no-member
+        self.footnote_ctx.visit_label()
 
     def depart_label(self, _node):
-        self.footnote_ctx.depart_label()  # workaround pylint: disable=no-member
+        self.footnote_ctx.depart_label()
