@@ -163,7 +163,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def __init__(self, document: nodes.document, builder: "MarkdownBuilder"):
         super().__init__(document, builder)
         self.builder: "MarkdownBuilder" = builder
-        # noinspection PyUnresolvedReferences
         self.language = languages.get_language(self.settings.language_code, document.reporter)
         # Warn only once per writer about unsupported elements
         self._warned = set()
@@ -284,11 +283,13 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             return self._skip
         if isinstance(action, PushContext):
             if state == "visit":
-                return lambda node: self._push_context(action.create(node, element))
+                create = action.create
+                return lambda node: self._push_context(create(node, element))
             return self._pop_context
         if isinstance(action, PushBox):
             if state == "visit":
-                return lambda _node: self._push_box(action.title, action.heading)
+                title, heading = action.title, action.heading
+                return lambda node: self._push_box(title, heading)
             return self._pop_context_and_status
         return None
 
@@ -361,11 +362,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self.add(f"![{alt}]({uri})")
 
     @pushing_context
-    def visit_caption(self, _node):
+    def visit_caption(self, node):
         """Figure caption."""
         self._push_context(WrappedContext("*", params=SubContextParams(2, 2)))
 
-    # noinspection PyPep8Naming
     def visit_Text(self, node):  # pylint: disable=invalid-name
         text = node.astext().replace("\r", "")
         # Replace line breaks with spaces to create single-line paragraphs
@@ -377,12 +377,12 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     @pushing_status
-    def visit_comment(self, _node):
+    def visit_comment(self, node):
         self._push_status(escape_text=False)
         self._push_context(CommentContext(SubContextParams(1)))
 
     @pushing_context
-    def visit_paragraph(self, _node):
+    def visit_paragraph(self, node):
         if self.status.list_marker is None:
             params = SubContextParams(2, 2)
         else:
@@ -403,14 +403,14 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     ################################################################################
 
     @pushing_context
-    def visit_line_block(self, _node):
+    def visit_line_block(self, node):
         self._push_context(SubContext(SubContextParams(1, 1)))
 
     @pushing_context
-    def visit_line(self, _node):
+    def visit_line(self, node):
         self._push_context(SubContext(SubContextParams(1, 1)))
 
-    def depart_line(self, _node):
+    def depart_line(self, node):
         self._pop_context()
         self.add("<br/>", prefix_eol=1, suffix_eol=1)
 
@@ -435,34 +435,34 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self.ensure_eol(2)
 
     @pushing_context
-    def visit_definition(self, _node):
+    def visit_definition(self, node):
         self._push_context(
             IndentContext(": ", only_first=True, support_multi_line_break=True, params=SubContextParams(1, 2))
         )
 
-    def visit_math_block(self, _node):
+    def visit_math_block(self, node):
         """docutils math block"""
         self._push_status(escape_text=False, preserve_line_breaks=True)
         self.add("$$", prefix_eol=1, suffix_eol=1)
 
-    def depart_math_block(self, _node):
+    def depart_math_block(self, node):
         """docutils math block"""
         self.add("$$", prefix_eol=1, suffix_eol=2)
         self._pop_status()
 
-    def visit_math(self, _node):
+    def visit_math(self, node):
         """docutils math node"""
         self._push_status(escape_text=False)
         self.add("$")
 
-    def depart_math(self, _node):
+    def depart_math(self, node):
         """docutils math node"""
         self.add("$")
         self._pop_status()
 
     @pushing_context
     @pushing_status
-    def visit_literal(self, _node):
+    def visit_literal(self, node):
         self._push_status(escape_text=False)
         self._push_context(InlineCodeContext())
 
@@ -476,12 +476,12 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     @pushing_status
-    def visit_doctest_block(self, _node):
+    def visit_doctest_block(self, node):
         self._push_status(escape_text=False, preserve_line_breaks=True)
         self._push_context(CodeBlockContext("pycon"))
 
     @pushing_context
-    def visit_block_quote(self, _node):
+    def visit_block_quote(self, node):
         self._push_context(IndentContext("> "))
 
     def visit_problematic(self, node):
@@ -498,7 +498,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_status(section_level=self.status.section_level + 1)
 
     @pushing_context
-    def visit_title(self, _node):
+    def visit_title(self, node):
         if isinstance(self.ctx, TableContext):
             level = 4
         else:
@@ -507,7 +507,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     @pushing_status
-    def visit_subtitle(self, _node):  # pragma: no cover
+    def visit_subtitle(self, node):  # pragma: no cover
         """
         Docutils does not promote subtitles, so this might never be called.
         However, we keep it here in case some future version will change this behaviour.
@@ -516,11 +516,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(TitleContext(self.status.section_level))
 
     @pushing_context
-    def visit_rubric(self, _node):
+    def visit_rubric(self, node):
         """Sphinx Rubric, a heading without relation to the document sectioning"""
         self._push_context(TitleContext(3))
 
-    def visit_transition(self, _node):
+    def visit_transition(self, node):
         """Simply replace a transition by a horizontal rule."""
         # Can use three or more '*', '_' or '-'.
         self.add("---", prefix_eol=2, suffix_eol=1)
@@ -590,7 +590,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     @pushing_context
     @pushing_status
-    def visit_topic(self, _node):
+    def visit_topic(self, node):
         self._push_status(default_ref_internal=True, section_level=5)
         self._push_context(IndentContext("> ", empty=True))
 
@@ -670,36 +670,36 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         h_level = 4 if node.get("class", None) else 3
         self._push_context(TitleContext(h_level))
 
-    def visit_desc_parameterlist(self, _node):
+    def visit_desc_parameterlist(self, node):
         self._push_context(WrappedContext("(", ")", wrap_empty=True))
         self._push_context(CommaSeparatedContext(", "))
 
-    def depart_desc_parameterlist(self, _node):
+    def depart_desc_parameterlist(self, node):
         self._pop_context(count=2)
 
     @property
     def sep_ctx(self) -> CommaSeparatedContext:
         return self._typed_ctx(CommaSeparatedContext)
 
-    def visit_desc_parameter(self, _node):
+    def visit_desc_parameter(self, node):
         """single method/class ctr param"""
         self.sep_ctx.enter_parameter()
 
-    def depart_desc_parameter(self, _node):
+    def depart_desc_parameter(self, node):
         self.sep_ctx.exit_parameter()
 
-    def visit_field_list(self, _node):
+    def visit_field_list(self, node):
         self._start_list("*")
 
     depart_field_list = _end_list
     visit_field = _start_list_item
     depart_field = _end_list_item
 
-    def visit_desc_returns(self, _node):
+    def visit_desc_returns(self, node):
         self.add(" → ")
 
     @pushing_context
-    def visit_field_body(self, _node):
+    def visit_field_body(self, node):
         self._push_context(SubContext(SubContextParams(1, 1)))
 
     ################################################################################
@@ -723,7 +723,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         return self._typed_ctx(TableContext)
 
     @pushing_context
-    def visit_table(self, _node):
+    def visit_table(self, node):
         self._push_context(
             TableContext(
                 params=SubContextParams(2, 1),
@@ -731,28 +731,28 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             )
         )
 
-    def visit_thead(self, _node):
+    def visit_thead(self, node):
         self.table_ctx.enter_head()
 
-    def depart_thead(self, _node):
+    def depart_thead(self, node):
         self.table_ctx.exit_head()
 
-    def visit_tbody(self, _node):
+    def visit_tbody(self, node):
         self.table_ctx.enter_body()
 
-    def depart_tbody(self, _node):
+    def depart_tbody(self, node):
         self.table_ctx.exit_body()
 
-    def visit_row(self, _node):
+    def visit_row(self, node):
         self.table_ctx.enter_row()
 
-    def depart_row(self, _node):
+    def depart_row(self, node):
         self.table_ctx.exit_row()
 
-    def visit_entry(self, _node):
+    def visit_entry(self, node):
         self.table_ctx.enter_entry()
 
-    def depart_entry(self, _node):
+    def depart_entry(self, node):
         self.table_ctx.exit_entry()
 
     ################################################################################
@@ -784,8 +784,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             names = ",".join(names)
         self._push_context(FootNoteContext(ids, names, params=SubContextParams(1, 1)))
 
-    def visit_label(self, _node):
+    def visit_label(self, node):
         self.footnote_ctx.visit_label()
 
-    def depart_label(self, _node):
+    def depart_label(self, node):
         self.footnote_ctx.depart_label()
