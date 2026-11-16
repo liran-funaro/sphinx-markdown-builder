@@ -55,6 +55,7 @@ class SubContextParams:
     prefix_eol: int = 0
     suffix_eol: int = 0
     target: Target = DEFAULT_TARGET
+    include_empty_values: bool = False
 
 
 class ListMarker:
@@ -142,7 +143,7 @@ class SubContext:
         suffix_eol: int
             Ensures suffix EOL
         """
-        if not value:
+        if not value and not self.params.include_empty_values:
             return
 
         self.force_eol(prefix_eol)
@@ -241,30 +242,58 @@ class CodeBlockContext(SubContext):
         return EOL.join(lines)
 
 
-class CommaSeparatedContext(SubContext):
-    def __init__(self, sep: str = ", ", params=SubContextParams()):
+class ParameterListContext(SubContext):
+    """
+    A signature's parameter list. Each finished parameter or optional group becomes one string in the body, and the
+    separator before it goes inside the adjacent bracket, so the list reads correctly with or without any optional
+    group: `f(a[, b], c)`, `f([a, ]b)`, `f([[a, ]b])`.
+    """
+
+    def __init__(self, params=SubContextParams(include_empty_values=True)):
         super().__init__(params)
-        self.sep = sep
-        self.parameters: List[List[str]] = []
+        # Where the item being visited starts (text before a param becomes part of it).
+        self.parameters: list[tuple[int, bool]] = []
 
-        self.is_parameter = False
-
-    def enter_parameter(self):
-        self.is_parameter = True
-        self.parameters.append([])
-
-    def exit_parameter(self):
-        self.is_parameter = False
-
-    @property
-    def content(self):
-        if self.is_parameter:
-            return self.parameters[-1]
-        return super().content
+    def enter_parameter(self, is_required: bool):
+        self.parameters.append((len(self.body), is_required))
 
     def make(self):
-        ret = super().make()
-        return ret + self.sep.join(["".join(item) for item in self.parameters])
+        return "".join(self._iter_body())
+
+    def _iter_body(self):
+        body_pos = 0
+        required_indices = [idx for idx, (_, required) in enumerate(self.parameters) if required]
+        min_required = min(required_indices, default=len(self.parameters))
+        max_required = max(required_indices, default=0)
+
+        for idx, (item_pos, is_required) in enumerate(self.parameters):
+            # Yield non parameters values.
+            yield from self.body[body_pos:item_pos]
+
+            text = self.body[item_pos] if item_pos < len(self.body) else ""
+            body_pos = item_pos + 1
+
+            has_required_before = idx > min_required
+            has_required_after = idx < max_required
+
+            if is_required:
+                if not has_required_before:
+                    # Leading required parameter.
+                    yield text
+                else:
+                    # Trailing required parameter.
+                    yield f", {text}"
+            elif not has_required_before and has_required_after:
+                # Leading optional group: the separator follows it, so omitting it keeps the next item intact.
+                yield f"[{text}, ]"
+            elif idx > 0:
+                # Trailing optional group: the separator precedes it, so omitting it keeps the previous item intact.
+                yield f"[, {text}]"
+            else:
+                yield f"[{text}]"
+
+        # Yield remaining non parameters values.
+        yield from self.body[body_pos:]
 
 
 class TableContext(SubContext):  # pylint: disable=too-many-instance-attributes

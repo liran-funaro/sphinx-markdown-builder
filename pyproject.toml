@@ -36,6 +36,9 @@ dev = [
 [project.urls]
 Homepage = "https://github.com/liran-funaro/sphinx-markdown-builder"
 
+[tool.setuptools.packages.find]
+include = ["sphinx_markdown_builder"]
+
 [tool.bumpver]
 current_version = "0.6.11"
 version_pattern = "MAJOR.MINOR.PATCH[-TAG]"
