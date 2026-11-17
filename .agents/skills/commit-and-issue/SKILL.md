@@ -58,7 +58,7 @@ Follow `.github/pull_request_template.md`. Strip every HTML comment (`<!-- ... -
 ```
 #### Type of change
 
-- <one or more of: Bug fix / New feature / Improvement (improvement to code, performance, etc) / Test update / Documentation update / Breaking change>
+- <one or more of: Bug fix / Discrepancy fix (unexpected or faulty Markdown output) / New feature / Improvement (improvement to code, performance, etc) / Test update (new or improved test cases, including ones that expose a discrepancy) / Documentation update / Breaking change>
 
 #### Description
 
@@ -89,6 +89,13 @@ problem. The Description tells a reviewer *what this change does*:
   superseded PR).
 
 **Type of change**: pick from the template list; list several when the change spans categories.
+
+- **Bug fix**: the builder crashes, warns, or misbehaves (matches a `[BUG]` issue).
+- **Discrepancy fix**: the generated Markdown is wrong or missing content, e.g. a lost line
+  break or a skipped node (matches a `[DISCREPANCY]` issue).
+- **Test update**: changes under `tests/source`, `tests/my_module`, or `tests/expected` only.
+  Per `CONTRIBUTING.md`, a test-only PR may add expected output that exposes a discrepancy and
+  fails CI. If so, say so in `#### Additional details`.
 
 **Related issues — expected.** Ask which issue this resolves. If there isn't one, offer to open
 one first and link it. Omit only for a trivial, untracked change.
@@ -140,7 +147,8 @@ update an existing PR: `gh pr edit <num> --body-file /tmp/pr-body.md`. Apply lab
    `discrepancy_report.md`) and fill its sections. Include the RST input and the actual vs.
    expected Markdown where relevant. This is where motivation and background live; the PR later
    just points back here.
-3. **Title** — a short description of the problem, not the fix.
+3. **Title** — start with the template's prefix (`[BUG]` or `[DISCREPANCY]`; feature requests
+   have none), then a short description of the problem, not the fix.
 4. **Labels** — propose from `gh label list` (e.g. `bug`, `enhancement`, `documentation`,
    `tests`, `CI`, `code cleanup`, `agents`). Don't invent labels.
 5. Show the proposed command for approval, then:

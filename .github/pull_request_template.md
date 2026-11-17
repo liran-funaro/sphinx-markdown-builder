@@ -9,9 +9,10 @@ If this PR changes existing Markdown output or configuration in a way users must
 
 <!--- What type of change? Pick one or more options and delete the others. -->
 - Bug fix
+- Discrepancy fix (unexpected or faulty Markdown output)
 - New feature
 - Improvement (improvement to code, performance, etc)
-- Test update
+- Test update (new or improved test cases, including ones that expose a discrepancy)
 - Documentation update
 - Breaking change
 
