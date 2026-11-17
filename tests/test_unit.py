@@ -8,8 +8,8 @@ import docutils.nodes
 import pytest
 import sphinx.util.logging
 
-from sphinx_markdown_builder.contexts import SubContext
-from sphinx_markdown_builder.translator import MarkdownTranslator
+from sphinx_markdown_builder.contexts import SubContext, TableContext
+from sphinx_markdown_builder.translator import MarkdownTranslator, UnknownVisit
 
 
 def make_mock():
@@ -69,15 +69,23 @@ def test_unknown_visit(caplog):
         assert sum(node.__class__.__name__ in msg for msg in unknown_messages) == 1
 
 
-def test_visit_outside_context(caplog):
+def test_typed_ctx_mismatch(caplog):
+    """
+    Covers the fallback for a node visited outside the context it requires.
+    No test source reaches it, and a source that did would warn, which fails the diff build (-W).
+    """
     logging.getLogger(sphinx.util.logging.NAMESPACE).propagate = True
     mt = make_mock()
 
-    # A table entry requires a table context
-    with pytest.raises(docutils.nodes.SkipNode):
-        mt.dispatch_visit(docutils.nodes.entry())
+    with pytest.raises(UnknownVisit):
+        mt._typed_ctx(TableContext)  # pylint: disable=protected-access
 
-    assert any("unknown node type" in rec.message and "entry" in rec.message for rec in caplog.records)
+    # dispatch_visit() turns UnknownVisit into an "unknown node type" warning and skips the node
+    mt.visit_paragraph = lambda node: mt._typed_ctx(TableContext)  # pylint: disable=protected-access
+    with pytest.raises(docutils.nodes.SkipNode):
+        mt.dispatch_visit(docutils.nodes.paragraph())
+
+    assert any("unknown node type" in rec.message and "paragraph" in rec.message for rec in caplog.records)
 
 
 def test_problematic():
