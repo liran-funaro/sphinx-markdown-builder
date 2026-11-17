@@ -44,12 +44,12 @@ Extract the vocabulary to grep for:
 | `CONTRIBUTING.md` | Make targets, test folders, or the contribution workflow changed. |
 | `AGENTS.md` | Commands table, Testing, Code Style, or Architecture paths no longer match `Makefile`, `pyproject.toml`, or the tree. |
 | `.agents/skills/**` | A skill names a file, make target, option, or step that no longer exists or now works differently (e.g. `tests` skill on the overrides build, `pr-review/RULES.md` examples). |
-| `.github/` templates | Labels, sections, or paths they mention changed. |
+| `.github/` templates and workflows | Labels, sections, paths, or make targets they mention changed (e.g. `make test` in `workflows/test.yaml`). |
 
 For each item in the vocabulary, grep the corpus:
 
 ```bash
-grep -rn -e '<term>' --include='*.md' README.md CONTRIBUTING.md AGENTS.md .agents .github
+grep -rn -e '<term>' --include='*.md' --include='*.yml' --include='*.yaml' README.md CONTRIBUTING.md AGENTS.md .agents .github
 ```
 
 Use `grep` over these paths, not `git grep`: it also searches new skills that are untracked or
