@@ -30,10 +30,18 @@ Base the verdict on whether the expected output represents the intended behavior
 
 Only when the user asks to post the review:
 
-1. Write the full review to `PR_<NUMBER>_REVIEW.md` first, re-read it, and drop any finding you could not confirm in the code. Mark an unconfirmed but likely finding as "Possible issue (could not confirm)".
-2. Show the review to the user and wait for explicit approval before posting.
-3. Post as a comment only: `event=COMMENT`. Never `APPROVE` or `REQUEST_CHANGES`; the verdict goes in the summary text.
-4. Post the summary and all inline comments as one review, from a JSON file:
+1. Record the commit you reviewed, so the comments attach to the code you read even if new commits are pushed meanwhile:
+
+   ```bash
+   gh pr view <NUMBER> --repo liran-funaro/sphinx-markdown-builder --json headRefOid -q .headRefOid
+   ```
+
+2. Write the full review to `PR_<NUMBER>_REVIEW.md` first and re-read it. For each finding you could not confirm in the code, either drop it (if it is speculative) or keep it labeled "Possible issue (could not confirm)" (if the evidence makes it likely).
+3. Show the review to the user and wait for explicit approval. Ask how to post it:
+   - **Pending (draft)**: the review is saved on GitHub but not published. Only the user sees it, can edit or delete its comments there, and publishes it from the PR's "Finish your review" button. GitHub allows one pending review per user per PR, so if one already exists, ask the user to submit or delete it first.
+   - **Publish now**: posted as a comment review right away.
+4. Never post `APPROVE` or `REQUEST_CHANGES`. The verdict goes in the summary text. When the review is pending, the user picks the review type on publishing.
+5. Post the summary and all inline comments as one review, from a JSON file:
 
    ```bash
    gh api -X POST repos/liran-funaro/sphinx-markdown-builder/pulls/<NUMBER>/reviews --input /tmp/review.json
@@ -41,6 +49,7 @@ Only when the user asks to post the review:
 
    ```json
    {
+     "commit_id": "<the SHA from step 1>",
      "event": "COMMENT",
      "body": "<summary, verdict, and findings outside the diff>",
      "comments": [
@@ -49,5 +58,7 @@ Only when the user asks to post the review:
    }
    ```
 
+   For a pending review, leave out the `event` field; GitHub then keeps the review as `PENDING`. Give the user the PR's "Files changed" URL to review and publish it.
+
    An inline comment's `line` must be inside a diff hunk. Put findings about code outside the diff in `body`. Comment once on a repeated pattern and list the other lines.
-5. Use a `suggestion` block for small, concrete fixes, and wrap explanations longer than about five lines in `<details>`.
+6. Use a `suggestion` block for small, concrete fixes, and wrap explanations longer than about five lines in `<details>`.

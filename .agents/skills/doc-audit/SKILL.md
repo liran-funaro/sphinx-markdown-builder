@@ -16,8 +16,13 @@ Prefer running it on a subagent: the deliverable is only the report below.
 ```bash
 base=$(git merge-base origin/main HEAD)
 git diff --stat "$base"
-git diff "$base"            # branch + working tree
+git diff "$base"            # branch + working tree (tracked files only)
+git ls-files --others --exclude-standard                    # new, untracked files
+git ls-files --others --ignored --exclude-standard .agents  # new skills (.gitignore has skills/)
 ```
+
+`git diff` doesn't show new files that are not yet added, so read the files from the last two
+commands too.
 
 Extract the vocabulary to grep for:
 
@@ -44,8 +49,11 @@ Extract the vocabulary to grep for:
 For each item in the vocabulary, grep the corpus:
 
 ```bash
-git grep -n -e '<term>' -- '*.md' '.github/**'
+grep -rn -e '<term>' --include='*.md' README.md CONTRIBUTING.md AGENTS.md .agents .github
 ```
+
+Use `grep` over these paths, not `git grep`: it also searches new skills that are untracked or
+matched by the `skills/` ignore rule.
 
 Check the reverse too: each option, target, or path the docs mention still exists.
 
