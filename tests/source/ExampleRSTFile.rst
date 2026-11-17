@@ -53,6 +53,8 @@ A symbol at the edge: **5€**\ off.
 
 A mark after a literal backslash: *a\\*\ *b*.
 
+Bold next to bold: **a**\ **b**.
+
 Italic then bold, and bold then italic: *a*\ **b** and **c**\ *d*.
 
 Punctuation on one side of italic next to bold: *(a)*\ **b** and **c**\ *(d)*.

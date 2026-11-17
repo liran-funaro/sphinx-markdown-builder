@@ -227,6 +227,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         suffix_eol : int
         prefix_chars : str
         suffix_chars : str
+        prefix_mark : str
+        suffix_mark : str
         """
         self.ctx.add(value, spacing, **kwargs)
 

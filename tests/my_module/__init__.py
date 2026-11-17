@@ -70,8 +70,19 @@ def get_option(options, name):
     :param options: The options, if any.
     :type options: Optional[Mapping[str, int]]
     :param name: The option name.
+    :type name: None or str
     """
     return (options or {}).get(name)
+
+
+def get_query(name, params=None):
+    """Get a query, with a Google-style docstring.
+
+    Args:
+        name (Optional[str]): Optional name parameter.
+        params (Optional[Mapping[str, Any]]): Optional query params.
+    """
+    return name, params
 
 
 def func2(param1: int, param2: int) -> str:

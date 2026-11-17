@@ -68,8 +68,16 @@ Thanks to github.com/remiconnesson.
 Get an option by name.
 
 * **Parameters:**
-  * **options** (*Optional* *\[* *Mapping* *\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*,* [*int*](https://docs.python.org/3/library/functions.html#int)*\]* *\]*) – The options, if any.
-  * **name** – The option name.
+  * **options** (*Optional\[Mapping\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*,* [*int*](https://docs.python.org/3/library/functions.html#int)*\]\]*) – The options, if any.
+  * **name** (*None* *or* [*str*](https://docs.python.org/3/library/stdtypes.html#str)) – The option name.
+
+### get_query(name, params=None)
+
+Get a query, with a Google-style docstring.
+
+* **Parameters:**
+  * **name** (*Optional\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*\]*) – Optional name parameter.
+  * **params** (*Optional\[Mapping\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*,* *Any\]\]*) – Optional query params.
 
 ### func2(param1, param2)
 
