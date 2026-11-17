@@ -44,3 +44,7 @@ Citation from another page
 A citation reference [CIT2002]_ to a citation defined in another page.
 
 A plain `link to the citation <blocks.md#cit2002>`_ is not a citation reference.
+
+.. _cit2002:
+
+An unrelated target with the citation's id: the citation reference above still points to the other page.

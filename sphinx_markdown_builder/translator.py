@@ -561,7 +561,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_status(escape_text=self.status.escape_text and not citation_id)
         if citation_id:
             # Keep the anchor local when the citation is on this page, otherwise point to the page that holds it.
-            target = f"#{citation_id}" if citation_id in self.document.ids else self._adjust_url(ref_uri)
+            # Another element of this page may share the id, so check that it is the citation itself.
+            is_local = isinstance(self.document.ids.get(citation_id), nodes.citation)
+            target = f"#{citation_id}" if is_local else self._adjust_url(ref_uri)
             self._push_context(WrappedContext("<sup>", f"({escape.link_destination(target)})</sup>"))
             return
 
