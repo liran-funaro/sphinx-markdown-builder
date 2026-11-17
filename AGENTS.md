@@ -47,7 +47,7 @@ RST documentation sources.
 - Test source docs: `tests/source` (RST files + `conf.py`).
 - Test sample module: `tests/my_module` (used with `sphinx.ext.autodoc`).
 - Expected test output: `tests/expected`.
-- Project skills: `.agents/skills/`, with individual skill symlinks in `.claude/skills/` for Claude compatibility.
+- Project skills: `.agents/skills/`. `.claude/skills` is a symlink to it for Claude compatibility, so new skills need no extra link.
 - **Debugging**: `make doc-xml` generates the intermediate XML doctree — this is the input to the markdown translator and is essential for debugging translation issues.
 
 ## Versioning
@@ -59,6 +59,9 @@ RST documentation sources.
 ## Pull Requests
 
 - Before submitting a PR, use the [pr-review skill](.agents/skills/pr-review/SKILL.md) to validate your changes.
+- PRs are squash-merged, so the PR description becomes the commit message. Write it to
+  [`.github/pull_request_template.md`](.github/pull_request_template.md) using the
+  [commit-and-issue skill](.agents/skills/commit-and-issue/SKILL.md), which also covers opening issues.
 
 ## Non-Goals
 

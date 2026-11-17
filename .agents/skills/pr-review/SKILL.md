@@ -6,6 +6,7 @@ description: Use when reviewing a pull request, or when checking your own change
 Review the requested pull request against this repository's diff-based test workflow and the maintainer's conventions.
 
 1. Read the pull request description, changed files, and linked issue.
+   Check that the description follows [`.github/pull_request_template.md`](../../../.github/pull_request_template.md) as described in the [commit-and-issue skill](../commit-and-issue/SKILL.md): only the template headers, no verification rundown, and a linked issue.
 2. Identify whether the change affects the Markdown translator, RST parsing, output metadata, configuration, or tests.
 3. Check the touched code paths and every caller of changed functions before judging behavior.
 4. Run `make lint`.
