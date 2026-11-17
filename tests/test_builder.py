@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import Iterable
 
 import pytest
-import sphinx
 from sphinx.cmd.build import main
 
 BUILD_PATH = "./tests/docs-build"
@@ -84,10 +83,8 @@ def run_sphinx(build_path, *flags):
 
 @pytest.mark.parametrize(["flags", "build_path"], OPTIONS, ids=TEST_NAMES)
 def test_builder_make_all(flags: Iterable[str], build_path: str):
-    # A full build of the test sources must not warn.
-    # Older Sphinx versions warn on newer syntax in the sources (e.g., `:no-index:`, added in 7.2).
-    warn_flags = ["-W", "--keep-going"] if sphinx.version_info >= (7, 2) else []
-    run_sphinx(build_path, "-a", "-E", *warn_flags, *flags)
+    # A full build of the test sources must not warn
+    run_sphinx(build_path, "-a", "-E", "-W", "--keep-going", *flags)
 
 
 @pytest.mark.parametrize(["flags", "build_path"], OPTIONS, ids=TEST_NAMES)
