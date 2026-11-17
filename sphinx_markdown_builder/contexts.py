@@ -5,7 +5,7 @@ Custom context handlers for markdown.
 import re
 import textwrap
 import typing
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type, TypeVar, Union
 
 from tabulate import tabulate
@@ -24,7 +24,6 @@ CONTENT_START = UniqueString("content start")
 EOL = "\n"
 SPACE = " "
 SPACE_CHARS = re.compile(r"\s+")
-LETTERS = re.compile(r"[a-z0-9]", re.I)
 WRAP_REGEXP = re.compile(r"(\s*)(?=\S)([\s\S]+?)(?<=\S)(\s*)", re.M)
 MULTI_LINE_BREAK = re.compile(r"(?<=\n)\n")
 COMMENT_END = re.compile(r"--(!?>)")  # HTML ends a comment at `-->` and also at `--!>`
@@ -42,18 +41,28 @@ def is_eol(value: str) -> bool:
     return value == EOL
 
 
-def is_letter(value: str) -> bool:
-    return LETTERS.fullmatch(value) is not None
+def is_in(value: str, chars: str) -> bool:
+    """Whether `value` is one of `chars`, a regex character class"""
+    return bool(chars) and re.fullmatch(f"[{chars}]", value) is not None
 
 
 def replace_multi_line_break(value: str):
     return MULTI_LINE_BREAK.sub("<br/>\n", value)
 
 
-@dataclass
-class BaseParams:
+@dataclass(frozen=True)
+class Spacing:
+    """What a value needs from its neighbors: EOLs, and a space if one of the given characters touches it"""
+
     prefix_eol: int = 0
     suffix_eol: int = 0
+    # Regex character classes, e.g., `\w`.
+    prefix_chars: str = ""
+    suffix_chars: str = ""
+
+
+@dataclass(frozen=True)
+class BaseParams(Spacing):
     target: Target = DEFAULT_TARGET
     include_empty_values: bool = False
 
@@ -86,7 +95,9 @@ class Base:
     def __init__(self, params=BaseParams()):
         self.params: BaseParams = params
         self.body: List[str] = []
-        self.ensure_eol_count: int = 0
+        # The suffix spacing of the last value, which the next value is checked against (see `add()` and `Spacing`).
+        self.suffix_eol: int = 0
+        self.suffix_chars: str = ""
 
     @property
     def content(self) -> List[str]:
@@ -98,13 +109,18 @@ class Base:
 
         yield CONTENT_START
 
+    @property
+    def last_char(self) -> str:
+        value = next(self._iter_reverse_char())
+        return "" if is_content_start(value) else value
+
     def _count_missing_eol(self) -> int:
         """
         Count the number of EOL characters.
         Avoids adding EOL at the beginning of the content.
         Ignores spaces when traversing the content.
         """
-        missing_count = self.ensure_eol_count
+        missing_count = self.suffix_eol
         for value in self._iter_reverse_char():
             if is_content_start(value):
                 missing_count = 0
@@ -121,7 +137,7 @@ class Base:
 
     def ensure_eol(self, count: int = 1):
         """Ensures EOLs will be added before the next appended value"""
-        self.ensure_eol_count = max(self.ensure_eol_count, count)
+        self.suffix_eol = max(self.suffix_eol, count)
 
     def force_eol(self, count: int = 1):
         """Force adding the ensured EOLs"""
@@ -130,7 +146,13 @@ class Base:
         if missing_eol > 0:
             self.content.append(EOL * missing_eol)
 
-    def add(self, value: str, prefix_eol: int = 0, suffix_eol: int = 0):
+    def _needs_space(self, value: str, spacing: Spacing) -> bool:
+        last, first = self.last_char, value[0]
+        if last.isspace() or first.isspace():
+            return False  # A space or EOL is already there, as `force_eol()` doesn't repeat EOLs.
+        return is_in(last, spacing.prefix_chars) or is_in(first, self.suffix_chars)
+
+    def add(self, value: str, spacing: Spacing = Spacing(), **kwargs):
         """
         Add `value` to current context.
 
@@ -138,17 +160,34 @@ class Base:
         ----------
         value : str
             String to add to output document
-        prefix_eol: int
+        spacing : Spacing
+            The EOLs and spaces `value` needs from its neighbors
+        **kwargs
+            Fields of `spacing` to replace (see Other Parameters)
+
+        Other Parameters
+        ----------------
+        prefix_eol : int
             Ensures prefix EOL
-        suffix_eol: int
+        suffix_eol : int
             Ensures suffix EOL
+        prefix_chars : str
+            Ensures a space before `value` if the content ends with one of these characters (a regex character class)
+        suffix_chars : str
+            Ensures a space after `value` if the next value starts with one of these characters
         """
         if not value and not self.params.include_empty_values:
             return
 
-        self.force_eol(prefix_eol)
+        spacing = replace(spacing, **kwargs)
+
+        self.force_eol(spacing.prefix_eol)
+        if value:
+            if self._needs_space(value, spacing):
+                value = SPACE + value
+            self.suffix_chars = spacing.suffix_chars
         self.content.append(value)
-        self.ensure_eol_count = suffix_eol
+        self.suffix_eol = spacing.suffix_eol
 
     def make(self) -> str:
         """Generate the context's content"""
@@ -180,10 +219,6 @@ class Wrapped(Base):
         # We need to make sure the emphasis mark is near a non-space char,
         # but we want to preserve the existing spaces.
         prefix_space, text, suffix_space = match.groups()
-
-        # Markdown requires italic/bold/etc... to have a space before it if the edge character is not a letter.
-        if self.prefix in ["*", "_"] and not is_letter(text[0]) and len(prefix_space) == 0:
-            prefix_space = SPACE
         return f"{prefix_space}{self.prefix}{text}{self.suffix}{suffix_space}"
 
 
@@ -209,6 +244,10 @@ def code_fence(code: str, min_length: int) -> str:
 
 class InlineCode(Base):
     """Inline code, e.g., `x`"""
+
+    # Another inline code right next to it would merge their fences, e.g., `a` and `b` would read as `a``b`.
+    def __init__(self, params=BaseParams(prefix_chars="`", suffix_chars="`")):
+        super().__init__(params)
 
     def make(self):
         code = super().make()
@@ -272,6 +311,11 @@ class ParameterList(Base):
 
             text = self.body[item_pos] if item_pos < len(self.body) else ""
             body_pos = item_pos + 1
+            # The items go through `add()` before the brackets and separators between them are known, so `add()` checks
+            # each item against the previous one rather than against what comes before it in the output. That is always
+            # a bracket or a separator, so the space `add()` may have put before the item isn't needed (see
+            # `Base._needs_space()`).
+            text = text.removeprefix(SPACE)
 
             has_required_before = idx > min_required
             has_required_after = idx < max_required
@@ -346,7 +390,7 @@ class Table(Base):  # pylint: disable=too-many-instance-attributes
     def enter_entry(self):
         self.is_entry = True
         self.active_output[-1].append([])
-        self.ensure_eol_count = 0
+        self.suffix_eol = 0
 
     def exit_entry(self):
         assert self.is_entry
@@ -503,8 +547,11 @@ class PushContext(Generic[BaseT]):  # pylint: disable=too-few-public-methods
         return self.ctx(*self.args, **kwargs)
 
 
-ITALIC = PushContext(Wrapped, "*")  # _ is more restrictive
-STRONG = PushContext(Wrapped, "**")  # _ is more restrictive
+# CommonMark only reads an emphasis mark that fits its neighbors (the "flanking" rules). A space between the mark and a
+# word or another mark always fits, though it is redundant when the character inside the mark is a word.
+EMPHASIS_PARAMS = BaseParams(prefix_chars=r"\w*", suffix_chars=r"\w*")
+ITALIC = PushContext(Wrapped, "*", params=EMPHASIS_PARAMS)  # _ is more restrictive
+STRONG = PushContext(Wrapped, "**", params=EMPHASIS_PARAMS)  # _ is more restrictive
 SUBSCRIPT = PushContext(Wrapped, "<sub>", "</sub>")
 DOC_INFO = PushContext(
     Meta,

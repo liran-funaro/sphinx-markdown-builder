@@ -1,6 +1,7 @@
 """
 Unit tests for the markdown builder
 """
+
 import logging
 from unittest.mock import Mock
 
@@ -39,6 +40,16 @@ def test_trailing_eol():
     ctx.add("test", prefix_eol=1)
     ctx.force_eol(1)
     assert ctx.make() == "\n \t test\n"
+
+
+def test_parameter_list_drops_the_items_space():
+    # No fixture reaches this: a parameter never starts with emphasis. `add()` puts a space between an item that starts
+    # with emphasis and the word before it, but a bracket or a separator comes between them in the output.
+    params = contexts.ParameterList()
+    for is_required, text in [(False, "a"), (False, "*(b)*"), (True, "*(c)*"), (True, "*(d)*"), (False, "*(e)*")]:
+        params.enter_parameter(is_required)
+        params.add(text, prefix_chars=r"\w", suffix_chars=r"\w")
+    assert params.make() == "[a, ][*(b)*, ]*(c)*, *(d)*[, *(e)*]"
 
 
 class FakeNode1(docutils.nodes.General, docutils.nodes.Element):

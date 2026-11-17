@@ -207,7 +207,11 @@ Content of the first tab.
 
 **Second tab**
 
-Content of the second tab.
+*Emphasis* starts the second tab, and a word ends it
+
+**(Third) tab**
+
+A label that starts with punctuation.
 
 ## Same-page references
 

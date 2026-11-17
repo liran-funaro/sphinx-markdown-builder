@@ -181,7 +181,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
             last_ctx = self._ctx_queue.pop()
             ctx = self.ctx if last_ctx.params.target == "body" else self._doc_info
-            ctx.add(last_ctx.make(), last_ctx.params.prefix_eol, last_ctx.params.suffix_eol)
+            ctx.add(last_ctx.make(), last_ctx.params)
 
     def _push_box(self, title: str, heading: str | None = None):
         self.add(f"> [!{title}]")
@@ -217,9 +217,18 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         ctx.force_eol(1)
         return ctx.make()
 
-    def add(self, value: str, prefix_eol: int = 0, suffix_eol: int = 0):
-        """See `contexts.Base.add()`"""
-        self.ctx.add(value, prefix_eol, suffix_eol)
+    def add(self, value: str, spacing: contexts.Spacing = contexts.Spacing(), **kwargs):
+        """
+        See `contexts.Base.add()`
+
+        Other Parameters
+        ----------------
+        prefix_eol : int
+        suffix_eol : int
+        prefix_chars : str
+        suffix_chars : str
+        """
+        self.ctx.add(value, spacing, **kwargs)
 
     def ensure_eol(self, count=1):
         """Ensure the last line in current base is terminated by X new lines."""
