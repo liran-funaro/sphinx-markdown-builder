@@ -51,7 +51,7 @@ def replace_multi_line_break(value: str):
 
 
 @dataclass
-class SubContextParams:
+class BaseParams:
     prefix_eol: int = 0
     suffix_eol: int = 0
     target: Target = DEFAULT_TARGET
@@ -73,7 +73,7 @@ class ListMarker:
 
 
 @dataclass(frozen=True)
-class ContextStatus:
+class Status:
     escape_text: bool = True  # Whether to escape characters
     preserve_line_breaks: bool = False  # Whether to preserve line breaks in text nodes
     section_level: int = 0  # Current section heading level
@@ -82,9 +82,9 @@ class ContextStatus:
     default_ref_internal: bool = False  # Current default for internal reference
 
 
-class SubContext:
-    def __init__(self, params=SubContextParams()):
-        self.params: SubContextParams = params
+class Base:
+    def __init__(self, params=BaseParams()):
+        self.params: BaseParams = params
         self.body: List[str] = []
         self.ensure_eol_count: int = 0
 
@@ -155,13 +155,13 @@ class SubContext:
         return "".join(self.content)
 
 
-class WrappedContext(SubContext):
+class Wrapped(Base):
     def __init__(
         self,
         prefix,
         suffix: Optional[str] = None,
         wrap_empty=False,
-        params=SubContextParams(),
+        params=BaseParams(),
     ):
         super().__init__(params)
         self.prefix = prefix
@@ -187,10 +187,10 @@ class WrappedContext(SubContext):
         return f"{prefix_space}{self.prefix}{text}{self.suffix}{suffix_space}"
 
 
-class CommentContext(WrappedContext):
+class Comment(Wrapped):
     """An HTML comment. Its text can't contain `-->` or `--!>`, which would end the comment early."""
 
-    def __init__(self, params=SubContextParams()):
+    def __init__(self, params=BaseParams()):
         super().__init__("<!-- ", " -->", params=params)
 
     def make(self):
@@ -207,7 +207,7 @@ def code_fence(code: str, min_length: int) -> str:
     return "`" * max(min_length, longest_run + 1)
 
 
-class InlineCodeContext(SubContext):
+class InlineCode(Base):
     """Inline code, e.g., `x`"""
 
     def make(self):
@@ -223,10 +223,10 @@ class InlineCodeContext(SubContext):
         return f"{fence}{code}{fence}"
 
 
-class CodeBlockContext(SubContext):
+class CodeBlock(Base):
     """A fenced code block, e.g., ```python ... ```"""
 
-    def __init__(self, language: str, params=SubContextParams(1, 2)):
+    def __init__(self, language: str, params=BaseParams(1, 2)):
         super().__init__(params)
         self.language = language
 
@@ -242,14 +242,14 @@ class CodeBlockContext(SubContext):
         return EOL.join(lines)
 
 
-class ParameterListContext(SubContext):
+class ParameterList(Base):
     """
     A signature's parameter list. Each finished parameter or optional group becomes one string in the body, and the
     separator before it goes inside the adjacent bracket, so the list reads correctly with or without any optional
     group: `f(a[, b], c)`, `f([a, ]b)`, `f([[a, ]b])`.
     """
 
-    def __init__(self, params=SubContextParams(include_empty_values=True)):
+    def __init__(self, params=BaseParams(include_empty_values=True)):
         super().__init__(params)
         # Where the item being visited starts (text before a param becomes part of it).
         self.parameters: list[tuple[int, bool]] = []
@@ -296,12 +296,12 @@ class ParameterListContext(SubContext):
         yield from self.body[body_pos:]
 
 
-class TableContext(SubContext):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, params=SubContextParams(), *, compact=False):
+class Table(Base):  # pylint: disable=too-many-instance-attributes
+    def __init__(self, params=BaseParams(), *, compact=False):
         super().__init__(params)
         self.body: List[List[List[str]]] = []
         self.headers: List[List[List[str]]] = []
-        self.internal_context = SubContext()
+        self.internal_context = Base()
         self.compact = compact
 
         self.is_entry = False
@@ -357,7 +357,7 @@ class TableContext(SubContext):  # pylint: disable=too-many-instance-attributes
         return ["".join(entries).replace("\n", "<br/>").replace("|", r"\|") for entries in row]
 
     def make(self):
-        ctx = SubContext()
+        ctx = Base()
         prefix = self.internal_context.make()
         if prefix:
             ctx.add(prefix)
@@ -385,14 +385,14 @@ class TableContext(SubContext):  # pylint: disable=too-many-instance-attributes
         return ctx.make()
 
 
-class IndentContext(SubContext):
+class Indent(Base):
     def __init__(
         self,
         prefix,
         only_first=False,
         support_multi_line_break=False,
         empty=False,
-        params=SubContextParams(1, 1),
+        params=BaseParams(1, 1),
     ):
         super().__init__(params)
         self.support_multi_line_break = support_multi_line_break
@@ -415,8 +415,8 @@ class IndentContext(SubContext):
         return content.replace(self.prefix, self.first_prefix, 1)
 
 
-class NoLineBreakContext(SubContext):
-    def __init__(self, breaker=" ", params=SubContextParams()):
+class NoLineBreak(Base):
+    def __init__(self, breaker=" ", params=BaseParams()):
         super().__init__(params)
         self.breaker = breaker
 
@@ -424,8 +424,8 @@ class NoLineBreakContext(SubContext):
         return super().make().strip().replace(EOL, self.breaker)
 
 
-class TitleContext(NoLineBreakContext):
-    def __init__(self, level: int, params=SubContextParams(2, 2)):
+class Title(NoLineBreak):
+    def __init__(self, level: int, params=BaseParams(2, 2)):
         super().__init__("<br/>", params)
         self.level = level
 
@@ -439,8 +439,8 @@ class TitleContext(NoLineBreakContext):
         return f"{self.section_prefix} {content}"
 
 
-class MetaContext(NoLineBreakContext):
-    def __init__(self, name: str, params=SubContextParams(1, 1, target="head")):
+class Meta(NoLineBreak):
+    def __init__(self, name: str, params=BaseParams(1, 1, target="head")):
         super().__init__("<br/>", params)
         assert name, "Empty meta name"
         self.name = name
@@ -452,12 +452,12 @@ class MetaContext(NoLineBreakContext):
         return f'<meta name="{escape.html_quote(self.name)}" content="{escape.html_quote(content)}"/>'
 
 
-class FootNoteContext(NoLineBreakContext):
-    def __init__(self, ids, names, params=SubContextParams(1, 1)):
+class FootNote(NoLineBreak):
+    def __init__(self, ids, names, params=BaseParams(1, 1)):
         super().__init__(" ", params)
         self.ids = ids
         self.names = names
-        self.label_body = SubContext()
+        self.label_body = Base()
         self.is_label = False
 
     @property
@@ -478,16 +478,16 @@ class FootNoteContext(NoLineBreakContext):
         return f"* <a id='{self.ids}'>**[{label}]**</a> {content}"
 
 
-_ContextT = TypeVar("_ContextT", bound=SubContext)
+BaseT = TypeVar("BaseT", bound=Base)
 
 Translator = Callable[[Any, Any], Dict[str, Any]]
 default_translator: Translator = lambda _node, _elem: {}
 
 
-class PushContext(Generic[_ContextT]):  # pylint: disable=too-few-public-methods
+class PushContext(Generic[BaseT]):  # pylint: disable=too-few-public-methods
     def __init__(
         self,
-        ctx: Type[_ContextT],
+        ctx: Type[BaseT],
         *args,
         translator: Translator = default_translator,
         **kwargs,
@@ -497,17 +497,17 @@ class PushContext(Generic[_ContextT]):  # pylint: disable=too-few-public-methods
         self.args = args
         self.kwargs = kwargs
 
-    def create(self, node, element_key) -> _ContextT:
+    def create(self, node, element_key) -> BaseT:
         kwargs = dict(self.kwargs)
         kwargs.update(self.translator(node, element_key))
         return self.ctx(*self.args, **kwargs)
 
 
-ITALIC_CONTEXT = PushContext(WrappedContext, "*")  # _ is more restrictive
-STRONG_CONTEXT = PushContext(WrappedContext, "**")  # _ is more restrictive
-SUBSCRIPT_CONTEXT = PushContext(WrappedContext, "<sub>", "</sub>")
-DOC_INFO_CONTEXT = PushContext(
-    MetaContext,
+ITALIC = PushContext(Wrapped, "*")  # _ is more restrictive
+STRONG = PushContext(Wrapped, "**")  # _ is more restrictive
+SUBSCRIPT = PushContext(Wrapped, "<sub>", "</sub>")
+DOC_INFO = PushContext(
+    Meta,
     translator=lambda _node, elem: {"name": f"{elem}: "},
 )
 

@@ -8,7 +8,7 @@ import docutils.nodes
 import pytest
 import sphinx.util.logging
 
-from sphinx_markdown_builder.contexts import SubContext, TableContext
+from sphinx_markdown_builder import contexts
 from sphinx_markdown_builder.translator import MarkdownTranslator, UnknownVisit
 
 
@@ -33,7 +33,7 @@ def test_bad_attribute():
 
 
 def test_trailing_eol():
-    ctx = SubContext()
+    ctx = contexts.Base()
     # We add spaces to make sure we ignore them
     ctx.add("\n \t ")
     ctx.add("test", prefix_eol=1)
@@ -78,10 +78,10 @@ def test_typed_ctx_mismatch(caplog):
     mt = make_mock()
 
     with pytest.raises(UnknownVisit):
-        mt._typed_ctx(TableContext)  # pylint: disable=protected-access
+        mt._typed_ctx(contexts.Table)  # pylint: disable=protected-access
 
     # dispatch_visit() turns UnknownVisit into an "unknown node type" warning and skips the node
-    mt.visit_paragraph = lambda node: mt._typed_ctx(TableContext)  # pylint: disable=protected-access
+    mt.visit_paragraph = lambda node: mt._typed_ctx(contexts.Table)  # pylint: disable=protected-access
     with pytest.raises(docutils.nodes.SkipNode):
         mt.dispatch_visit(docutils.nodes.paragraph())
 

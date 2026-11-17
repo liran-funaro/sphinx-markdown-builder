@@ -106,7 +106,7 @@ PREDEFINED_ELEMENTS = dict(
 
 ### 5. Scoped state
 
-**What:** State that only matters inside one kind of node lives in a `SubContext` subclass or a `ContextStatus` field. It shouldn't be an attribute on `MarkdownTranslator`. Each status flag means exactly one thing.
+**What:** State that only matters inside one kind of node lives in a `contexts.Base` subclass or a `contexts.Status` field. It shouldn't be an attribute on `MarkdownTranslator`. Each status flag means exactly one thing.
 
 **Why:** A translator attribute is visible to every node and is easy to leave in the wrong state. A flag reused for a second meaning breaks the cases it wasn't designed for. For example, comments turn off escaping but still collapse line breaks.
 
@@ -119,7 +119,7 @@ if flavor == "github" and self.status.escape_text:  # escape_text standing in fo
 
 This:
 ```python
-self._push_context(CommaSeparatedContext(", "))  # state lives with desc_parameterlist
+self._push_context(contexts.ParameterList())  # state lives with desc_parameterlist
 
 self._push_status(escape_text=False, preserve_line_breaks=True)  # one flag, one meaning
 ```
