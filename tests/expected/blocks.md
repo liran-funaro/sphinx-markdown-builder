@@ -201,7 +201,11 @@ Unbalanced brackets: Sphinx cannot parse them, so it keeps the signature as text
 
 ## Inline tabs
 
+**First tab**
+
 Content of the first tab.
+
+**Second tab**
 
 Content of the second tab.
 

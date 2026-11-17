@@ -791,10 +791,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     #   paragraph
     ###############################################################################
 
-    @property
-    def footnote_ctx(self) -> FootNoteContext:
-        return self._typed_ctx(FootNoteContext)
-
     @pushing_context
     def visit_footnote_reference(self, node):
         ref_id = node.get("refid", "")
@@ -811,7 +807,16 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(FootNoteContext(ids, names, params=SubContextParams(1, 1)))
 
     def visit_label(self, node):
-        self.footnote_ctx.visit_label()
+        if isinstance(self.ctx, FootNoteContext):
+            self.ctx.visit_label()
+        else:
+            # Outside a footnote, e.g., a sphinx-inline-tabs tab title:
+            # container(type="tab") > label (the title) + container(classes="tab-content").
+            # Render the title as a bold line.
+            self._push_context(WrappedContext("**", params=SubContextParams(2, 2)))
 
     def depart_label(self, node):
-        self.footnote_ctx.depart_label()
+        if isinstance(self.ctx, FootNoteContext):
+            self.ctx.depart_label()
+        else:
+            self._pop_context()
