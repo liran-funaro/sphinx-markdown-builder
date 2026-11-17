@@ -125,7 +125,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[PushContext, PushBox, UniqueString, None]] 
         autosummary_table=None,  # Sphinx autosummary
         # See https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html.
         # Ignored table elements
-        raw=None,
         tabular_col_spec=None,
         colspec=None,
         tgroup=None,
@@ -379,6 +378,21 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         if self.status.escape_text:
             text = escape.markdown_chars(text)
         self.add(text)
+
+    @pushing_context
+    @pushing_status
+    def visit_raw(self, node):
+        # `format` holds one or more space-separated output formats (e.g., "html" or "html latex").
+        include = {raw_type.lower() for raw_type in self.config.markdown_include_raw_types}
+        if not include.intersection(node["format"].lower().split()):
+            raise nodes.SkipNode  # Nothing was pushed yet, and SkipNode also skips the departure.
+        # The content is written verbatim by `visit_Text`.
+        self._push_status(escape_text=False, preserve_line_breaks=True)
+        # The raw directive and the raw role both make a `raw` node, so its parent tells them apart (as in docutils'
+        # HTML writer). A raw role is inside a text element (e.g., a paragraph): EOLs would split it, so add none.
+        # A raw directive is a block of its own: separate it from its neighbors, which may be other raw blocks.
+        eol = 0 if isinstance(node.parent, nodes.TextElement) else 2
+        self._push_context(SubContext(SubContextParams(eol, eol)))
 
     @pushing_context
     @pushing_status
