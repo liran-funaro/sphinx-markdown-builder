@@ -39,3 +39,5 @@ Glossary3-Term1
 ## Citation from another page
 
 A citation reference <sup>[CIT2002](blocks.md#cit2002)</sup> to a citation defined in another page.
+
+A plain [link to the citation](blocks.md#cit2002) is not a citation reference.
