@@ -111,17 +111,17 @@ or `make doc-xml` doctree shape), which goes in `#### Additional details`.
 ### 4. Show the message, then commit with sign-off
 
 Show the full drafted message and get the user's approval before committing. Then write it to a
-temp file and commit with `-F` and `-s`:
+temp file and commit with `-F`, `-s`, and `--cleanup=whitespace`:
 
 ```bash
-git commit -s -F /tmp/commit-msg.txt
+git commit -s --cleanup=whitespace -F /tmp/commit-msg.txt
 ```
 
-Amend with `git commit -s --amend -F /tmp/commit-msg.txt`.
+Amend with `git commit -s --amend --cleanup=whitespace -F /tmp/commit-msg.txt`.
 
-**Commit with `-F`, never through the editor.** Editor cleanup (`strip`) deletes every line
-starting with `#`, which eats the `#### ` headers. `-F` uses `whitespace` cleanup and keeps them.
-If you must edit interactively, add `--cleanup=whitespace`.
+**Always pass `--cleanup=whitespace`.** The `strip` cleanup deletes every line starting with
+`#`, which eats the `#### ` headers. It is the default when the message goes through the editor,
+and a `commit.cleanup` setting in git config can apply it even with `-F`.
 
 ### 5. Push and open the PR
 
@@ -136,8 +136,8 @@ gh pr create --repo liran-funaro/sphinx-markdown-builder --base main \
 ```
 
 The PR body is the commit message body verbatim (subject and `Signed-off-by:` removed). To
-update an existing PR: `gh pr edit <num> --body-file /tmp/pr-body.md`. Apply labels with
-`gh pr edit <num> --add-label ...`.
+update an existing PR: `gh pr edit <num> --repo liran-funaro/sphinx-markdown-builder --body-file /tmp/pr-body.md`. Apply labels with
+`gh pr edit <num> --repo liran-funaro/sphinx-markdown-builder --add-label ...`.
 
 ## Opening a GitHub issue
 
@@ -149,7 +149,7 @@ update an existing PR: `gh pr edit <num> --body-file /tmp/pr-body.md`. Apply lab
    just points back here.
 3. **Title** — start with the template's prefix (`[BUG]` or `[DISCREPANCY]`; feature requests
    have none), then a short description of the problem, not the fix.
-4. **Labels** — propose from `gh label list` (e.g. `bug`, `enhancement`, `documentation`,
+4. **Labels** — propose from `gh label list --repo liran-funaro/sphinx-markdown-builder` (e.g. `bug`, `enhancement`, `documentation`,
    `tests`, `CI`, `code cleanup`, `agents`). Don't invent labels.
 5. Show the proposed command for approval, then:
 
