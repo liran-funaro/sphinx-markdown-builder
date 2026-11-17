@@ -8,8 +8,6 @@
 
 Example module
 
-<!-- !! processed by numpydoc !! -->
-
 ### *class* Point(x: [int](https://docs.python.org/3/library/functions.html#int), y: [str](https://docs.python.org/3/library/stdtypes.html#str))
 
 A Point
@@ -21,19 +19,13 @@ A Point
   **y: str**
   : The y value
 
-<!-- !! processed by numpydoc !! -->
-
 #### x *: [int](https://docs.python.org/3/library/functions.html#int)*
 
 X value
 
-<!-- !! processed by numpydoc !! -->
-
 #### y *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
 
 Y value
-
-<!-- !! processed by numpydoc !! -->
 
 ### deprecated_function()
 
@@ -42,25 +34,17 @@ Some old function.
 > [!WARNING]
 > Deprecated since version 3.1: Use `other()` instead.
 
-<!-- !! processed by numpydoc !! -->
-
 ### span([start, ]stop[, step])
 
 Return the numbers from start (default 0) up to stop, by step (default 1).
-
-<!-- !! processed by numpydoc !! -->
 
 ### defaults(a, b=None, \*args, c=1, \*\*kwargs)
 
 Optional parameters in a real signature: rendered with their defaults, with no brackets.
 
-<!-- !! processed by numpydoc !! -->
-
 ### clock([hour[, minute[, second]]])
 
 Format a time of day as `HH:MM:SS`; missing parts are zero.
-
-<!-- !! processed by numpydoc !! -->
 
 ### func1(param1: [int](https://docs.python.org/3/library/functions.html#int)) → [int](https://docs.python.org/3/library/functions.html#int)
 
@@ -93,8 +77,6 @@ This is a function with two parameters.
   - **param1** – This is the first parameter.
   - **param2** – This is the second parameter.
 
-<!-- !! processed by numpydoc !! -->
-
 ### func3(param1: [int](https://docs.python.org/3/library/functions.html#int), param2: [int](https://docs.python.org/3/library/functions.html#int))
 
 This is a function with two parameters.
@@ -107,7 +89,6 @@ This is a function with two parameters.
 
 * <a id='r9b3957318714-1'>**[1]**</a> Alice is commonly used to describe the first actor.
 * <a id='r9b3957318714-2'>**[2]**</a> Bob is commonly used to describe the second actor.
-<!-- !! processed by numpydoc !! -->
 
 ### downside_risk(returns, min_acceptable_return=0.0)
 
@@ -122,5 +103,3 @@ Compute the downside risk of a series of returns.
 * **Returns:**
   **risk** : *float*
   : The downside risk.
-
-<!-- !! processed by numpydoc !! -->
