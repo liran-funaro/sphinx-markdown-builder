@@ -579,10 +579,17 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def _citation_id(self, node: nodes.reference) -> str | None:
         """Return the id of the citation that this resolved reference points to, if it is a citation reference."""
-        # Same-page references use `refid`, references to other pages use `refuri` with an anchor.
-        label_id = node.get("refid") or node.get("refuri", "").partition("#")[2]
-        known_ids = {known for _, known, _ in self.builder.env.get_domain("citation").citations.values()}
-        return label_id if label_id in known_ids else None
+        # Match the reference Sphinx builds for a citation (see `make_refnode`): `refid` on the citation's page,
+        # otherwise `refuri` to its page with an anchor. Matching the anchor alone would catch unrelated links.
+        this_doc = self.builder.current_doc_name
+        for doc_name, label_id, _ in self.builder.env.get_domain("citation").citations.values():
+            if doc_name == this_doc:
+                is_match = node.get("refid") == label_id
+            else:
+                is_match = node.get("refuri") == f"{self.builder.get_relative_uri(this_doc, doc_name)}#{label_id}"
+            if is_match:
+                return label_id
+        return None
 
     def _adjust_url(self, url: str):
         """Replace `refuri` in reference with HTTP address, if possible"""
