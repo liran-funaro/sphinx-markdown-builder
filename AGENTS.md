@@ -32,6 +32,7 @@ RST documentation sources.
 - Run `pytest --cov=sphinx_markdown_builder` for unit tests with coverage.
 - **White-box (unit) tests are discouraged**: The diff-based tests should cover all functionality. Use white-box tests
   only when diff tests cannot adequately verify the behavior.
+- Use the [tests skill](.agents/skills/tests/SKILL.md) to add a test case or a config option to the test builds.
 
 ## Code Style
 
@@ -39,6 +40,7 @@ RST documentation sources.
 - **Flake8**: select `E,F,W,C`, max complexity `10`, max line length `120`.
 - **Pylint**: disable `C0116` (missing function docstring) and `C0115` (missing class docstring).
 - Run `make lint` to check all linters before submitting changes.
+- Follow the [review rules](.agents/skills/pr-review/RULES.md) while writing code, not only when reviewing it.
 
 ## Architecture
 
@@ -58,6 +60,7 @@ RST documentation sources.
 
 ## Pull Requests
 
+- After a change, use the [doc-audit skill](.agents/skills/doc-audit/SKILL.md) to find docs and skills it made stale.
 - Before submitting a PR, use the [pr-review skill](.agents/skills/pr-review/SKILL.md) to validate your changes.
 - PRs are squash-merged, so the PR description becomes the commit message. Write it to
   [`.github/pull_request_template.md`](.github/pull_request_template.md) using the
