@@ -83,7 +83,8 @@ def run_sphinx(build_path, *flags):
 
 @pytest.mark.parametrize(["flags", "build_path"], OPTIONS, ids=TEST_NAMES)
 def test_builder_make_all(flags: Iterable[str], build_path: str):
-    run_sphinx(build_path, "-a", *flags)
+    # A full build of the test sources must not warn
+    run_sphinx(build_path, "-a", "-W", "--keep-going", *flags)
 
 
 @pytest.mark.parametrize(["flags", "build_path"], OPTIONS, ids=TEST_NAMES)

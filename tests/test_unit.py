@@ -69,6 +69,17 @@ def test_unknown_visit(caplog):
         assert sum(node.__class__.__name__ in msg for msg in unknown_messages) == 1
 
 
+def test_visit_outside_context(caplog):
+    logging.getLogger(sphinx.util.logging.NAMESPACE).propagate = True
+    mt = make_mock()
+
+    # A table entry requires a table context
+    with pytest.raises(docutils.nodes.SkipNode):
+        mt.dispatch_visit(docutils.nodes.entry())
+
+    assert any("unknown node type" in rec.message and "entry" in rec.message for rec in caplog.records)
+
+
 def test_problematic():
     mt = make_mock()
     node = docutils.nodes.problematic(text="text")
