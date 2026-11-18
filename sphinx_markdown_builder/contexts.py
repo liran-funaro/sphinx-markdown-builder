@@ -52,13 +52,20 @@ def replace_multi_line_break(value: str):
 
 @dataclass(frozen=True)
 class Spacing:
-    """What a value needs from its neighbors: EOLs, and a space if one of the given characters touches it"""
+    """
+    What a value needs from its neighbors: EOLs, a space if one of the given characters touches it, and a mark to merge
+    with a neighbor that has the same mark.
+    """
 
     prefix_eol: int = 0
     suffix_eol: int = 0
     # Regex character classes, e.g., `\w`.
     prefix_chars: str = ""
     suffix_chars: str = ""
+    # A wrapper's mark on each edge, e.g., `*`. Where a value's suffix mark touches the same prefix mark of the next
+    # value, both are dropped, so the two spans become one.
+    prefix_mark: str = ""
+    suffix_mark: str = ""
 
 
 @dataclass(frozen=True)
@@ -98,6 +105,7 @@ class Base:
         # The suffix spacing of the last value, which the next value is checked against (see `add()` and `Spacing`).
         self.suffix_eol: int = 0
         self.suffix_chars: str = ""
+        self.suffix_mark: str = ""
 
     @property
     def content(self) -> List[str]:
@@ -152,6 +160,13 @@ class Base:
             return False  # A space or EOL is already there, as `force_eol()` doesn't repeat EOLs.
         return is_in(last, spacing.prefix_chars) or is_in(first, self.suffix_chars)
 
+    def _merges(self, value: str, spacing: Spacing) -> bool:
+        """Whether `value` opens with the mark that the content closes with, e.g., `*a*` and `*b*` make `*ab*`"""
+        mark = spacing.prefix_mark
+        if not mark or mark != self.suffix_mark:
+            return False
+        return self.content[-1].endswith(mark) and value.startswith(mark)
+
     def add(self, value: str, spacing: Spacing = Spacing(), **kwargs):
         """
         Add `value` to current context.
@@ -175,6 +190,10 @@ class Base:
             Ensures a space before `value` if the content ends with one of these characters (a regex character class)
         suffix_chars : str
             Ensures a space after `value` if the next value starts with one of these characters
+        prefix_mark : str
+            Merges `value` with the content if the content ends with this mark and `value` starts with it
+        suffix_mark : str
+            Merges the next value with `value` if it starts with this mark and `value` ends with it
         """
         if not value and not self.params.include_empty_values:
             return
@@ -183,9 +202,13 @@ class Base:
 
         self.force_eol(spacing.prefix_eol)
         if value:
-            if self._needs_space(value, spacing):
+            if self._merges(value, spacing):
+                self.content[-1] = self.content[-1].removesuffix(spacing.prefix_mark)
+                value = value.removeprefix(spacing.prefix_mark)
+            elif self._needs_space(value, spacing):
                 value = SPACE + value
             self.suffix_chars = spacing.suffix_chars
+            self.suffix_mark = spacing.suffix_mark
         self.content.append(value)
         self.suffix_eol = spacing.suffix_eol
 
@@ -547,11 +570,19 @@ class PushContext(Generic[BaseT]):  # pylint: disable=too-few-public-methods
         return self.ctx(*self.args, **kwargs)
 
 
-# CommonMark only reads an emphasis mark that fits its neighbors (the "flanking" rules). A space between the mark and a
-# word or another mark always fits, though it is redundant when the character inside the mark is a word.
-EMPHASIS_PARAMS = BaseParams(prefix_chars=r"\w*", suffix_chars=r"\w*")
-ITALIC = PushContext(Wrapped, "*", params=EMPHASIS_PARAMS)  # _ is more restrictive
-STRONG = PushContext(Wrapped, "**", params=EMPHASIS_PARAMS)  # _ is more restrictive
+def emphasis(mark: str) -> PushContext:
+    """
+    CommonMark only reads an emphasis mark that fits its neighbors (the "flanking" rules). A space between the mark and
+    a word or another mark always fits, though it is redundant when the character inside the mark is a word.
+    Touching spans with the same mark merge, so a type hint like `Optional[int]`, which Sphinx splits into a node per
+    token, reads as one span.
+    """
+    params = BaseParams(prefix_chars=r"\w*", suffix_chars=r"\w*", prefix_mark=mark, suffix_mark=mark)
+    return PushContext(Wrapped, mark, params=params)
+
+
+ITALIC = emphasis("*")  # _ is more restrictive
+STRONG = emphasis("**")  # _ is more restrictive
 SUBSCRIPT = PushContext(Wrapped, "<sub>", "</sub>")
 DOC_INFO = PushContext(
     Meta,

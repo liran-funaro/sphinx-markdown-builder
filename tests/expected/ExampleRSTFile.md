@@ -49,7 +49,9 @@ A literal asterisk right before emphasis: \* *word*.
 
 A symbol at the edge: **5€** off.
 
-A mark after a literal backslash: *a\\* *b*.
+A mark after a literal backslash: *a\\b*.
+
+Bold next to bold: **ab**.
 
 Italic then bold, and bold then italic: *a* **b** and **c** *d*.
 
