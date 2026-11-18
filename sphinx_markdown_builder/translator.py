@@ -451,9 +451,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @pushing_context
     def visit_classifier(self, node):
         """A definition list classifier, e.g., numpydoc parameter types: rendered as `term : *type*`"""
-        # An already-emphasized classifier (`term : *type*` in rst) keeps its own emphasis instead of doubling it.
-        is_emphasized = len(node.children) == 1 and isinstance(node.children[0], nodes.emphasis)
-        self._push_context(contexts.Wrapped(" : ", "") if is_emphasized else contexts.Wrapped(" : *", "*"))
+        self.add(" : ")
+        self._push_context(contexts.ITALIC.create(node, "classifier"))
 
     @pushing_context
     def visit_definition(self, node):
