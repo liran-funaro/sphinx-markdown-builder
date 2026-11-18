@@ -96,7 +96,7 @@ Compute the downside risk of a series of returns.
 
 * **Parameters:**
   **returns** : *ndarray of shape (n_observations,)*
-  : The observed returns.
+  : The observed returns, at least one.
 
   **min_acceptable_return** : *float, optional*
   : Returns below this value count as downside.

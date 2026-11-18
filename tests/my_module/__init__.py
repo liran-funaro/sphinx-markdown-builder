@@ -115,7 +115,7 @@ def downside_risk(returns, min_acceptable_return=0.0):
     Parameters
     ----------
     returns : ndarray of shape (n_observations,)
-        The observed returns.
+        The observed returns, at least one.
     min_acceptable_return : float, optional
         Returns below this value count as downside.
 
