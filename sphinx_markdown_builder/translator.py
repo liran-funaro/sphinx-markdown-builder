@@ -581,10 +581,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
         Sphinx resolves a citation reference into a plain reference (see `CitationReferenceTransform` and
         `make_refnode`). It has `refid` on the citation's page, otherwise `refuri` to that page with an anchor.
-        A link written in the source may point to the citation's anchor too, so the reference must also be
-        `internal`, which Sphinx sets on the references it resolves.
+        A link or a cross-reference may point to the citation's anchor too. Only a citation reference keeps the `ids`
+        of the `citation_reference` it was resolved from, which the citation's `backrefs` point back to.
         """
-        if not node.get("internal"):
+        if not node.get("ids"):
             return None
         this_doc = self.builder.current_doc_name
         for doc_name, label_id, _ in self.builder.env.get_domain("citation").citations.values():

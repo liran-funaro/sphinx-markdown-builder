@@ -285,4 +285,6 @@ An external link to `the same anchor <https://example.org/#cit2002>`_ is not a c
 
 A link labeled like a citation, `[CIT2002] <https://example.org/>`__, is not a citation either.
 
+A cross-reference to the citation keeps its own text and stays a link: :any:`CIT2002`.
+
 .. [CIT2002] A citation definition.
