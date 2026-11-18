@@ -596,10 +596,14 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             self.add(content, prefix_eol=2, suffix_eol=1)
 
     def visit_target(self, node):
-        ref_id = node.get("refid", None)
-        if ref_id is None:
-            return
-        self._add_anchor(ref_id)
+        # A target moves its id onto the element after it (`refid`), except before a footnote or a citation, where it
+        # keeps its own `ids`. A target with `refuri` is an external link, which needs no anchor.
+        ref_id = node.get("refid")
+        if ref_id is not None:
+            self._add_anchor(ref_id)
+        elif "refuri" not in node:
+            for anchor in node.get("ids", ()):
+                self._add_anchor(anchor)
 
     @pushing_context
     @pushing_status
