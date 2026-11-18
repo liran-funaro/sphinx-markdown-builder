@@ -29,27 +29,6 @@ MULTI_LINE_BREAK = re.compile(r"(?<=\n)\n")
 COMMENT_END = re.compile(r"--(!?>)")  # HTML ends a comment at `-->` and also at `--!>`
 
 
-def is_content_start(value: str) -> bool:
-    return isinstance(value, UniqueString) and value is CONTENT_START
-
-
-def is_space(value: str) -> bool:
-    return SPACE_CHARS.fullmatch(value) is not None
-
-
-def is_eol(value: str) -> bool:
-    return value == EOL
-
-
-def is_in(value: str, chars: str) -> bool:
-    """Whether `value` is one of `chars`, a regex character class"""
-    return bool(chars) and re.fullmatch(f"[{chars}]", value) is not None
-
-
-def replace_multi_line_break(value: str):
-    return MULTI_LINE_BREAK.sub("<br/>\n", value)
-
-
 @dataclass(frozen=True)
 class Spacing:
     """
@@ -108,69 +87,9 @@ class Base:
         self.suffix_mark: str = ""
 
     @property
-    def content(self) -> List[str]:
-        return self.body
-
-    @property
     def nesting_key(self) -> Optional[Tuple[str, ...]]:
         """A context with a key doesn't nest inside an open context with the same key. `None` nests freely."""
         return None
-
-    def _iter_reverse_char(self) -> Iterator[str]:
-        for value in reversed(self.content):
-            yield from reversed(value)
-
-        yield CONTENT_START
-
-    @property
-    def last_char(self) -> str:
-        value = next(self._iter_reverse_char())
-        return "" if is_content_start(value) else value
-
-    def _count_missing_eol(self) -> int:
-        """
-        Count the number of EOL characters.
-        Avoids adding EOL at the beginning of the content.
-        Ignores spaces when traversing the content.
-        """
-        missing_count = self.suffix_eol
-        for value in self._iter_reverse_char():
-            if is_content_start(value):
-                missing_count = 0
-            if missing_count <= 0 or not is_space(value):
-                break
-
-            # This can only happen if the node's text had trailing EOL.
-            # But docutils nodes are expected to be without.
-            # So this validation is to avoid redundant EOLs if this behaviour changes in future releases.
-            if is_eol(value):
-                missing_count -= 1
-
-        return max(0, missing_count)
-
-    def ensure_eol(self, count: int = 1):
-        """Ensures EOLs will be added before the next appended value"""
-        self.suffix_eol = max(self.suffix_eol, count)
-
-    def force_eol(self, count: int = 1):
-        """Force adding the ensured EOLs"""
-        self.ensure_eol(count)
-        missing_eol = self._count_missing_eol()
-        if missing_eol > 0:
-            self.content.append(EOL * missing_eol)
-
-    def _needs_space(self, value: str, spacing: Spacing) -> bool:
-        last, first = self.last_char, value[0]
-        if last.isspace() or first.isspace():
-            return False  # A space or EOL is already there, as `force_eol()` doesn't repeat EOLs.
-        return is_in(last, spacing.prefix_chars) or is_in(first, self.suffix_chars)
-
-    def _merges(self, value: str, spacing: Spacing) -> bool:
-        """Whether `value` opens with the mark that the content closes with, e.g., `*a*` and `*b*` make `*ab*`"""
-        mark = spacing.prefix_mark
-        if not mark or mark != self.suffix_mark:
-            return False
-        return self.content[-1].endswith(mark) and value.startswith(mark)
 
     def add(self, value: str, spacing: Spacing = Spacing(), **kwargs):
         """
@@ -217,9 +136,86 @@ class Base:
         self.content.append(value)
         self.suffix_eol = spacing.suffix_eol
 
+    def force_eol(self, count: int = 1):
+        """Force adding the ensured EOLs"""
+        self.ensure_eol(count)
+        missing_eol = self._count_missing_eol()
+        if missing_eol > 0:
+            self.content.append(EOL * missing_eol)
+
+    def ensure_eol(self, count: int = 1):
+        """Ensures EOLs will be added before the next appended value"""
+        self.suffix_eol = max(self.suffix_eol, count)
+
+    def _count_missing_eol(self) -> int:
+        """
+        Count the number of EOL characters.
+        Avoids adding EOL at the beginning of the content.
+        Ignores spaces when traversing the content.
+        """
+        missing_count = self.suffix_eol
+        for value in self._iter_reverse_char():
+            if is_content_start(value):
+                missing_count = 0
+            if missing_count <= 0 or not is_space(value):
+                break
+
+            # This can only happen if the node's text had trailing EOL.
+            # But docutils nodes are expected to be without.
+            # So this validation is to avoid redundant EOLs if this behaviour changes in future releases.
+            if is_eol(value):
+                missing_count -= 1
+
+        return max(0, missing_count)
+
+    def _iter_reverse_char(self) -> Iterator[str]:
+        for value in reversed(self.content):
+            yield from reversed(value)
+
+        yield CONTENT_START
+
+    @property
+    def content(self) -> List[str]:
+        return self.body
+
+    def _merges(self, value: str, spacing: Spacing) -> bool:
+        """Whether `value` opens with the mark that the content closes with, e.g., `*a*` and `*b*` make `*ab*`"""
+        mark = spacing.prefix_mark
+        if not mark or mark != self.suffix_mark:
+            return False
+        return self.content[-1].endswith(mark) and value.startswith(mark)
+
+    def _needs_space(self, value: str, spacing: Spacing) -> bool:
+        last, first = self.last_char, value[0]
+        if last.isspace() or first.isspace():
+            return False  # A space or EOL is already there, as `force_eol()` doesn't repeat EOLs.
+        return is_in(last, spacing.prefix_chars) or is_in(first, self.suffix_chars)
+
+    @property
+    def last_char(self) -> str:
+        value = next(self._iter_reverse_char())
+        return "" if is_content_start(value) else value
+
     def make(self) -> str:
         """Generate the context's content"""
         return "".join(self.content)
+
+
+def is_content_start(value: str) -> bool:
+    return isinstance(value, UniqueString) and value is CONTENT_START
+
+
+def is_space(value: str) -> bool:
+    return SPACE_CHARS.fullmatch(value) is not None
+
+
+def is_eol(value: str) -> bool:
+    return value == EOL
+
+
+def is_in(value: str, chars: str) -> bool:
+    """Whether `value` is one of `chars`, a regex character class"""
+    return bool(chars) and re.fullmatch(f"[{chars}]", value) is not None
 
 
 class Wrapped(Base):
@@ -266,15 +262,6 @@ class Comment(Wrapped):
         return super().make()
 
 
-def code_fence(code: str, min_length: int) -> str:
-    """
-    The backticks that open and close `code`.
-    The fence must be longer than the longest run of backticks in the code. Otherwise, that run would close it early.
-    """
-    longest_run = max((len(run) for run in re.findall("`+", code)), default=0)
-    return "`" * max(min_length, longest_run + 1)
-
-
 class InlineCode(Base):
     """Inline code, e.g., `x`"""
 
@@ -293,6 +280,15 @@ class InlineCode(Base):
             code = f" {code} "
 
         return f"{fence}{code}{fence}"
+
+
+def code_fence(code: str, min_length: int) -> str:
+    """
+    The backticks that open and close `code`.
+    The fence must be longer than the longest run of backticks in the code. Otherwise, that run would close it early.
+    """
+    longest_run = max((len(run) for run in re.findall("`+", code)), default=0)
+    return "`" * max(min_length, longest_run + 1)
 
 
 class CodeBlock(Base):
@@ -386,17 +382,17 @@ class Table(Base):  # pylint: disable=too-many-instance-attributes
         self.is_body = False
 
     @property
+    def content(self):
+        if self.is_entry:
+            return self.active_output[-1][-1]
+        return self.internal_context.content
+
+    @property
     def active_output(self) -> List[List[List[str]]]:
         if self.is_header:
             return self.headers
         assert self.is_body
         return self.body
-
-    @property
-    def content(self):
-        if self.is_entry:
-            return self.active_output[-1][-1]
-        return self.internal_context.content
 
     def enter_head(self):
         assert not self.is_header and not self.is_body
@@ -429,10 +425,6 @@ class Table(Base):  # pylint: disable=too-many-instance-attributes
         assert self.is_entry
         self.is_entry = False
 
-    @staticmethod
-    def make_row(row):
-        return ["".join(entries).replace("\n", "<br/>").replace("|", r"\|") for entries in row]
-
     def make(self):
         ctx = Base()
         prefix = self.internal_context.make()
@@ -460,6 +452,10 @@ class Table(Base):  # pylint: disable=too-many-instance-attributes
             ctx.add(table, prefix_eol=2)
 
         return ctx.make()
+
+    @staticmethod
+    def make_row(row):
+        return ["".join(entries).replace("\n", "<br/>").replace("|", r"\|") for entries in row]
 
 
 class Indent(Base):
@@ -492,6 +488,10 @@ class Indent(Base):
         return content.replace(self.prefix, self.first_prefix, 1)
 
 
+def replace_multi_line_break(value: str):
+    return MULTI_LINE_BREAK.sub("<br/>\n", value)
+
+
 class NoLineBreak(Base):
     def __init__(self, breaker=" ", params=BaseParams()):
         super().__init__(params)
@@ -506,14 +506,14 @@ class Title(NoLineBreak):
         super().__init__("<br/>", params)
         self.level = level
 
-    @property
-    def section_prefix(self):
-        return "#" * self.level
-
     def make(self):
         content = super().make()
         assert len(content) > 0, "Empty title"
         return f"{self.section_prefix} {content}"
+
+    @property
+    def section_prefix(self):
+        return "#" * self.level
 
 
 class Meta(NoLineBreak):
