@@ -583,12 +583,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         The id of the citation that this resolved reference points to, or `None` if it isn't a citation reference.
 
         Sphinx resolves a citation reference into a plain reference (see `CitationReferenceTransform` and
-        `make_refnode`). Its text is the citation's bracketed label, which numpydoc relabels, so it may differ from
-        the citation's name. It has `refid` on the citation's page, otherwise `refuri` to that page with an anchor.
-        Both the text and the destination must match, as an ordinary link may point to the citation's anchor too.
+        `make_refnode`). It has `refid` on the citation's page, otherwise `refuri` to that page with an anchor.
+        A link written in the source may point to the citation's anchor too, so the reference must also be
+        `internal`, which Sphinx sets on the references it resolves.
         """
-        text = node.astext()
-        if not (text.startswith("[") and text.endswith("]")):
+        if not node.get("internal"):
             return None
         this_doc = self.builder.current_doc_name
         for doc_name, label_id, _ in self.builder.env.get_domain("citation").citations.values():
