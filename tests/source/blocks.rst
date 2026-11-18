@@ -246,6 +246,12 @@ Inline tabs
 
    A label that starts with punctuation.
 
+.. tab:: **A bold label**
+
+   A label in bold, like the tab labels themselves.
+
+:**Bold** and *italic* name: A field name is bold too, so the bold inside it does nothing, and the italic stays.
+
 Same-page references
 --------------------
 

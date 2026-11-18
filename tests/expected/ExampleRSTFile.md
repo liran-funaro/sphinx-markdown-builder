@@ -475,6 +475,14 @@ text that is useful to someone who might not be able to see the image.
 
 Figure legend paragraph.
 
+![Markdown logo](static/markdown.png)
+
+*An emphasized caption*
+
+![Markdown logo](static/markdown.png)
+
+*One and two in a caption*
+
 <a id="examples-of-tables"></a>
 
 ## Tables

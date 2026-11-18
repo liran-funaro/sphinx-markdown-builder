@@ -213,6 +213,13 @@ Content of the first tab.
 
 A label that starts with punctuation.
 
+**A bold label**
+
+A label in bold, like the tab labels themselves.
+
+* **Bold and *italic* name:**
+  A field name is bold too, so the bold inside it does nothing, and the italic stays.
+
 ## Same-page references
 
 See [Same-page references](#same-page-references).

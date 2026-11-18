@@ -53,7 +53,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[contexts.PushContext, contexts.PushBox, con
         desc_annotation=contexts.ITALIC,
         literal_strong=contexts.STRONG,
         literal_emphasis=contexts.ITALIC,
-        field_name=contexts.PushContext(contexts.Wrapped, "**", ":**"),  # e.g 'returns', 'parameters'
         # Doc info elements
         docinfo=contexts.DOC_INFO,
         docinfo_item=contexts.DOC_INFO,
@@ -172,6 +171,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         raise UnknownVisit
 
     def _push_context(self, ctx: contexts.Base):
+        key = ctx.nesting_key
+        if key is not None and any(outer.nesting_key == key for outer in self._ctx_queue):
+            # It doesn't nest (see `contexts.Base.nesting_key`), so its content joins the open context.
+            ctx = contexts.Base()
         self._ctx_queue.append(ctx)
 
     def _pop_context(self, _node=None, count=1):
@@ -703,6 +706,15 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def visit_field_list(self, node):
         self._start_list("*")
+
+    @pushing_context
+    def visit_field_name(self, node):
+        """A bold field name with a colon, e.g., `**Parameters:**`"""
+        self._push_context(contexts.STRONG.create(node, "field_name"))
+
+    def depart_field_name(self, node):
+        self.add(":")
+        self._pop_context()
 
     depart_field_list = _end_list
     visit_field = _start_list_item
