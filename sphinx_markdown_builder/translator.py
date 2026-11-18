@@ -579,11 +579,14 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(contexts.Wrapped("[", f"]({escape.link_destination(target)})"))
 
     def _citation_id(self, node: nodes.reference) -> str | None:
-        """Return the id of the citation that this resolved reference points to, if it is a citation reference."""
-        # Match the reference Sphinx builds for a citation (see `CitationReferenceTransform` and `make_refnode`):
-        # its text is a bracketed label (numpydoc relabels it, so it may differ from the citation's name), and it has
-        # `refid` on the citation's page, otherwise `refuri` to its page with an anchor.
-        # Matching the destination alone would catch ordinary links to the citation.
+        """
+        The id of the citation that this resolved reference points to, or `None` if it isn't a citation reference.
+
+        Sphinx resolves a citation reference into a plain reference (see `CitationReferenceTransform` and
+        `make_refnode`). Its text is the citation's bracketed label, which numpydoc relabels, so it may differ from
+        the citation's name. It has `refid` on the citation's page, otherwise `refuri` to that page with an anchor.
+        Both the text and the destination must match, as an ordinary link may point to the citation's anchor too.
+        """
         text = node.astext()
         if not (text.startswith("[") and text.endswith("]")):
             return None
