@@ -287,4 +287,8 @@ A link labeled like a citation, `[CIT2002] <https://example.org/>`__, is not a c
 
 A cross-reference to the citation keeps its own text and stays a link: :any:`CIT2002`.
 
+A link to `the citation alias`_, a target right before the citation, which keeps its own id.
+
+.. _the citation alias:
+
 .. [CIT2002] A citation definition.

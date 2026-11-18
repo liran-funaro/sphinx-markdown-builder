@@ -95,6 +95,7 @@
   * [Inline tabs](blocks.md#inline-tabs)
   * [Same-page references](blocks.md#same-page-references)
   * [Targets](blocks.md#targets)
+  * [Citations](blocks.md#citations)
 * [Test Image With Target](image-target.md)
 * [Empty package](empty.md)
 * [Glossary test for multiple glossaries](glossaries.md)
