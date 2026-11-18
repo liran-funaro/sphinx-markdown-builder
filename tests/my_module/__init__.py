@@ -124,4 +124,5 @@ def downside_risk(returns, min_acceptable_return=0.0):
     risk : float
         The downside risk.
     """
-    return 0.0
+    shortfalls = [min(value - min_acceptable_return, 0.0) for value in returns]
+    return (sum(value * value for value in shortfalls) / len(shortfalls)) ** 0.5
