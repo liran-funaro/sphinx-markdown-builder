@@ -72,3 +72,8 @@ language = "en"
 # The overrides build (`-t numpydoc`) also runs numpydoc, which rewrites every autodoc docstring.
 if tags.has("numpydoc"):  # noqa: F821 (Sphinx injects `tags`)
     extensions.append("numpydoc")
+    # numpydoc labels the citations of a References section by a hash of the docstring. `my_module` is documented on
+    # two pages (`auto-module` and the autosummary `library/my_module`), so the same labels are defined twice.
+    suppress_warnings.append("ref.citation")
+    # numpydoc lists class members in an autosummary. Without a toctree, it needs no generated stub pages.
+    numpydoc_class_members_toctree = False

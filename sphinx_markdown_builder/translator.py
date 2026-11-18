@@ -564,7 +564,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             # Another element of this page may share the id, so check that it is the citation itself.
             is_local = isinstance(self.document.ids.get(citation_id), nodes.citation)
             target = f"#{citation_id}" if is_local else self._adjust_url(ref_uri)
-            self._push_context(WrappedContext("<sup>", f"({escape.link_destination(target)})</sup>"))
+            self._push_context(contexts.Wrapped("<sup>", f"({escape.link_destination(target)})</sup>"))
             return
 
         if ref_id:

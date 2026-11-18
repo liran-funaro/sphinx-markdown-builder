@@ -11,6 +11,12 @@ Formula 1
   <br/>
   Some more text related to the definition.
 
+Formula 2 : *float* : *optional*
+: A term with classifiers (e.g., numpydoc parameter types).
+
+Formula 3 : *float*
+: An already-emphasized classifier.
+
 Display math:
 
 $$

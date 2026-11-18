@@ -283,4 +283,6 @@ A citation reference [CIT2002]_ on the same page.
 
 An external link to `the same anchor <https://example.org/#cit2002>`_ is not a citation.
 
+A link labeled like a citation, `[CIT2002] <https://example.org/>`__, is not a citation either.
+
 .. [CIT2002] A citation definition.
