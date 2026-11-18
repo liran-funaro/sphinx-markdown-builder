@@ -19,20 +19,6 @@ from sphinx_markdown_builder.translator import MarkdownTranslator
 logger = logging.getLogger(__name__)
 
 
-@contextmanager
-def io_handler(file_path: str, log_error=True):
-    try:
-        yield
-    except (IOError, OSError) as err:
-        if log_error:
-            logger.warning(__("error accessing file %s: %s"), file_path, err)
-
-
-def get_mod_time_if_exists(file_path, log_error=True):
-    with io_handler(file_path, log_error):
-        return os.path.getmtime(file_path)
-
-
 class MarkdownBuilder(Builder):
     name = "markdown"
     format = "markdown"
@@ -51,14 +37,6 @@ class MarkdownBuilder(Builder):
     def init(self):
         self.out_suffix = self.config.markdown_file_suffix
 
-    def _get_source_mtime(self, doc_name: str):
-        source_name = self.env.doc2path(doc_name)
-        return get_mod_time_if_exists(source_name)
-
-    def _get_target_mtime(self, doc_name: str):
-        target_name = os.path.join(self.outdir, doc_name + self.out_suffix)
-        return get_mod_time_if_exists(target_name, log_error=False)
-
     def get_outdated_docs(self):
         for doc_name in self.env.found_docs:
             if doc_name not in self.env.all_docs:
@@ -69,6 +47,14 @@ class MarkdownBuilder(Builder):
             target_mtime = self._get_target_mtime(doc_name)
             if source_mtime is None or target_mtime is None or source_mtime > target_mtime:
                 yield doc_name
+
+    def _get_source_mtime(self, doc_name: str):
+        source_name = self.env.doc2path(doc_name)
+        return get_mod_time_if_exists(source_name)
+
+    def _get_target_mtime(self, doc_name: str):
+        target_name = os.path.join(self.outdir, doc_name + self.out_suffix)
+        return get_mod_time_if_exists(target_name, log_error=False)
 
     def get_target_uri(self, docname: str, typ: str | None = None):
         """
@@ -99,3 +85,17 @@ class MarkdownBuilder(Builder):
             ensuredir(os.path.dirname(destination))
             with io_handler(source_path):
                 shutil.copyfile(source_path, destination)
+
+
+def get_mod_time_if_exists(file_path, log_error=True):
+    with io_handler(file_path, log_error):
+        return os.path.getmtime(file_path)
+
+
+@contextmanager
+def io_handler(file_path: str, log_error=True):
+    try:
+        yield
+    except (IOError, OSError) as err:
+        if log_error:
+            logger.warning(__("error accessing file %s: %s"), file_path, err)

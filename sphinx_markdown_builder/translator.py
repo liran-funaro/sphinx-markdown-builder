@@ -110,15 +110,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[contexts.PushContext, contexts.PushBox, con
 )
 
 
-def _assign_visit_method(method, variable: str, value):
-    match = VISIT_DEPART_PATTERN.fullmatch(method.__name__)
-    assert match is not None
-    state, _ = match.groups()
-    assert state == "visit"
-    setattr(method, variable, value)
-    return method
-
-
 def pushing_context(method):
     """Marks method as pushing context"""
     return _assign_visit_method(method, "__pushing_context__", 1)
@@ -134,11 +125,24 @@ def pushing_status(method):
     return _assign_visit_method(method, "__pushing_status__", True)
 
 
+def _assign_visit_method(method, variable: str, value):
+    match = VISIT_DEPART_PATTERN.fullmatch(method.__name__)
+    assert match is not None
+    state, _ = match.groups()
+    assert state == "visit"
+    setattr(method, variable, value)
+    return method
+
+
 class UnknownVisit(Exception):
     """A visit/depart handler met a node outside the context it supports (e.g., a `label` outside a footnote)."""
 
 
 class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-methods
+    ################################################################################
+    # Core methods
+    ################################################################################
+
     def __init__(self, document: nodes.document, builder: "MarkdownBuilder"):
         super().__init__(document, builder)
         self.builder: "MarkdownBuilder" = builder
@@ -186,13 +190,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             ctx = self.ctx if last_ctx.params.target == "body" else self._doc_info
             ctx.add(last_ctx.make(), last_ctx.params)
 
-    def _push_box(self, title: str, heading: str | None = None):
-        self.add(f"> [!{title}]")
-        self._push_context(contexts.Indent(prefix="> ", empty=True, params=contexts.BaseParams(1, 2)))
-        self._push_status(section_level=3)
-        if heading is not None:
-            self.add(f"### {heading}")
-
     @property
     def status(self) -> contexts.Status:
         return self._status_queue[-1]
@@ -204,21 +201,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def _pop_status(self, _node=None, count=1):
         count = min(len(self._status_queue) - 1, count)
         self._status_queue = self._status_queue[:-count]
-
-    def _pop_context_and_status(self, node=None, count=1):
-        self._pop_context(node, count=count)
-        self._pop_status(node)
-
-    def astext(self):
-        """Return the final formatted document as a string."""
-        self._pop_context(count=2**31)
-        assert len(self._ctx_queue) == 1
-
-        ctx = contexts.Base()
-        for sub_ctx in (self._doc_info, self._ctx_queue[0]):
-            ctx.add(sub_ctx.make().strip(), prefix_eol=2, suffix_eol=1)
-        ctx.force_eol(1)
-        return ctx.make()
 
     def add(self, value: str, spacing: contexts.Spacing = contexts.Spacing(), **kwargs):
         """
@@ -239,25 +221,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         """Ensure the last line in current base is terminated by X new lines."""
         self.ctx.ensure_eol(count)
 
-    def _pass(self, _node=None):
-        pass
-
-    def _skip(self, _node=None):
-        raise nodes.SkipNode
-
-    def _has_attr(self, item):
-        try:
-            super().__getattribute__(item)
-            return True
-        except AttributeError:
-            return False
-
-    def _get_attr(self, item, default=None):
-        try:
-            return super().__getattribute__(item)
-        except AttributeError:
-            return default
-
     def __getattribute__(self, item):
         """Uses some predefined rules to reduce the visit/depart method clutter in the class"""
         try:
@@ -268,43 +231,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             if predefined_method is not None:
                 return predefined_method
             raise ex
-
-    def _find_predefined_action(self, state: str, element: str):  # pylint: disable=too-many-return-statements
-        action = PREDEFINED_ELEMENTS.get(element, "__undefined__")
-        if action is None:
-            return self._pass
-        if action is SKIP:
-            return self._skip
-        if isinstance(action, contexts.PushContext):
-            if state == "visit":
-                create = action.create
-                return lambda node: self._push_context(create(node, element))
-            return self._pop_context
-        if isinstance(action, contexts.PushBox):
-            if state == "visit":
-                title, heading = action.title, action.heading
-                return lambda node: self._push_box(title, heading)
-            return self._pop_context_and_status
-        return None
-
-    def _find_pushing_method(self, state: str, element: str):
-        if state != "depart":
-            return None
-
-        # If the visit method is marked as pushing, then pop the context/status
-        visit_method = self._get_attr(f"visit_{element}", None)
-        pushing_ctx_count = getattr(visit_method, "__pushing_context__", 0)
-        is_pushing_status = getattr(visit_method, "__pushing_status__", False)
-        if pushing_ctx_count and is_pushing_status:
-            return lambda node: self._pop_context_and_status(node, count=pushing_ctx_count)
-        if pushing_ctx_count:
-            return lambda node: self._pop_context(node, count=pushing_ctx_count)
-        if is_pushing_status:
-            return self._pop_status
-        return None
-
-    def _is_element_defined(self, element: str):
-        return self._has_attr(f"visit_{element}") or self._has_attr(f"depart_{element}")
 
     def _find_predefined_method(self, item) -> Optional[Callable]:
         match = VISIT_DEPART_PATTERN.fullmatch(item)
@@ -323,9 +249,85 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
         # If one of the handlers is defined, automatically add the other as an empty handler
         if self._is_element_defined(element):
-            return self._pass
+            return _pass
 
         return None
+
+    def _find_predefined_action(self, state: str, element: str):  # pylint: disable=too-many-return-statements
+        action = PREDEFINED_ELEMENTS.get(element, "__undefined__")
+        if action is None:
+            return _pass
+        if action is SKIP:
+            return _skip
+        if isinstance(action, contexts.PushContext):
+            if state == "visit":
+                create = action.create
+                return lambda node: self._push_context(create(node, element))
+            return self._pop_context
+        if isinstance(action, contexts.PushBox):
+            if state == "visit":
+                title, heading = action.title, action.heading
+                return lambda node: self._push_box(title, heading)
+            return self._pop_context_and_status
+        return None
+
+    def _push_box(self, title: str, heading: str | None = None):
+        self.add(f"> [!{title}]")
+        self._push_context(contexts.Indent(prefix="> ", empty=True, params=contexts.BaseParams(1, 2)))
+        self._push_status(section_level=3)
+        if heading is not None:
+            self.add(f"### {heading}")
+
+    def _pop_context_and_status(self, node=None, count=1):
+        self._pop_context(node, count=count)
+        self._pop_status(node)
+
+    def _find_pushing_method(self, state: str, element: str):
+        if state != "depart":
+            return None
+
+        # If the visit method is marked as pushing, then pop the context/status
+        visit_method = self._get_attr(f"visit_{element}", None)
+        pushing_ctx_count = getattr(visit_method, "__pushing_context__", 0)
+        is_pushing_status = getattr(visit_method, "__pushing_status__", False)
+        if pushing_ctx_count and is_pushing_status:
+            return lambda node: self._pop_context_and_status(node, count=pushing_ctx_count)
+        if pushing_ctx_count:
+            return lambda node: self._pop_context(node, count=pushing_ctx_count)
+        if is_pushing_status:
+            return self._pop_status
+        return None
+
+    def _get_attr(self, item, default=None):
+        try:
+            return super().__getattribute__(item)
+        except AttributeError:
+            return default
+
+    def _is_element_defined(self, element: str):
+        return self._has_attr(f"visit_{element}") or self._has_attr(f"depart_{element}")
+
+    def _has_attr(self, item):
+        try:
+            super().__getattribute__(item)
+            return True
+        except AttributeError:
+            return False
+
+    ################################################################################
+    # Override translator API
+    ################################################################################
+
+    def astext(self):
+        """Return the final formatted document as a string."""
+        self._pop_context(count=2**31)
+        assert len(self._ctx_queue) == 1
+
+        ctx = contexts.Base()
+        for sub_ctx in (self._doc_info, self._ctx_queue[0]):
+            ctx.add(sub_ctx.make().strip(), prefix_eol=2, suffix_eol=1)
+        ctx.force_eol(1)
+        return ctx.make()
 
     def dispatch_visit(self, node):
         # A handler raises UnknownVisit when the node is outside the context it supports.
@@ -537,19 +539,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self.add("---", prefix_eol=2, suffix_eol=1)
         raise nodes.SkipNode
 
-    def _adjust_url(self, url: str):
-        """Replace `refuri` in reference with HTTP address, if possible"""
-        if not self.config.markdown_http_base:
-            return url
-
-        # If HTTP page build URL known, make link relative to that.
-        this_doc = self.builder.current_doc_name
-        if url == "":  # Reference to this doc
-            url = self.builder.get_target_uri(this_doc)
-        else:  # URL is relative to the current docname, or absolute from the source root.
-            url = posixpath.normpath(posixpath.join(posixpath.dirname(this_doc), url))
-        return posixpath.join(self.config.markdown_http_base, url.lstrip("/"))
-
     @pushing_context
     def visit_reference(self, node: nodes.reference):
         ref_id: str | None = node.get("refid")
@@ -567,6 +556,19 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             target = ref_uri
 
         self._push_context(contexts.Wrapped("[", f"]({escape.link_destination(target)})"))
+
+    def _adjust_url(self, url: str):
+        """Replace `refuri` in reference with HTTP address, if possible"""
+        if not self.config.markdown_http_base:
+            return url
+
+        # If HTTP page build URL known, make link relative to that.
+        this_doc = self.builder.current_doc_name
+        if url == "":  # Reference to this doc
+            url = self.builder.get_target_uri(this_doc)
+        else:  # URL is relative to the current docname, or absolute from the source root.
+            url = posixpath.normpath(posixpath.join(posixpath.dirname(this_doc), url))
+        return posixpath.join(self.config.markdown_http_base, url.lstrip("/"))
 
     @pushing_context
     def visit_download_reference(self, node):
@@ -689,15 +691,15 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(contexts.Wrapped("(", ")", wrap_empty=True))
         self._push_context(contexts.ParameterList())
 
-    @property
-    def param_list_ctx(self) -> contexts.ParameterList:
-        return self._typed_ctx(contexts.ParameterList)
-
     @pushing_context
     def visit_desc_parameter(self, node):
         """single method/class ctr param"""
         self.param_list_ctx.enter_parameter(is_required=True)
         self._push_context(contexts.Base())
+
+    @property
+    def param_list_ctx(self) -> contexts.ParameterList:
+        return self._typed_ctx(contexts.ParameterList)
 
     @pushing_context
     def visit_desc_optional(self, node):
@@ -743,10 +745,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     #           paragraph (optional)
     ###############################################################################
 
-    @property
-    def table_ctx(self) -> contexts.Table:
-        return self._typed_ctx(contexts.Table)
-
     @pushing_context
     def visit_table(self, node):
         self._push_context(
@@ -758,6 +756,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def visit_thead(self, node):
         self.table_ctx.enter_head()
+
+    @property
+    def table_ctx(self) -> contexts.Table:
+        return self._typed_ctx(contexts.Table)
 
     def depart_thead(self, node):
         self.table_ctx.exit_head()
@@ -819,3 +821,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             self.ctx.depart_label()
         else:
             self._pop_context()
+
+
+def _pass(_node=None):
+    pass
+
+
+def _skip(_node=None):
+    raise nodes.SkipNode
