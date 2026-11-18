@@ -62,7 +62,6 @@
       * [`get_option()`](library/my_module.md#my_module.get_option)
       * [`get_query()`](library/my_module.md#my_module.get_query)
       * [`func2()`](library/my_module.md#my_module.func2)
-      * [`func3()`](library/my_module.md#my_module.func3)
       * [`downside_risk()`](library/my_module.md#my_module.downside_risk)
 * [Indices and tables](auto-summery.md#indices-and-tables)
 * [Math Example](blocks.md)

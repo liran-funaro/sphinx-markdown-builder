@@ -89,19 +89,6 @@ This is a function with two parameters.
 * **Return type:**
   [str](https://docs.python.org/3/library/stdtypes.html#str)
 
-### func3(param1, param2)
-
-This is a function with two parameters.
-
-* **Parameters:**
-  * **param1** ([*int*](https://docs.python.org/3/library/functions.html#int)) – Alice <sup>[1](#id3)</sup>.
-  * **param2** ([*int*](https://docs.python.org/3/library/functions.html#int)) – Bon <sup>[2](#id4)</sup>.
-
-## References
-
-* <a id='id3'>**[1]**</a> Alice is commonly used to describe the first actor.
-* <a id='id4'>**[2]**</a> Bob is commonly used to describe the second actor.
-
 ### downside_risk(returns, min_acceptable_return=0.0)
 
 Compute the downside risk of a series of returns.
