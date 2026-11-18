@@ -6,7 +6,7 @@ import re
 import textwrap
 import typing
 from dataclasses import dataclass, replace
-from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Tuple, Type, TypeVar, Union
 
 from tabulate import tabulate
 
@@ -110,6 +110,11 @@ class Base:
     @property
     def content(self) -> List[str]:
         return self.body
+
+    @property
+    def nesting_key(self) -> Optional[Tuple[str, ...]]:
+        """A context with a key doesn't nest inside an open context with the same key. `None` nests freely."""
+        return None
 
     def _iter_reverse_char(self) -> Iterator[str]:
         for value in reversed(self.content):
@@ -229,6 +234,11 @@ class Wrapped(Base):
         self.prefix = prefix
         self.suffix = suffix if suffix is not None else prefix
         self.wrap_empty = wrap_empty
+
+    @property
+    def nesting_key(self) -> Optional[Tuple[str, ...]]:
+        """The same wrapper inside it would stack its prefix and suffix: `*` around `*a*` makes `**a**` (bold)"""
+        return type(self).__name__, self.prefix, self.suffix
 
     def make(self):
         content = super().make()

@@ -578,6 +578,16 @@ text that is useful to someone who might not be able to see the image.
 
    Figure legend paragraph.
 
+.. figure:: /static/markdown.png
+   :alt: Markdown logo
+
+   *An emphasized caption*
+
+.. figure:: /static/markdown.png
+   :alt: Markdown logo
+
+   *One* and *two* in a caption
+
 
 .. _Examples of Tables:
 
