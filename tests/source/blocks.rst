@@ -256,3 +256,16 @@ Same-page references
 --------------------
 
 See `Same-page references`_.
+
+Targets
+-------
+
+A footnote [#target-note]_, and links to `the footnote alias`_ and `the paragraph alias`_.
+
+.. _the footnote alias:
+
+.. [#target-note] A footnote with a target right before it, which keeps its own id.
+
+.. _the paragraph alias:
+
+A paragraph with a target right before it, which moves its id onto the paragraph.

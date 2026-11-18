@@ -276,3 +276,16 @@ A label in bold, like the tab labels themselves.
 ## Same-page references
 
 See [Same-page references](#same-page-references).
+
+<a id="targets"></a>
+
+## Targets
+
+A footnote <sup>[1](#target-note)</sup>, and links to [the footnote alias](#the-footnote-alias) and [the paragraph alias](#the-paragraph-alias).
+
+<a id="the-footnote-alias"></a>
+* <a id='target-note'>**[1]**</a> A footnote with a target right before it, which keeps its own id.
+
+<a id="the-paragraph-alias"></a>
+
+A paragraph with a target right before it, which moves its id onto the paragraph.
