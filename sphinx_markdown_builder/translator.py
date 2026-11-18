@@ -555,15 +555,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
         # Sphinx resolves `citation_reference` nodes into plain internal references to the citation.
         # Render them like footnote references: `<sup>[label](#id)</sup>`.
-        citation_id = self._citation_id(node)
+        citation_target = self._citation_target(node)
         # The text of a citation reference is its bracketed label (`[1]`): its brackets build the link, so keep them.
-        self._push_status(escape_text=self.status.escape_text and not citation_id)
-        if citation_id:
-            # Keep the anchor local when the citation is on this page, otherwise point to the page that holds it.
-            # Another element of this page may share the id, so check that it is the citation itself.
-            is_local = isinstance(self.document.ids.get(citation_id), nodes.citation)
-            target = f"#{citation_id}" if is_local else self._adjust_url(ref_uri)
-            self._push_context(contexts.Wrapped("<sup>", f"({escape.link_destination(target)})</sup>"))
+        self._push_status(escape_text=self.status.escape_text and not citation_target)
+        if citation_target:
+            self._push_context(contexts.Wrapped("<sup>", f"({escape.link_destination(citation_target)})</sup>"))
             return
 
         if ref_id:
@@ -578,9 +574,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
         self._push_context(contexts.Wrapped("[", f"]({escape.link_destination(target)})"))
 
-    def _citation_id(self, node: nodes.reference) -> str | None:
+    def _citation_target(self, node: nodes.reference) -> str | None:
         """
-        The id of the citation that this resolved reference points to, or `None` if it isn't a citation reference.
+        The link to the citation that this resolved reference points to, or `None` if it isn't a citation reference.
+        The link is the citation's anchor on this page, otherwise its page with the anchor.
 
         Sphinx resolves a citation reference into a plain reference (see `CitationReferenceTransform` and
         `make_refnode`). It has `refid` on the citation's page, otherwise `refuri` to that page with an anchor.
@@ -592,11 +589,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         this_doc = self.builder.current_doc_name
         for doc_name, label_id, _ in self.builder.env.get_domain("citation").citations.values():
             if doc_name == this_doc:
-                is_match = node.get("refid") == label_id
-            else:
-                is_match = node.get("refuri") == f"{self.builder.get_relative_uri(this_doc, doc_name)}#{label_id}"
-            if is_match:
-                return label_id
+                if node.get("refid") == label_id:
+                    return f"#{label_id}"
+            elif node.get("refuri") == f"{self.builder.get_relative_uri(this_doc, doc_name)}#{label_id}":
+                return self._adjust_url(node["refuri"])
         return None
 
     def _adjust_url(self, url: str):
