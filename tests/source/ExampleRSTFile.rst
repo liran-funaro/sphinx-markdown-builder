@@ -862,11 +862,4 @@ The following code block uses a ``:caption:`` to label the file name.
 
    print("hello")
 
-The following figure uses a caption to describe the image.
-
-.. figure:: /static/markdown.png
-   :alt: Captioned figure example.
-
-   Figure caption text.
-
 .. include:: links.rst

@@ -116,6 +116,7 @@ accent characters is rendered in monospace font.
 ## Centered Text
 
 Centered text here
+
 <!-- comments can be added in a file by starting a line with 2 periods and a space. -->
 <!-- a comment can contain - -> or - -!> without ending early. -->
 
@@ -671,14 +672,12 @@ being displayed in different colors.
 
 The following code block uses a `:caption:` to label the file name.
 
-example.py
+*example.py*
+
 ```python
 print("hello")
 ```
 
-The following figure uses a caption to describe the image.
-
-![Captioned figure example.](static/markdown.png)Figure caption text.
 <!-- Taken from https://github.com/openedx/edx-documentation/blob/master/en_us/links/links.rst -->
 <!-- Include this file in any file that includes a non-doc link. -->
 
