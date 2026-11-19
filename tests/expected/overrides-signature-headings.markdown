@@ -95,18 +95,6 @@ This is a function with a single parameter. Thanks to github.com/remiconnesson.
 * **Parameters:**
   **param1** – This is a single parameter.
 
-<a id="details"></a>
-
-**Details**
-
-Details about this function.
-
-<a id="more-details"></a>
-
-**More details**
-
-More information about this function.
-
 <a id="section"></a>
 
 ## Section
@@ -123,7 +111,7 @@ More information about this function.
 
 **Function `in_subsection`()**
 
-<a id="id1"></a>
+<a id="details"></a>
 
 **Details**
 
@@ -201,7 +189,7 @@ A nested docstring section.
 
 <a id="generic"></a>
 
-**Function `generic`\[T\](value: [list](https://docs.python.org/3/library/stdtypes.html#list)\[T\], \*args, marker='\*\`&lt;tag&gt;', \*\*kwargs) → [list](https://docs.python.org/3/library/stdtypes.html#list)\[T\]**
+**Function `generic`\[T\](value: [list](https://docs.python.org/3/library/stdtypes.html#list)\[T\], \*args, marker='\*\`\<tag>', \*\*kwargs) → [list](https://docs.python.org/3/library/stdtypes.html#list)\[T\]**
 
 <a id="_CPPv43Box"></a>
 
@@ -219,7 +207,7 @@ A nested docstring section.
 
 <a id="_CPPv2I0EN3Box3getEP1T"></a>
 
-**Function template&lt;typename `T`&gt;<br/>[T](#_CPPv4I0EN3Box3getEP1TP1T) \*`Box::get`([T](#_CPPv4I0EN3Box3getEP1TP1T) \*value)**
+**Function template\<typename `T`\><br/>[T](#_CPPv4I0EN3Box3getEP1TP1T) \*`Box::get`([T](#_CPPv4I0EN3Box3getEP1TP1T) \*value)**
 
 <a id="_CPPv4N3Box5InnerE"></a>
 
@@ -259,7 +247,7 @@ A nested docstring section.
 
 <a id="cmdoption-sample"></a>
 
-**Option `--sample` &lt;value&gt;**
+**Option `--sample` \<value>**
 
 **Describe ``raw *name* `value` <tag>``**
 

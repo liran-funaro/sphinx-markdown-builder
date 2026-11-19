@@ -128,11 +128,11 @@ A nested docstring section.
 
 ## Signature markup
 
-**Function `generic`\[T\](value: [list](https://docs.python.org/3/library/stdtypes.html#list)\[T\], \*args, marker='\*\`&lt;tag&gt;', \*\*kwargs) → [list](https://docs.python.org/3/library/stdtypes.html#list)\[T\]**
+**Function `generic`\[T\](value: [list](https://docs.python.org/3/library/stdtypes.html#list)\[T\], \*args, marker='\*\`\<tag>', \*\*kwargs) → [list](https://docs.python.org/3/library/stdtypes.html#list)\[T\]**
 
 **class `Box`**
 
-**Function template&lt;typename `T`&gt;<br/>[T](#_CPPv4I0EN3Box3getEP1TP1T) \*`Box::get`([T](#_CPPv4I0EN3Box3getEP1TP1T) \*value)**
+**Function template\<typename `T`\><br/>[T](#_CPPv4I0EN3Box3getEP1TP1T) \*`Box::get`([T](#_CPPv4I0EN3Box3getEP1TP1T) \*value)**
 
 **class `Box::Inner`**
 
@@ -146,7 +146,7 @@ A nested docstring section.
 
 **Directive `.. sample::`**
 
-**Option `--sample` &lt;value&gt;**
+**Option `--sample` \<value>**
 
 **Describe ``raw *name* `value` <tag>``**
 

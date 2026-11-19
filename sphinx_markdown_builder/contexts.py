@@ -24,6 +24,7 @@ CONTENT_START = UniqueString("content start")
 EOL = "\n"
 SPACE = " "
 SPACE_CHARS = re.compile(r"\s+")
+SURROUNDING_SPACE = re.compile(r"(\s*)(.*?)(\s*)", re.S)
 WRAP_REGEXP = re.compile(r"(\s*)(?=\S)([\s\S]+?)(?<=\S)(\s*)", re.M)
 MULTI_LINE_BREAK = re.compile(r"(?<=\n)\n")
 COMMENT_END = re.compile(r"--(!?>)")  # HTML ends a comment at `-->` and also at `--!>`
@@ -281,6 +282,15 @@ class InlineCode(Base):
             code = f" {code} "
 
         return f"{fence}{code}{fence}"
+
+
+class SignatureName(InlineCode):
+    """A signature's name in inline code. Spaces around it, e.g., httpdomain's `GET `, stay outside the code."""
+
+    def make(self):
+        prefix_space, name, suffix_space = SURROUNDING_SPACE.fullmatch(Base.make(self)).groups()
+        self.body = [name]
+        return f"{prefix_space}{super().make()}{suffix_space}"
 
 
 def code_fence(code: str, min_length: int) -> str:

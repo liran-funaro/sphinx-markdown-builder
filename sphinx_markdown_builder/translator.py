@@ -729,7 +729,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         # rather than placing Markdown link syntax inside a code span.
         has_links = any(node.findall(nodes.reference))
         self._push_status(escape_text=has_links)
-        self._push_context(contexts.Base() if has_links else contexts.InlineCode())
+        self._push_context(contexts.Base() if has_links else contexts.SignatureName())
         signature = node.parent
         # C/C++ names live in signature_line; template parameter names must not
         # be qualified. Python/JS names live directly in desc_signature.
