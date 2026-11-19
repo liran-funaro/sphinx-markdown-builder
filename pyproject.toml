@@ -65,11 +65,11 @@ push = false
     "^version = \"{version}\"$",
     "copyright = \"Copyright (c) 2023-YYYY, Liran Funaro.\"",
 ]
-"tests/expected/overrides-auto-summery.md" = [
+"tests/expected/overrides-auto-summery.markdown" = [
     "version: {version}",
     "copyright: Copyright (c) 2023-YYYY, Liran Funaro.",
 ]
-"tests/expected/overrides-auto-module.md" = [
+"tests/expected/overrides-auto-module.markdown" = [
     "version: {version}",
     "copyright: Copyright (c) 2023-YYYY, Liran Funaro.",
 ]
