@@ -54,37 +54,7 @@ def test_parameter_list_drops_the_items_space():
     assert params.make() == "[a, ][*(b)*, ]*(c)*, *(d)*[, *(e)*]"
 
 
-@pytest.mark.parametrize("version", ["0.6", "0.6.11", "001", "true", "2026-10-03"])
-def test_docinfo_frontmatter(version):
-    document = Mock(name="document")
-    document.settings.language_code = "en"
-    builder = Mock(name="builder")
-    builder.config.markdown_docinfo = True
-    builder.config.author = 'Example: "Team" #1 \\ docs\nSecond line'
-    builder.config.version = version
-    translator = MarkdownTranslator(document, builder)
-    translator.add("# Document")
-
-    markdown = translator.astext()
-    assert markdown.startswith("---\n")
-    _, frontmatter, body = markdown.split("---", 2)
-    assert yaml.safe_load(frontmatter) == {"author": builder.config.author, "version": version}
-    assert body == "\n\n# Document\n"
-
-
-def test_compact_frontmatter():
-    document = new_document("test")
-    document += docutils.nodes.docinfo(
-        "",
-        docutils.nodes.author("", "Example Team"),
-        docutils.nodes.version("", "0.6"),
-    )
-    builder = Mock(name="builder")
-    translator = MarkdownTranslator(document, builder)
-    document.walkabout(translator)
-    assert translator.astext() == "---\nauthor: Example Team\nversion: '0.6'\n---\n\n"
-
-
+# No fixture reaches this: Sphinx moves the docinfo into `env.metadata` and removes it before writing.
 def test_multiple_authors_are_serialized_as_list():
     document = new_document("test")
     document += docutils.nodes.docinfo(
@@ -102,18 +72,7 @@ def test_multiple_authors_are_serialized_as_list():
     assert markdown.endswith("---\n\n")
 
 
-@pytest.mark.parametrize("enabled", [False, True])
-def test_no_empty_frontmatter(enabled):
-    document = Mock(name="document")
-    document.settings.language_code = "en"
-    builder = Mock(name="builder")
-    builder.config.markdown_docinfo = enabled
-    builder.config.version = "" if enabled else "0.6"
-    translator = MarkdownTranslator(document, builder)
-    translator.add("# Document")
-    assert translator.astext() == "# Document\n"
-
-
+# No fixture reaches this: Sphinx moves the docinfo into `env.metadata` and removes it before writing.
 @pytest.mark.parametrize("field", DOC_INFO_FIELDS)
 def test_docinfo_fields_override_config(field):
     document = new_document("test")

@@ -54,11 +54,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[contexts.PushContext, contexts.PushBox, con
         desc_annotation=contexts.ITALIC,
         literal_strong=contexts.STRONG,
         literal_emphasis=contexts.ITALIC,
-        # Doc info elements
-        docinfo=None,
-        docinfo_item=None,
-        **dict.fromkeys(DOC_INFO_FIELDS, contexts.DOC_INFO),
-        authors=None,  # not used: visit_author is called anyway for each author.
         # Admonitions
         important=contexts.PushBox("IMPORTANT"),
         warning=contexts.PushBox("WARNING"),
@@ -153,38 +148,17 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
         # A stack of nested contexts. Output goes to the last one, which renders into its parent when popped.
         self._ctx_queue: List[contexts.Base] = [contexts.Base()]
-        self._doc_info: Dict[str, Union[str, List[str]]] = {}
-        self._doc_info_configured: Set[str] = set()
         self._status_queue: List[contexts.Status] = [contexts.Status()]
 
+        # The YAML frontmatter fields, written in `astext()`. A field repeated in the document holds a list of values.
+        self._doc_info: Dict[str, Union[str, List[str]]] = {}
         if self.config.markdown_docinfo:
             for key in DOC_INFO_FIELDS:
                 value = getattr(self.config, key, "")
-                if isinstance(value, str):
-                    self._push_context(contexts.Meta(key))
-                    self.ctx.add(value)
-                    self._pop_context()
-
-    def _add_doc_info_value(self, name: str, value: str):
-        """Store a docinfo value while preserving config overrides and multiple values."""
-        if name in self._doc_info_configured:
-            self._doc_info[name] = value
-            self._doc_info_configured.discard(name)
-            return
-
-        existing = self._doc_info.get(name)
-        if existing is None:
-            self._doc_info[name] = value
-        elif isinstance(existing, list):
-            existing.append(value)
-        else:
-            self._doc_info[name] = [existing, value]
-
-    def _visit_doc_info(self, node, name):
-        value = node.astext().strip()
-        if value:
-            self._add_doc_info_value(name, value)
-        raise nodes.SkipNode
+                if isinstance(value, str) and value.strip():
+                    self._doc_info[key] = value.strip()
+        # Fields that still hold their conf.py value. The document's own value replaces it instead of adding to it.
+        self._doc_info_from_config: Set[str] = set(self._doc_info)
 
     @property
     def ctx(self) -> contexts.Base:
@@ -210,13 +184,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
                 break
 
             last_ctx = self._ctx_queue.pop()
-            content = last_ctx.make()
-            if isinstance(last_ctx, contexts.Meta):
-                if content:
-                    self._doc_info[last_ctx.name] = content
-                    self._doc_info_configured.add(last_ctx.name)
-            else:
-                self.ctx.add(content, last_ctx.params)
+            self.ctx.add(last_ctx.make(), last_ctx.params)
 
     @property
     def status(self) -> contexts.Status:
@@ -287,10 +255,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             return _pass
         if action is SKIP:
             return _skip
-        if action is contexts.DOC_INFO:
-            if state == "visit":
-                return lambda node: self._visit_doc_info(node, element)
-            return _pass
         if isinstance(action, contexts.PushContext):
             if state == "visit":
                 create = action.create
@@ -382,6 +346,22 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     ################################################################################
     # visit/depart handlers
     ################################################################################
+
+    def visit_docinfo(self, node):
+        # docinfo: the bibliographic fields of the document's first field list. A known field is its own element
+        # (e.g. `author`, `version`), `authors` holds an `author` per name, and any other name is a generic `field`,
+        # which is left out. Note: Sphinx moves the docinfo into `env.metadata` and removes it before writing.
+        for field in node.findall(lambda n: n.tagname in DOC_INFO_FIELDS):
+            name, value = field.tagname, field.astext().strip()
+            if not value:
+                continue
+            if name in self._doc_info_from_config or name not in self._doc_info:
+                self._doc_info_from_config.discard(name)
+                self._doc_info[name] = value
+            else:
+                values = self._doc_info[name]
+                self._doc_info[name] = [*values, value] if isinstance(values, list) else [values, value]
+        raise nodes.SkipNode
 
     def visit_image(self, node):
         """Image directive."""
