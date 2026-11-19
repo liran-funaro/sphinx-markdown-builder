@@ -547,20 +547,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         raise nodes.SkipNode
 
     @pushing_context
-    @pushing_status
     def visit_reference(self, node: nodes.reference):
         ref_id: str | None = node.get("refid")
         ref_uri: str = node.get("refuri", "")
         is_internal = bool(node.get("internal", self.status.default_ref_internal))
-
-        # Sphinx resolves `citation_reference` nodes into plain internal references to the citation.
-        # Render them like footnote references: `<sup>[label](#id)</sup>`.
-        citation_target = self._citation_target(node)
-        # The text of a citation reference is its bracketed label (`[1]`): its brackets build the link, so keep them.
-        self._push_status(escape_text=self.status.escape_text and not citation_target)
-        if citation_target:
-            self._push_context(contexts.Wrapped("<sup>", f"({escape.link_destination(citation_target)})</sup>"))
-            return
 
         if ref_id:
             # Same-document reference: docutils uses refid for targets in the same document
@@ -573,27 +563,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             target = ref_uri
 
         self._push_context(contexts.Wrapped("[", f"]({escape.link_destination(target)})"))
-
-    def _citation_target(self, node: nodes.reference) -> str | None:
-        """
-        The link to the citation that this resolved reference points to, or `None` if it isn't a citation reference.
-        The link is the citation's anchor on this page, otherwise its page with the anchor.
-
-        Sphinx resolves a citation reference into a plain reference (see `CitationReferenceTransform` and
-        `make_refnode`). It has `refid` on the citation's page, otherwise `refuri` to that page with an anchor.
-        A link or a cross-reference may point to the citation's anchor too. Only a citation reference keeps the `ids`
-        of the `citation_reference` it was resolved from, which the citation's `backrefs` point back to.
-        """
-        if not node.get("ids"):
-            return None
-        this_doc = self.builder.current_doc_name
-        for doc_name, label_id, _ in self.builder.env.get_domain("citation").citations.values():
-            if doc_name == this_doc:
-                if node.get("refid") == label_id:
-                    return f"#{label_id}"
-            elif node.get("refuri") == f"{self.builder.get_relative_uri(this_doc, doc_name)}#{label_id}":
-                return self._adjust_url(node["refuri"])
-        return None
 
     def _adjust_url(self, url: str):
         """Replace `refuri` in reference with HTTP address, if possible"""
@@ -834,13 +803,27 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     #   paragraph
     #
     # citation (e.g., numpydoc's References section) is rendered like a footnote
-    # citation_reference is resolved by Sphinx into a reference node (see `visit_reference`)
+    # citation_reference is rendered like a footnote_reference (see `builder.KeepCitationReferences`)
     ###############################################################################
 
     @pushing_context
     def visit_footnote_reference(self, node):
         ref_id = node.get("refid", "")
         self._push_context(contexts.Wrapped("<sup>[", f"](#{ref_id})</sup>"))
+
+    @pushing_context
+    @pushing_status
+    def visit_citation_reference(self, node):
+        """Links to the citation's anchor on this page, otherwise to its page with the anchor"""
+        doc_name, label_id = node.get("docname"), node.get("refname")
+        this_doc = self.builder.current_doc_name
+        if doc_name == this_doc:
+            target = f"#{label_id}"
+        else:
+            target = self._adjust_url(f"{self.builder.get_relative_uri(this_doc, doc_name)}#{label_id}")
+        # The text of a citation reference is its bracketed label (`[1]`): its brackets build the link, so keep them.
+        self._push_status(escape_text=False)
+        self._push_context(contexts.Wrapped("<sup>", f"({escape.link_destination(target)})</sup>"))
 
     @pushing_context
     def visit_footnote(self, node):
