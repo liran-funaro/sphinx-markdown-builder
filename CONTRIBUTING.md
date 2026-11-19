@@ -29,9 +29,10 @@ choice which boils down to:
 * Once the branch has been merged (or rebased) into `main`, delete it from both your local and
   remote repository.
 
-We invite you to follow
-[these guidelines](http://who-t.blogspot.de/2009/12/on-commit-messages.html) to write useful
-commit messages.
+Pull requests are squash-merged, so the pull request description becomes the commit message.
+Fill in the [pull request template](.github/pull_request_template.md): pick the type of change,
+describe what the change does, and link the issue it resolves (e.g. `- resolves #123`). Keep the
+motivation in the linked issue rather than repeating it in the description.
 
 To make sure modifications do not break this package functionality, we employ a CI workflow that tests the following:
  - Coding conventions (lint)

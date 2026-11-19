@@ -35,3 +35,13 @@ Glossary2-Term2
 
 Glossary3-Term1
 : Some random text for term 1 in glossary 3.
+
+## Citation from another page
+
+A citation reference <sup>[CIT2002](blocks.md#cit2002)</sup> to a citation defined in another page.
+
+A plain [link to the citation](blocks.md#cit2002) is not a citation reference.
+
+<a id="cit2002"></a>
+
+An unrelated target with the citation’s id: the citation reference above still points to the other page.

@@ -21,12 +21,7 @@ classifiers = [
 ]
 keywords = ["sphinx", "sphinx-extension", "markdown", "docs", "documentation", "builder"]
 dependencies = ["sphinx>=5.1.0", "tabulate", "docutils"]
-requires-python = ">=3.7"
-
-[tool.poetry.plugins] # Optional super table
-
-[tool.poetry.plugins."sphinx.builders"]
-"markdown" = "sphinx_markdown_builder"
+requires-python = ">=3.11"
 
 [project.entry-points."sphinx.builders"]
 "markdown" = "sphinx_markdown_builder"
@@ -34,12 +29,15 @@ requires-python = ">=3.7"
 [project.optional-dependencies]
 dev = [
     "sphinx>=9.0.4", # For development, we need a higher version for the tests' outputs to be identical.
-    "bumpver", "black", "isort", "flake8", "pylint", "pip-tools", "pytest", "pytest-cov", "coveralls",
-    "sphinxcontrib-plantuml", "sphinxcontrib.httpdomain",
+    "bumpver", "black", "isort", "flake8", "pylint", "pip-tools", "pytest", "pytest-cov",
+    "sphinxcontrib-plantuml", "sphinxcontrib.httpdomain", "sphinx-inline-tabs", "numpydoc",
 ]
 
 [project.urls]
 Homepage = "https://github.com/liran-funaro/sphinx-markdown-builder"
+
+[tool.setuptools.packages.find]
+include = ["sphinx_markdown_builder"]
 
 [tool.bumpver]
 current_version = "0.6.11"
@@ -83,3 +81,11 @@ line-length = 120
 max-line-length = 120
 max-args = 6
 max-positional-arguments = 6
+
+[tool.pylint.variables]
+ignored-argument-names = "_.*|^ignored_|^unused_|node"
+
+[tool.coverage.run]
+source_pkgs = ["sphinx_markdown_builder"]
+concurrency = ["multiprocessing", "thread"]
+parallel = true

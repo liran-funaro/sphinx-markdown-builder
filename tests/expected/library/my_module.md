@@ -41,6 +41,18 @@ Some old function.
 > [!WARNING]
 > Deprecated since version 3.1: Use `other()` instead.
 
+### span([start, ]stop[, step])
+
+Return the numbers from start (default 0) up to stop, by step (default 1).
+
+### defaults(a, b=None, \*args, c=1, \*\*kwargs)
+
+Optional parameters in a real signature: rendered with their defaults, with no brackets.
+
+### clock([hour[, minute[, second]]])
+
+Format a time of day as `HH:MM:SS`; missing parts are zero.
+
 ### func1(param1)
 
 This is a function with a single parameter.
@@ -50,6 +62,22 @@ Thanks to github.com/remiconnesson.
   **param1** ([*int*](https://docs.python.org/3/library/functions.html#int)) – This is a single parameter.
 * **Return type:**
   [int](https://docs.python.org/3/library/functions.html#int)
+
+### get_option(options, name)
+
+Get an option by name.
+
+* **Parameters:**
+  * **options** (*Optional\[Mapping\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*,* [*int*](https://docs.python.org/3/library/functions.html#int)*\]\]*) – The options, if any.
+  * **name** (*None* *or* [*str*](https://docs.python.org/3/library/stdtypes.html#str)) – The option name.
+
+### get_query(name, params=None)
+
+Get a query, with a Google-style docstring.
+
+* **Parameters:**
+  * **name** (*Optional\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*\]*) – Optional name parameter.
+  * **params** (*Optional\[Mapping\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*,* *Any\]\]*) – Optional query params.
 
 ### func2(param1, param2)
 
@@ -61,15 +89,19 @@ This is a function with two parameters.
 * **Return type:**
   [str](https://docs.python.org/3/library/stdtypes.html#str)
 
-### func3(param1, param2)
+### downside_risk(returns, min_acceptable_return=0.0)
 
-This is a function with two parameters.
+Compute the downside risk of a series of returns.
 
-* **Parameters:**
-  * **param1** ([*int*](https://docs.python.org/3/library/functions.html#int)) – Alice <sup>[1](#id3)</sup>.
-  * **param2** ([*int*](https://docs.python.org/3/library/functions.html#int)) – Bon <sup>[2](#id4)</sup>.
+## Parameters
 
-## References
+returns : *ndarray of shape (n_observations,)*
+: The observed returns, at least one.
 
-* <a id='id3'>**[1]**</a> Alice is commonly used to describe the first actor.
-* <a id='id4'>**[2]**</a> Bob is commonly used to describe the second actor.
+min_acceptable_return : *float, optional*
+: Returns below this value count as downside.
+
+## Returns
+
+risk : *float*
+: The downside risk.

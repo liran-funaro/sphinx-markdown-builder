@@ -43,6 +43,26 @@ This is an example of regular text in paragraph form. There are no indents. As
 a best practice, break lines at about 80 characters, so that each line has its
 own line number for commenting in reviews.
 
+Emphasis can end in punctuation right before a word: **“quoted”** word and *(paren)* x.
+
+A literal asterisk right before emphasis: \* *word*.
+
+A symbol at the edge: **5€** off.
+
+A mark after a literal backslash: *a\\b*.
+
+Bold next to bold: **ab**.
+
+Italic then bold, and bold then italic: *a* **b** and **c** *d*.
+
+Punctuation on one side of italic next to bold: *(a)* **b** and **c** *(d)*.
+
+Emphasis before a transparent element: *(paren)* x.
+
+An empty element between emphasis and a word: *x”* word.
+
+Inline code right next to inline code: `a` `b`.
+
 > [!WARNING]
 > Throughout text and code examples, make sure double quotation
 > marks and apostrophes are straight (”) or (‘), not curly quotatation marks
@@ -93,6 +113,7 @@ Monospace text is used for `code examples`. Text surrounded by double grave
 accent characters is rendered in monospace font.
 
 <!-- comments can be added in a file by starting a line with 2 periods and a space. -->
+<!-- a comment can contain - -> or - -!> without ending early. -->
 
 In English source files, look for comments addressed to translators from writers.
 
@@ -107,6 +128,11 @@ Use hash symbols for ordered lists.
 1. Select **Advanced Settings**.
 2. Find the **Course Advertised Start Date** policy key.
 3. Enter the value you want to display.
+
+An ordered list can start at another number.
+
+3. Select **Save**.
+4. Close the page.
 
 > [!NOTE]
 > Ordered lists usually use numerals. Nested ordered lists (ordered lists inside
@@ -299,7 +325,7 @@ the text that you specify.
 #### Cross-References Using the Anchor Only
 
 To add a cross-reference to a specific location in a document and use the text
-of the heading for that location as link text, use `:ref:`Anchor Text``
+of the heading for that location as link text, use `` :ref:`Anchor Text` ``
 syntax, as in the following example.
 
 For more information about using keyboard shortcuts, see [Keyboard Shortcuts for Notes](#sfd-sn-keyboard-shortcuts).
@@ -316,7 +342,7 @@ for Notes.
 #### Cross-References Using Specified Link Text
 
 For internal cross-references that use text other than the heading for the
-section that you’re linking to, use `:ref:`specified text<Anchor Text>``
+section that you’re linking to, use `` :ref:`specified text<Anchor Text>` ``
 syntax, as in the following example.
 
 If you want to, you can use [keyboard shortcuts](#sfd-sn-keyboard-shortcuts) to create, edit, and view notes.
@@ -442,6 +468,20 @@ Image references look like this.
 Image links can include optional specifications such as height, width, or
 scale. Alternative text for screen readers is required for each image. Provide
 text that is useful to someone who might not be able to see the image.
+
+![Markdown logo](static/markdown.png)
+
+*Figure caption text.*
+
+Figure legend paragraph.
+
+![Markdown logo](static/markdown.png)
+
+*An emphasized caption*
+
+![Markdown logo](static/markdown.png)
+
+*One and two in a caption*
 
 <a id="examples-of-tables"></a>
 
@@ -576,7 +616,7 @@ to render correctly.
 
 In inline text, any text can be formatted as code (monospace font) by
 enclosing the selection within a pair of double “grave accent” characters (\`).
-For example, ```these words``` are formatted in a monospace font when the
+For example, ``` ``these words`` ``` are formatted in a monospace font when the
 documentation is output as PDF or HTML.
 
 ### Code blocks

@@ -18,7 +18,10 @@ extensions = [
     "sphinx.ext.intersphinx",  # Link to other project's documentation (see mapping below)
     "sphinx_markdown_builder",
     "sphinxcontrib.httpdomain",
+    "sphinx_inline_tabs",  # Emits `label` nodes outside of footnotes
+    "sphinx.ext.napoleon",  # Google-style docstrings
 ]
+napoleon_numpy_docstring = False  # Keeps the existing NumPy-style sections as they are
 
 
 def edx_rtd_url(slug):
@@ -61,5 +64,13 @@ autodoc_member_order = "bysource"
 
 templates_path = ["_templates"]
 exclude_patterns = ["expected"]
+# image-target.rst links to a missing download on purpose, to test the unregistered-file fallback.
+suppress_warnings = ["download.not_readable"]
 
 language = "en"
+
+# The overrides build (`-t numpydoc`) also runs numpydoc, which rewrites every autodoc docstring.
+if tags.has("numpydoc"):  # noqa: F821 (Sphinx injects `tags`)
+    extensions.append("numpydoc")
+    # numpydoc lists class members in an autosummary. Without a toctree, it needs no generated stub pages.
+    numpydoc_class_members_toctree = False
