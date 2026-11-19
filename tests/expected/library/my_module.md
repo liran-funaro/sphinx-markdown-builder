@@ -89,15 +89,19 @@ This is a function with two parameters.
 * **Return type:**
   [str](https://docs.python.org/3/library/stdtypes.html#str)
 
-### func3(param1, param2)
+### downside_risk(returns, min_acceptable_return=0.0)
 
-This is a function with two parameters.
+Compute the downside risk of a series of returns.
 
-* **Parameters:**
-  * **param1** ([*int*](https://docs.python.org/3/library/functions.html#int)) – Alice <sup>[1](#id3)</sup>.
-  * **param2** ([*int*](https://docs.python.org/3/library/functions.html#int)) – Bon <sup>[2](#id4)</sup>.
+## Parameters
 
-## References
+returns : *ndarray of shape (n_observations,)*
+: The observed returns, at least one.
 
-* <a id='id3'>**[1]**</a> Alice is commonly used to describe the first actor.
-* <a id='id4'>**[2]**</a> Bob is commonly used to describe the second actor.
+min_acceptable_return : *float, optional*
+: Returns below this value count as downside.
+
+## Returns
+
+risk : *float*
+: The downside risk.

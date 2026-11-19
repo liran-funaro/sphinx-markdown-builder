@@ -43,6 +43,8 @@ SOURCE_FLAGS = [
         "markdown_suppress_comments=1",
         "-D",
         "markdown_include_raw_types=markdown",
+        "-t",
+        "numpydoc",
         "-j",
         "8",
     ],

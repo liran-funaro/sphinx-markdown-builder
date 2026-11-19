@@ -6,6 +6,12 @@ Formula 1
   <br/>
   Some more text related to the definition.
 
+Formula 2 : *float* : *optional*
+: A term with classifiers (e.g., numpydoc parameter types).
+
+Formula 3 : *float*
+: An already-emphasized classifier.
+
 Display math:
 
 $$
@@ -234,3 +240,18 @@ A footnote <sup>[1](#target-note)</sup>, and links to [the footnote alias](#the-
 <a id="the-paragraph-alias"></a>
 
 A paragraph with a target right before it, which moves its id onto the paragraph.
+
+## Citations
+
+A citation reference <sup>[CIT2002](#cit2002)</sup> on the same page.
+
+An external link to [the same anchor](https://example.org/#cit2002) is not a citation.
+
+A link labeled like a citation, [\[CIT2002\]](https://example.org/), is not a citation either.
+
+A cross-reference to the citation keeps its own text and stays a link: [`CIT2002`](#cit2002).
+
+A link to [the citation alias](#the-citation-alias), a target right before the citation, which keeps its own id.
+
+<a id="the-citation-alias"></a>
+* <a id='cit2002'>**[CIT2002]**</a> A citation definition.

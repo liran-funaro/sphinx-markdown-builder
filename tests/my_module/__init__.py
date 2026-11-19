@@ -106,3 +106,23 @@ def func3(param1: int, param2: int):
     .. [2] Bob is commonly used to describe the second actor.
     """
     pass
+
+
+def downside_risk(returns, min_acceptable_return=0.0):
+    """
+    Compute the downside risk of a series of returns.
+
+    Parameters
+    ----------
+    returns : ndarray of shape (n_observations,)
+        The observed returns, at least one.
+    min_acceptable_return : float, optional
+        Returns below this value count as downside.
+
+    Returns
+    -------
+    risk : float
+        The downside risk.
+    """
+    shortfalls = [min(value - min_acceptable_return, 0.0) for value in returns]
+    return (sum(value * value for value in shortfalls) / len(shortfalls)) ** 0.5

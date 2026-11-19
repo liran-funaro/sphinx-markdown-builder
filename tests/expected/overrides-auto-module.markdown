@@ -12,15 +12,12 @@ Example module
 
 A Point
 
-<a id="attributes"></a>
+* **Attributes:**
+  **x: int**
+  : The x value
 
-## Attributes
-
-x: int
-: The x value
-
-y: str
-: The y value
+  **y: str**
+  : The y value
 
 #### x *: [int](https://docs.python.org/3/library/functions.html#int)*
 
@@ -85,12 +82,24 @@ This is a function with two parameters.
 This is a function with two parameters.
 
 * **Parameters:**
-  - **param1** – Alice <sup>[1](#id3)</sup>.
-  - **param2** – Bon <sup>[2](#id4)</sup>.
+  - **param1** – Alice <sup>[1](#r9b3957318714-1)</sup>.
+  - **param2** – Bon <sup>[2](#r9b3957318714-2)</sup>.
 
-<a id="references"></a>
+### References
 
-## References
+* <a id='r9b3957318714-1'>**[1]**</a> Alice is commonly used to describe the first actor.
+* <a id='r9b3957318714-2'>**[2]**</a> Bob is commonly used to describe the second actor.
 
-* <a id='id3'>**[1]**</a> Alice is commonly used to describe the first actor.
-* <a id='id4'>**[2]**</a> Bob is commonly used to describe the second actor.
+### downside_risk(returns, min_acceptable_return=0.0)
+
+Compute the downside risk of a series of returns.
+
+* **Parameters:**
+  **returns** : *ndarray of shape (n_observations,)*
+  : The observed returns, at least one.
+
+  **min_acceptable_return** : *float, optional*
+  : Returns below this value count as downside.
+* **Returns:**
+  **risk** : *float*
+  : The downside risk.
