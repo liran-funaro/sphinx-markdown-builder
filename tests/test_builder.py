@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Iterable
 
 import pytest
+import sphinx
 from sphinx.cmd.build import main
 
 BUILD_PATH = "./tests/docs-build"
@@ -19,9 +20,9 @@ SOURCE_FLAGS = [
     [],
     [
         "-D",
-        'markdown_http_base="https://localhost"',
+        "markdown_http_base=https://localhost",
         "-D",
-        'markdown_uri_doc_suffix=".html"',
+        "markdown_uri_doc_suffix=.html",
         "-D",
         "markdown_docinfo=1",
         "-D",
@@ -33,9 +34,17 @@ SOURCE_FLAGS = [
         "-D",
         "markdown_bullet=-",
         "-D",
-        "markdown_file_suffix=.html.md",
+        "markdown_file_suffix=.markdown",
         "-D",
         "markdown_flavor=github",
+        "-D",
+        "markdown_compact_tables=1",
+        "-D",
+        "markdown_suppress_comments=1",
+        "-D",
+        "markdown_include_raw_types=markdown",
+        "-t",
+        "numpydoc",
         "-j",
         "8",
     ],
@@ -77,7 +86,11 @@ def run_sphinx(build_path, *flags):
 
 @pytest.mark.parametrize(["flags", "build_path"], OPTIONS, ids=TEST_NAMES)
 def test_builder_make_all(flags: Iterable[str], build_path: str):
-    run_sphinx(build_path, "-a", *flags)
+    # A full build of the test sources must not warn.
+    # The "test-min-sphinx" CI job runs this test with the oldest supported Sphinx, to check the full build succeeds.
+    # Sphinx < 7.2 warns on newer syntax in the sources (e.g., `:no-index:`), so warnings fail the build only from 7.2.
+    warn_flags = ["-W", "--keep-going"] if sphinx.version_info >= (7, 2) else []
+    run_sphinx(build_path, "-a", "-E", *warn_flags, *flags)
 
 
 @pytest.mark.parametrize(["flags", "build_path"], OPTIONS, ids=TEST_NAMES)
@@ -115,7 +128,7 @@ def _has_suffix_in_path(path: str, suffix: str) -> bool:
 def test_custom_file_suffix():
     """Test that markdown_file_suffix configuration generates files with correct suffix"""
     build_path = os.path.join(BUILD_PATH, "test_suffix")
-    suffix = ".html.md"
+    suffix = ".markdown"
 
     # Clean and build
     _rm_build_path(build_path)
@@ -130,6 +143,22 @@ def test_custom_file_suffix():
 
     # Clean up
     _rm_build_path(build_path)
+
+
+def test_config_change_rebuilds_output(tmp_path: Path):
+    """Changing a markdown_* option rebuilds the output without -a or -E."""
+    source_path = tmp_path / "source"
+    output_path = tmp_path / "output"
+    source_path.mkdir()
+    (source_path / "conf.py").write_text('extensions = ["sphinx_markdown_builder"]\n', encoding="utf-8")
+    (source_path / "index.rst").write_text("Title\n=====\n", encoding="utf-8")
+    index_path = output_path / "index.md"
+
+    assert main(["-b", "markdown", str(source_path), str(output_path)]) == 0
+    assert "<a" not in index_path.read_text(encoding="utf-8")
+
+    assert main(["-b", "markdown", str(source_path), str(output_path), "-D", "markdown_anchor_sections=1"]) == 0
+    assert '<a id="title"></a>' in index_path.read_text(encoding="utf-8")
 
 
 def test_github_flavor_preserves_block_line_breaks():

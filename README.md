@@ -44,6 +44,11 @@ You can add the following configurations to your `conf.py` file:
 * `markdown_flavor`: If set to `github`, output will suit GitHub's flavor of Markdown.
 * `markdown_compact_tables`: If set to `True`, generates Markdown tables without
   column-alignment padding. Defaults to `False`, preserving the existing formatting.
+* `markdown_suppress_comments`: If set to `True`, reStructuredText comments (`.. text`) are left out of the output,
+  as in Sphinx's HTML builder. Defaults to `False`, which renders each comment as `<!-- text -->`.
+* `markdown_include_raw_types`: The `raw` directive formats to write to the output, verbatim
+  (default: `["html", "markdown"]`). Raw content of any other format (e.g., `latex`) is left out.
+  Set it to `["markdown"]` to leave out raw HTML as well.
 
 For example, if your `conf.py` file have the following configuration:
 

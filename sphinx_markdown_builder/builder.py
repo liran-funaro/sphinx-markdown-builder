@@ -7,30 +7,19 @@ import shutil
 from contextlib import contextmanager
 
 from docutils import nodes
+from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
+from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging
+from sphinx.util.nodes import NodeMatcher
 from sphinx.util.osutil import ensuredir, os_path
 
 from sphinx_markdown_builder.translator import MarkdownTranslator
 
 logger = logging.getLogger(__name__)
-
-
-@contextmanager
-def io_handler(file_path: str, log_error=True):
-    try:
-        yield
-    except (IOError, OSError) as err:
-        if log_error:
-            logger.warning(__("error accessing file %s: %s"), file_path, err)
-
-
-def get_mod_time_if_exists(file_path, log_error=True):
-    with io_handler(file_path, log_error):
-        return os.path.getmtime(file_path)
 
 
 class MarkdownBuilder(Builder):
@@ -46,20 +35,10 @@ class MarkdownBuilder(Builder):
 
     def __init__(self, app: Sphinx, env: BuildEnvironment):
         super().__init__(app, env)
-        self.sec_numbers = None
         self.current_doc_name = None
 
     def init(self):
-        self.sec_numbers = {}
         self.out_suffix = self.config.markdown_file_suffix
-
-    def _get_source_mtime(self, doc_name: str):
-        source_name = self.env.doc2path(doc_name)
-        return get_mod_time_if_exists(source_name)
-
-    def _get_target_mtime(self, doc_name: str):
-        target_name = os.path.join(self.outdir, doc_name + self.out_suffix)
-        return get_mod_time_if_exists(target_name, log_error=False)
 
     def get_outdated_docs(self):
         for doc_name in self.env.found_docs:
@@ -72,6 +51,14 @@ class MarkdownBuilder(Builder):
             if source_mtime is None or target_mtime is None or source_mtime > target_mtime:
                 yield doc_name
 
+    def _get_source_mtime(self, doc_name: str):
+        source_name = self.env.doc2path(doc_name)
+        return get_mod_time_if_exists(source_name)
+
+    def _get_target_mtime(self, doc_name: str):
+        target_name = os.path.join(self.outdir, doc_name + self.out_suffix)
+        return get_mod_time_if_exists(target_name, log_error=False)
+
     def get_target_uri(self, docname: str, typ: str | None = None):
         """
         Returns the target file name.
@@ -80,9 +67,11 @@ class MarkdownBuilder(Builder):
         """
         return f"{docname}{self.config.markdown_uri_doc_suffix}"
 
+    def prepare_writing(self, docnames):
+        """Nothing to prepare. Sphinx < 8.1 requires this override (its default raises NotImplementedError)."""
+
     def write_doc(self, docname: str, doctree: nodes.document):
         self.current_doc_name = docname
-        self.sec_numbers = self.env.toc_secnumbers.get(docname, {})
         visitor = self.create_translator(doctree, self)
         doctree.walkabout(visitor)
         out_filename = os.path.join(self.outdir, f"{os_path(docname)}{self.out_suffix}")
@@ -99,3 +88,37 @@ class MarkdownBuilder(Builder):
             ensuredir(os.path.dirname(destination))
             with io_handler(source_path):
                 shutil.copyfile(source_path, destination)
+
+
+def get_mod_time_if_exists(file_path, log_error=True):
+    with io_handler(file_path, log_error):
+        return os.path.getmtime(file_path)
+
+
+@contextmanager
+def io_handler(file_path: str, log_error=True):
+    try:
+        yield
+    except (IOError, OSError) as err:
+        if log_error:
+            logger.warning(__("error accessing file %s: %s"), file_path, err)
+
+
+class KeepCitationReferences(SphinxPostTransform):
+    """
+    Keeps citation references as `citation_reference` nodes, which the translator renders like footnote references.
+    Sphinx turns a citation reference into a `pending_xref` in the citation domain (see `CitationReferenceTransform`),
+    which it would resolve into a plain reference, the same as any other link to the citation. The LaTeX builder keeps
+    them the same way.
+    """
+
+    builders = ("markdown",)
+    default_priority = 5  # Before `ReferencesResolver` (10)
+
+    def run(self, **kwargs):
+        citations = self.env.get_domain("citation").citations
+        matcher = NodeMatcher(addnodes.pending_xref, refdomain="citation", reftype="ref")
+        for node in list(self.document.findall(matcher)):
+            doc_name, label_id, _ = citations.get(node.get("reftarget"), ("", "", 0))
+            if doc_name:
+                node.replace_self(nodes.citation_reference("", "", *node.children, docname=doc_name, refname=label_id))

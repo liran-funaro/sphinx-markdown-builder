@@ -13,6 +13,8 @@ contain the root `toctree` directive. -->
 
 Some link to a class [`my_module.module_class.ModuleClass`](library/my_module.module_class.md#my_module.module_class.ModuleClass)
 
+Some link to this page [Welcome to Sphinx-Markdown-Builder TocTree Test’s documentation!]()
+
 ---
 
 # Indices and tables
