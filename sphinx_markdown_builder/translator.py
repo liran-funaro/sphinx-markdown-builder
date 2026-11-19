@@ -85,6 +85,7 @@ PREDEFINED_ELEMENTS: Dict[str, Union[contexts.PushContext, contexts.PushBox, con
         substitution_definition=SKIP,  # the doctree already contains the text with substitutions applied.
         runrole_reference=SKIP,
         # Doctree elements to ignore
+        document=None,
         container=None,
         inline=None,
         abbreviation=None,  # e.g., the keyword-only '*' in signatures
@@ -140,7 +141,7 @@ class UnknownVisit(Exception):
     """A visit/depart handler met a node outside the context it supports (e.g., a `label` outside a footnote)."""
 
 
-class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-methods,too-many-instance-attributes
+class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-methods
     ################################################################################
     # Core methods
     ################################################################################
@@ -151,10 +152,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self.language = languages.get_language(self.settings.language_code, document.reporter)
         # Warn only once per writer about unsupported elements
         self._warned = set()
-        # Abbreviation explanations, by abbreviation text
-        self._abbreviation_explanations: Dict[str, str] = {}
-        # Abbreviation footnote indices, by abbreviation text, by order of appearance
-        self._abbreviation_footnotes: Dict[str, int] = {}
+        # Abbreviation explanations, by abbreviation text, in order of appearance (the footnote order)
+        self._abbreviations: Dict[str, str] = {}
 
         # A stack of nested contexts. Output goes to the last one, which renders into its parent when popped.
         self._ctx_queue: List[contexts.Base] = [contexts.Base()]
@@ -334,8 +333,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             ctx.add(sub_ctx.make().strip(), prefix_eol=2, suffix_eol=1)
         abbreviation_footnotes = "\n".join(
             f"[^{ABBREVIATION_LABEL_PREFIX}{index}]: "
-            f"**{escape.markdown_chars(text)}**: {escape.markdown_chars(self._abbreviation_explanations[text])}"
-            for text, index in self._abbreviation_footnotes.items()
+            f"**{escape.markdown_chars(text)}**: "
+            f"{escape.markdown_chars(explanation or 'no explanation found in document')}"
+            for index, (text, explanation) in enumerate(self._abbreviations.items(), start=1)
         )
         ctx.add(abbreviation_footnotes, prefix_eol=2, suffix_eol=1)
         ctx.force_eol(1)
@@ -361,15 +361,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     # visit/depart handlers
     ################################################################################
 
-    def visit_document(self, node):
-        """Collects the abbreviation explanations upfront, as an abbreviation may only be explained in some of its
-        occurrences. The first explanation is used if the same abbreviation is explained differently.
-        """
-        for abbreviation in node.findall(nodes.abbreviation):
-            explanation = abbreviation.get("explanation")
-            if explanation:
-                self._abbreviation_explanations.setdefault(abbreviation.astext(), explanation)
-
     def visit_image(self, node):
         """Image directive."""
         uri = escape.link_destination(node["uri"])
@@ -388,14 +379,17 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
         Markdown has no equivalent of the HTML `title` attribute, so the explanation is moved to a footnote:
         `LLM[^abbr-1]`, with `[^abbr-1]: **LLM**: Large Language Model` at the end of the document.
-        Repeating abbreviations share a single footnote, so the explanation only needs to be given once.
-        An abbreviation that is never explained in the document is left as-is.
+        Repeating abbreviations share a single footnote, so the explanation only needs to be given once,
+        in any of its occurrences. The first explanation wins if they differ.
+        Signatures keep their abbreviations (e.g., the keyword-only `*`) as plain text.
         """
-        text = node.astext()
-        if text not in self._abbreviation_explanations:
+        if self.status.in_signature:
             return
 
-        index = self._abbreviation_footnotes.setdefault(text, len(self._abbreviation_footnotes) + 1)
+        text = node.astext()
+        if not self._abbreviations.get(text):
+            self._abbreviations[text] = node.get("explanation", "")
+        index = list(self._abbreviations).index(text) + 1
         self.add(f"[^{ABBREVIATION_LABEL_PREFIX}{index}]")
 
     def visit_Text(self, node):  # pylint: disable=invalid-name
@@ -719,8 +713,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_status(desc_type=node.attributes.get("desctype", ""))
 
     @pushing_context
+    @pushing_status
     def visit_desc_signature(self, node):
         """the main signature of class/method"""
+        self._push_status(in_signature=True)
 
         # Insert anchors if enabled by the config
         if self.config.markdown_anchor_signatures:
