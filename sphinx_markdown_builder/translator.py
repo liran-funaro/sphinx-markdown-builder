@@ -351,7 +351,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         # docinfo: the bibliographic fields of the document's first field list. A known field is its own element
         # (e.g. `author`, `version`), `authors` holds an `author` per name, and any other name is a generic `field`,
         # which is left out. Note: Sphinx moves the docinfo into `env.metadata` and removes it before writing.
-        for field in node.findall(lambda n: n.tagname in DOC_INFO_FIELDS):
+        fields = node.findall(lambda n: n.tagname in DOC_INFO_FIELDS) if self.config.markdown_docinfo else ()
+        for field in fields:
             # docutils keeps an empty field as a generic `field`, so the value is never empty.
             name, value = field.tagname, field.astext().strip()
             if name in self._doc_info_from_config or name not in self._doc_info:
