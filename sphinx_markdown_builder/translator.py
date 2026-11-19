@@ -746,7 +746,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         # a visible desc_addname or qualify names that are not the object itself.
         if parts and parts[-1] == node.astext() and not any(child.tagname == "desc_addname" for child in node.parent):
             if len(parts) > 1:
-                self.add(separator.join(parts[:-1]) + separator)
+                prefix = separator.join(parts[:-1]) + separator
+                # Outside a code span, the prefix needs the escaping visit_Text gives the name, e.g., `_impl_`.
+                self.add(escape.markdown_chars(prefix) if has_links else prefix)
 
     @pushing_multi_context(2)
     def visit_desc_type_parameter_list(self, node):

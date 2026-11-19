@@ -138,6 +138,12 @@ A nested docstring section.
 
 **Member int `Box::Inner::value`**
 
+**class `Result`**
+
+**class `_impl_`**
+
+**Function \_impl_::operator [Result](#_CPPv46Result)() const**
+
 **Function int \*`lookup`(const char \*name)**
 
 **Class `Widget`(options)**

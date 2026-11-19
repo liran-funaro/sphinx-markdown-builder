@@ -229,6 +229,36 @@ A nested docstring section.
 
 **Member int `Box::Inner::value`**
 
+<a id="_CPPv46Result"></a>
+
+<a id="_CPPv36Result"></a>
+
+<a id="_CPPv26Result"></a>
+
+<a id="Result"></a>
+
+**class `Result`**
+
+<a id="_CPPv46_impl_"></a>
+
+<a id="_CPPv36_impl_"></a>
+
+<a id="_CPPv26_impl_"></a>
+
+<a id="_impl_"></a>
+
+**class `_impl_`**
+
+<a id="_CPPv4NK6_impl_cv6ResultEv"></a>
+
+<a id="_CPPv3NK6_impl_cv6ResultEv"></a>
+
+<a id="_CPPv2NK6_impl_cv6ResultEv"></a>
+
+<a id="_impl_::castto-Result-operatorC"></a>
+
+**Function \_impl_::operator [Result](#_CPPv46Result)() const**
+
 <a id="c.lookup"></a>
 
 **Function int \*`lookup`(const char \*name)**

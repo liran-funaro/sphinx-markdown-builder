@@ -134,6 +134,12 @@ Signature markup
 
       .. cpp:member:: int value
 
+.. cpp:class:: Result
+
+.. cpp:class:: _impl_
+
+   .. cpp:function:: operator Result() const
+
 .. c:function:: int *lookup(const char *name)
 
 .. js:class:: Widget(options)
