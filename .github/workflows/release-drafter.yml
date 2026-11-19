@@ -9,6 +9,11 @@ on:
 permissions:
   contents: read
 
+# One repository-wide group, so a draft update cannot overwrite a release that is being published.
+concurrency:
+  group: release-drafter
+  cancel-in-progress: false
+
 jobs:
   update-release-draft:
     if: github.repository == 'liran-funaro/sphinx-markdown-builder'
