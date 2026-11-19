@@ -10,9 +10,11 @@ permissions:
   contents: read
 
 # One repository-wide group, so a draft update cannot overwrite a release that is being published.
+# queue: max keeps every pending run, so a later push cannot cancel a waiting publish.
 concurrency:
   group: release-drafter
   cancel-in-progress: false
+  queue: max
 
 jobs:
   publish-release:
