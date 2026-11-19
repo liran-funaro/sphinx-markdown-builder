@@ -85,8 +85,8 @@ class MarkdownBuilder(Builder):
         for src_file_name, (_, dst_path) in self.env.dlfiles.items():
             source_path = os.path.join(self.srcdir, src_file_name)
             destination = os.path.join(self.outdir, self.download_dir, dst_path)
-            ensuredir(os.path.dirname(destination))
             with io_handler(source_path):
+                ensuredir(os.path.dirname(destination))
                 shutil.copyfile(source_path, destination)
 
         # Images keep their source layout, so their links (relative to the source dir) still resolve.
@@ -98,8 +98,8 @@ class MarkdownBuilder(Builder):
                 continue
             source_path = os.path.join(self.srcdir, image_path)
             destination = os.path.join(self.outdir, image_path)
-            ensuredir(os.path.dirname(destination))
             with io_handler(source_path):
+                ensuredir(os.path.dirname(destination))
                 shutil.copyfile(source_path, destination)
 
 
