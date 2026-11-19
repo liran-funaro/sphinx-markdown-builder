@@ -93,6 +93,7 @@
     * [`two_groups()`](blocks.md#two_groups)
     * [`unbalanced()`](blocks.md#unbalanced)
   * [Inline tabs](blocks.md#inline-tabs)
+  * [Sphinx Design](blocks.md#sphinx-design)
   * [Same-page references](blocks.md#same-page-references)
   * [Targets](blocks.md#targets)
   * [Citations](blocks.md#citations)
@@ -104,4 +105,3 @@
   * [Section for third glossary](glossaries.md#section-for-third-glossary)
   * [Citation from another page](glossaries.md#citation-from-another-page)
 * [Auto Module](auto-module.md)
-* [Sphinx Design](sphinx_design.md)

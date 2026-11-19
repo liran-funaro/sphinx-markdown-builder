@@ -91,7 +91,6 @@ PREDEFINED_ELEMENTS: Dict[str, Union[contexts.PushContext, contexts.PushBox, con
         glossary=None,
         field_list_item=None,
         mpl_hint=None,
-        PassthroughTextElement=None,  # sphinx-design: transparent wrapper around inline refs
         pending_xref=None,
         compound=None,
         desc_addname=None,  # module pre-roll for class/method
@@ -406,6 +405,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(contexts.Base(params))
 
     visit_compact_paragraph = visit_paragraph
+    # sphinx-design cards wrap their title and link in this node, outside any paragraph:
+    # container(card) > container(card-body) > container(card-title) > PassthroughTextElement (the title),
+    # and container(card) > PassthroughTextElement > reference (the card link).
+    visit_PassthroughTextElement = visit_paragraph
 
     ################################################################################
     # Line block
