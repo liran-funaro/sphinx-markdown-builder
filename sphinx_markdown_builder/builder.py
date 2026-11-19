@@ -7,11 +7,14 @@ import shutil
 from contextlib import contextmanager
 
 from docutils import nodes
+from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import __
+from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging
+from sphinx.util.nodes import NodeMatcher
 from sphinx.util.osutil import ensuredir, os_path
 
 from sphinx_markdown_builder.translator import MarkdownTranslator
@@ -99,3 +102,23 @@ def io_handler(file_path: str, log_error=True):
     except (IOError, OSError) as err:
         if log_error:
             logger.warning(__("error accessing file %s: %s"), file_path, err)
+
+
+class KeepCitationReferences(SphinxPostTransform):
+    """
+    Keeps citation references as `citation_reference` nodes, which the translator renders like footnote references.
+    Sphinx turns a citation reference into a `pending_xref` in the citation domain (see `CitationReferenceTransform`),
+    which it would resolve into a plain reference, the same as any other link to the citation. The LaTeX builder keeps
+    them the same way.
+    """
+
+    builders = ("markdown",)
+    default_priority = 5  # Before `ReferencesResolver` (10)
+
+    def run(self, **kwargs):
+        citations = self.env.get_domain("citation").citations
+        matcher = NodeMatcher(addnodes.pending_xref, refdomain="citation", reftype="ref")
+        for node in list(self.document.findall(matcher)):
+            doc_name, label_id, _ = citations.get(node.get("reftarget"), ("", "", 0))
+            if doc_name:
+                node.replace_self(nodes.citation_reference("", "", *node.children, docname=doc_name, refname=label_id))
