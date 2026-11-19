@@ -737,8 +737,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             if not signature.get("add_permalink"):
                 return
             signature = signature.parent
-        if signature.tagname != "desc_signature":
-            return
         domain = signature.parent.get("domain")
         separator = "::" if domain == "cpp" else "."
         parts = signature.get("_toc_parts", ())
