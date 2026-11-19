@@ -45,6 +45,28 @@ This is an example of regular text in paragraph form. There are no indents. As
 a best practice, break lines at about 80 characters, so that each line has its
 own line number for commenting in reviews.
 
+Emphasis can end in punctuation right before a word: **"quoted"**\ word and *(paren)*\ x.
+
+A literal asterisk right before emphasis: \*\ *word*.
+
+A symbol at the edge: **5€**\ off.
+
+A mark after a literal backslash: *a\\*\ *b*.
+
+Bold next to bold: **a**\ **b**.
+
+Italic then bold, and bold then italic: *a*\ **b** and **c**\ *d*.
+
+Punctuation on one side of italic next to bold: *(a)*\ **b** and **c**\ *(d)*.
+
+.. role:: custom
+
+Emphasis before a transparent element: *(paren)*\ :custom:`x`.
+
+An empty element between emphasis and a word: *x"*\ :sub:`\ `\ word.
+
+Inline code right next to inline code: ``a``\ ``b``.
+
 .. warning:: Throughout text and code examples, make sure double quotation
    marks and apostrophes are straight (") or ('), not curly quotatation marks
    and apostrophes, which might be introduced when text is cut and pasted from
@@ -93,6 +115,8 @@ accent characters is rendered in monospace font.
 
 .. comments can be added in a file by starting a line with 2 periods and a space.
 
+.. a comment can contain --> or --!> without ending early.
+
 In English source files, look for comments addressed to translators from writers.
 
 ``.. Translators:  In this code example, do not translate such and such.``
@@ -111,6 +135,11 @@ Use hash symbols for ordered lists.
 #. Select **Advanced Settings**.
 #. Find the **Course Advertised Start Date** policy key.
 #. Enter the value you want to display.
+
+An ordered list can start at another number.
+
+3. Select **Save**.
+4. Close the page.
 
 .. note::
  Ordered lists usually use numerals. Nested ordered lists (ordered lists inside
@@ -548,6 +577,16 @@ text that is useful to someone who might not be able to see the image.
    Figure caption text.
 
    Figure legend paragraph.
+
+.. figure:: /static/markdown.png
+   :alt: Markdown logo
+
+   *An emphasized caption*
+
+.. figure:: /static/markdown.png
+   :alt: Markdown logo
+
+   *One* and *two* in a caption
 
 
 .. _Examples of Tables:

@@ -77,6 +77,7 @@ Not this:
 ```
 
 This: add `-D markdown_compact_tables=1` to the existing "Building markdown with configuration overrides..." step.
+Also add this flag to `tests/test_builder.py` to ensure all paths are covered in the test report.
 
 ## Translator architecture
 
@@ -105,7 +106,7 @@ PREDEFINED_ELEMENTS = dict(
 
 ### 5. Scoped state
 
-**What:** State that only matters inside one kind of node lives in a `SubContext` subclass or a `ContextStatus` field. It shouldn't be an attribute on `MarkdownTranslator`. Each status flag means exactly one thing.
+**What:** State that only matters inside one kind of node lives in a `contexts.Base` subclass or a `contexts.Status` field. It shouldn't be an attribute on `MarkdownTranslator`. Each status flag means exactly one thing.
 
 **Why:** A translator attribute is visible to every node and is easy to leave in the wrong state. A flag reused for a second meaning breaks the cases it wasn't designed for. For example, comments turn off escaping but still collapse line breaks.
 
@@ -118,7 +119,7 @@ if flavor == "github" and self.status.escape_text:  # escape_text standing in fo
 
 This:
 ```python
-self._push_context(CommaSeparatedContext(", "))  # state lives with desc_parameterlist
+self._push_context(contexts.ParameterList())  # state lives with desc_parameterlist
 
 self._push_status(escape_text=False, preserve_line_breaks=True)  # one flag, one meaning
 ```
@@ -188,7 +189,35 @@ def _visit_doc_info(self, node):
     self._doc_info[name] = value
 ```
 
-### 9. Idiomatic Python
+### 9. Callers before helpers
+
+**What:** Code is written in the order it is read: the main flow first, then the helpers it uses. The main flow is a class's public methods, the translator's `visit_`/`depart_` handlers, or a method used from another `####` section. A helper follows its first caller, even when it has other callers. When a caller uses several helpers, they follow it in the order it first calls them, each followed by its own helpers.
+
+Two kinds of code come first instead:
+- **Core methods**, which define how a class works, e.g., the translator's context and status stacks, `add()`, and its handler lookup. They go at the top of the class, under a `Core methods` header that separates them from the functionality. The rule still orders them within that section.
+- **Code Python needs first**: a decorator, a default argument value, a class-level alias such as `depart_bullet_list = _end_list`, or a value computed at module level.
+
+**Why:** The reader sees how a helper is used before diving into how it works. A helper that sits above its caller for neither reason is a leftover to move, not a convention to copy.
+
+Not this:
+```python
+def _adjust_url(self, url: str):
+    ...
+
+def visit_reference(self, node):
+    target = self._adjust_url(ref_uri)
+```
+
+This:
+```python
+def visit_reference(self, node):
+    target = self._adjust_url(ref_uri)
+
+def _adjust_url(self, url: str):
+    ...
+```
+
+### 10. Idiomatic Python
 
 **What:** Use the obvious built-in for each job: `set` for sets, unpacking in `for` loops, a plain `if`/`else`.
 
@@ -209,7 +238,7 @@ for src, (_, dst) in self.env.dlfiles.items():
     ...
 ```
 
-### 10. Clear names
+### 11. Clear names
 
 **What:** A name says what it holds and why. When two related attributes could be confused, a one-line comment explains how they differ.
 
@@ -228,7 +257,7 @@ self._doc_info_from_config: Set[str] = set()
 
 ## Scope and design
 
-### 11. Focused PRs
+### 12. Focused PRs
 
 **What:** A PR covers one fix or one feature. Anything else the author improves along the way goes in its own PR.
 
@@ -238,7 +267,7 @@ Not this: one PR that adds abbreviation footnotes and also renders figure captio
 
 This: PR A adds abbreviation footnotes. PR B renders figure captions.
 
-### 12. General solutions
+### 13. General solutions
 
 **What:** Fix the general problem rather than one case. Make behavior configurable when users could reasonably want different options. A fix should work for every language domain.
 
@@ -256,7 +285,7 @@ markdown_include_raw_types = ["markdown", "html"]
 
 ## Project hygiene
 
-### 13. Lint limits in `pyproject.toml`
+### 14. Lint limits in `pyproject.toml`
 
 **What:** When pylint complains because of a project-wide limit, the limit is adjusted under `[tool.pylint.format]` in `pyproject.toml`. An inline `# pylint: disable` is for one specific exception on one class or line.
 
@@ -273,7 +302,7 @@ This:
 max-positional-arguments = 6
 ```
 
-### 14. Release-neutral changes
+### 15. Release-neutral changes
 
 **What:** A PR leaves version strings alone, because the maintainer bumps them with `bumpver` at release time (see `AGENTS.md`). New syntax has to run on every Python version that `requires-python` in `pyproject.toml` allows.
 

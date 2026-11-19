@@ -34,17 +34,19 @@ test-diff:
 	@$(SPHINX_BUILD) -M markdown "$(SOURCE_DIR)" "$(BUILD_DIR)" $(SPHINX_OPTS) $(O) -a -t Partners -j 8
 
 	@echo "Building markdown with configuration overrides..."
-	@$(SPHINX_BUILD) -M markdown "$(SOURCE_DIR)" "$(BUILD_DIR)/overrides" $(SPHINX_OPTS) $(O) -a \
+	@$(SPHINX_BUILD) -M markdown "$(SOURCE_DIR)" "$(BUILD_DIR)/overrides" $(SPHINX_OPTS) $(O) -a -t numpydoc \
 			-D markdown_http_base="https://localhost" -D markdown_uri_doc_suffix=".html" \
 			-D markdown_docinfo=1 -D markdown_anchor_sections=1 -D markdown_anchor_signatures=1 \
-			-D autodoc_typehints=signature -D markdown_bullet=- -D markdown_flavor=github \
-			-D markdown_compact_tables=1
+			-D autodoc_typehints=signature -D markdown_bullet=- -D markdown_file_suffix=".markdown" \
+			-D markdown_flavor=github -D markdown_compact_tables=1 -D markdown_suppress_comments=1 -D markdown_include_raw_types=markdown
 
 	@# Copy just the files for verification
-	@cp "$(BUILD_DIR)/overrides/markdown/auto-summery.md" "$(BUILD_DIR)/markdown/overrides-auto-summery.md"
-	@cp "$(BUILD_DIR)/overrides/markdown/auto-module.md" "$(BUILD_DIR)/markdown/overrides-auto-module.md"
-	@cp "$(BUILD_DIR)/overrides/markdown/signature-headings.md" "$(BUILD_DIR)/markdown/overrides-signature-headings.md"
-	@cp "$(BUILD_DIR)/overrides/markdown/tables.md" "$(BUILD_DIR)/markdown/compact-tables.md"
+	@cp "$(BUILD_DIR)/overrides/markdown/auto-summery.markdown" "$(BUILD_DIR)/markdown/overrides-auto-summery.markdown"
+	@cp "$(BUILD_DIR)/overrides/markdown/auto-module.markdown" "$(BUILD_DIR)/markdown/overrides-auto-module.markdown"
+	@cp "$(BUILD_DIR)/overrides/markdown/signature-headings.markdown" "$(BUILD_DIR)/markdown/overrides-signature-headings.markdown"
+	@cp "$(BUILD_DIR)/overrides/markdown/tables.markdown" "$(BUILD_DIR)/markdown/compact-tables.markdown"
+	@cp "$(BUILD_DIR)/overrides/markdown/image-target.markdown" "$(BUILD_DIR)/markdown/overrides-image-target.markdown"
+	@cp "$(BUILD_DIR)/overrides/markdown/blocks.markdown" "$(BUILD_DIR)/markdown/overrides-blocks.markdown"
 
 	@echo "Verifies outputs..."
 	@diff --recursive --color=always --side-by-side --text --suppress-common-lines \
@@ -54,7 +56,7 @@ test-diff:
 
 test: test-diff
 	@echo "Unit testing and coverage report..."
-	@pytest --cov=sphinx_markdown_builder --cov-report=term --cov-report=xml
+	@pytest --cov --cov-report=term --cov-report=xml
 
 
 diff:
@@ -75,7 +77,7 @@ lint:
 .PHONY: dist
 dist:
 	@mkdir -p "$(DIST_DIR)"
-	@rm -rf "$(DIST_DIR)/*"
+	@rm -rf "$(DIST_DIR)"/*
 	python3 -m build
 
 

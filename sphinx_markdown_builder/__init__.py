@@ -2,7 +2,7 @@
 A Sphinx extension to add markdown generation support.
 """
 
-from sphinx_markdown_builder.builder import MarkdownBuilder
+from sphinx_markdown_builder.builder import KeepCitationReferences, MarkdownBuilder
 
 __version__ = "0.6.11"
 __docformat__ = "reStructuredText"
@@ -10,15 +10,18 @@ __docformat__ = "reStructuredText"
 
 def setup(app):
     app.add_builder(MarkdownBuilder)
-    app.add_config_value("markdown_http_base", "", "html", str)
-    app.add_config_value("markdown_uri_doc_suffix", ".md", "html", str)
-    app.add_config_value("markdown_file_suffix", ".md", "html", str)
-    app.add_config_value("markdown_anchor_sections", False, "html", bool)
-    app.add_config_value("markdown_anchor_signatures", False, "html", bool)
-    app.add_config_value("markdown_docinfo", False, "html", bool)
-    app.add_config_value("markdown_bullet", "*", "html", str)
-    app.add_config_value("markdown_flavor", "", "html", str)
-    app.add_config_value("markdown_compact_tables", False, "html", bool)
+    app.add_post_transform(KeepCitationReferences)
+    app.add_config_value("markdown_http_base", "", "env", str)
+    app.add_config_value("markdown_uri_doc_suffix", ".md", "env", str)
+    app.add_config_value("markdown_file_suffix", ".md", "env", str)
+    app.add_config_value("markdown_anchor_sections", False, "env", bool)
+    app.add_config_value("markdown_anchor_signatures", False, "env", bool)
+    app.add_config_value("markdown_docinfo", False, "env", bool)
+    app.add_config_value("markdown_bullet", "*", "env", str)
+    app.add_config_value("markdown_flavor", "", "env", str)
+    app.add_config_value("markdown_compact_tables", False, "env", bool)
+    app.add_config_value("markdown_suppress_comments", False, "env", bool)
+    app.add_config_value("markdown_include_raw_types", ["html", "markdown"], "env", list)
 
     return {
         "version": __version__,

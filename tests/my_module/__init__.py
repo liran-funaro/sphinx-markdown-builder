@@ -32,6 +32,29 @@ def deprecated_function():
     pass
 
 
+# Like builtins such as `range`, these take `*args`, so their real signature
+# is only in the first docstring line (autodoc_docstring_signature).
+def span(*args):
+    """span([start, ]stop[, step])
+
+    Return the numbers from start (default 0) up to stop, by step (default 1).
+    """
+    return list(range(*args))
+
+
+def defaults(a, b=None, *args, c=1, **kwargs):
+    """Optional parameters in a real signature: rendered with their defaults, with no brackets."""
+    return a, b, args, c, kwargs
+
+
+def clock(*args):
+    """clock([hour[, minute[, second]]])
+
+    Format a time of day as ``HH:MM:SS``; missing parts are zero.
+    """
+    return ":".join(f"{part:02}" for part in (*args, 0, 0, 0)[:3])
+
+
 def func1(param1: int) -> int:
     """This is a function with a single parameter.
     Thanks to github.com/remiconnesson.
@@ -47,6 +70,27 @@ def func1(param1: int) -> int:
     More information about this function.
     """
     pass
+
+
+def get_option(options, name):
+    """Get an option by name.
+
+    :param options: The options, if any.
+    :type options: Optional[Mapping[str, int]]
+    :param name: The option name.
+    :type name: None or str
+    """
+    return (options or {}).get(name)
+
+
+def get_query(name, params=None):
+    """Get a query, with a Google-style docstring.
+
+    Args:
+        name (Optional[str]): Optional name parameter.
+        params (Optional[Mapping[str, Any]]): Optional query params.
+    """
+    return name, params
 
 
 def func2(param1: int, param2: int) -> str:
@@ -70,3 +114,23 @@ def func3(param1: int, param2: int):
     .. [2] Bob is commonly used to describe the second actor.
     """
     pass
+
+
+def downside_risk(returns, min_acceptable_return=0.0):
+    """
+    Compute the downside risk of a series of returns.
+
+    Parameters
+    ----------
+    returns : ndarray of shape (n_observations,)
+        The observed returns, at least one.
+    min_acceptable_return : float, optional
+        Returns below this value count as downside.
+
+    Returns
+    -------
+    risk : float
+        The downside risk.
+    """
+    shortfalls = [min(value - min_acceptable_return, 0.0) for value in returns]
+    return (sum(value * value for value in shortfalls) / len(shortfalls)) ** 0.5
