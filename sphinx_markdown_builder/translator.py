@@ -353,7 +353,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         """Image directive."""
         uri = escape.link_destination(node["uri"])
         alt = escape.alt_text(node.attributes.get("alt", "image"))
-        self.builder.images[node["uri"]] = node["uri"]
         # We don't need to add EOL before/after the image.
         # It will be handled by the visit/depart handlers of the paragraph.
         self.add(f"![{alt}]({uri})")

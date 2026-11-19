@@ -219,3 +219,17 @@ def test_download_references(tmp_path: Path):
     assert f"](../{download_uri})" in markdown
     assert "](../assets/sample.pdf)" not in markdown
     assert "](https://example.com/sample.pdf)" in markdown
+
+
+def test_image_outside_source_dir_is_not_copied(tmp_path: Path):
+    """An image outside the source dir is not copied, since its destination would be outside the output dir."""
+    source_path = tmp_path / "docs" / "source"
+    output_path = tmp_path / "output"
+    source_path.mkdir(parents=True)
+    (tmp_path / "docs" / "outside.png").write_bytes(b"")
+    (source_path / "conf.py").write_text('extensions = ["sphinx_markdown_builder"]\n', encoding="utf-8")
+    (source_path / "index.rst").write_text(".. image:: ../outside.png\n", encoding="utf-8")
+
+    assert main(["-b", "markdown", str(source_path), str(output_path)]) == 0
+    assert "](../outside.png)" in (output_path / "index.md").read_text(encoding="utf-8")
+    assert not (tmp_path / "outside.png").exists()

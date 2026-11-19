@@ -16,7 +16,6 @@ from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging
 from sphinx.util.nodes import NodeMatcher
 from sphinx.util.osutil import ensuredir, os_path
-from sphinx.util.fileutil import copy_asset_file
 
 from sphinx_markdown_builder.translator import MarkdownTranslator
 
@@ -82,24 +81,23 @@ class MarkdownBuilder(Builder):
             with open(out_filename, "w", encoding="utf-8") as file:
                 file.write(visitor.astext())
 
-    def copy_image_files(self) -> None:
-        if self.images:
-            for key in self.images.keys():
-                copy_asset_file(os.path.join(self.srcdir, key), self.outdir)
-
-    def write(
-        self,
-        build_docnames,
-        updated_docnames,
-        method: str = 'update',
-    ) -> None:
-        super().write(build_docnames, updated_docnames, method)
-        self.copy_image_files()
-
     def finish(self):
         for src_file_name, (_, dst_path) in self.env.dlfiles.items():
             source_path = os.path.join(self.srcdir, src_file_name)
             destination = os.path.join(self.outdir, self.download_dir, dst_path)
+            ensuredir(os.path.dirname(destination))
+            with io_handler(source_path):
+                shutil.copyfile(source_path, destination)
+
+        # Images keep their source layout, so their links (relative to the source dir) still resolve.
+        # Sphinx keys `env.images` by the normalized path relative to the source dir.
+        for image_path in self.env.images:
+            if image_path.startswith("../"):
+                # Copying it would write outside the output dir.
+                logger.warning(__("image %s is outside the source dir and is not copied"), image_path)
+                continue
+            source_path = os.path.join(self.srcdir, image_path)
+            destination = os.path.join(self.outdir, image_path)
             ensuredir(os.path.dirname(destination))
             with io_handler(source_path):
                 shutil.copyfile(source_path, destination)
