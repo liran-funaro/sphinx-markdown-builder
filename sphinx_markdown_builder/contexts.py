@@ -45,6 +45,8 @@ class Spacing:
     # value, both are dropped, so the two spans become one.
     prefix_mark: str = ""
     suffix_mark: str = ""
+    # What joins the two spans where they merge, e.g., a space for math.
+    merge_separator: str = ""
 
 
 @dataclass(frozen=True)
@@ -128,7 +130,7 @@ class Base:
         if value:
             if self._merges(value, spacing):
                 self.content[-1] = self.content[-1].removesuffix(spacing.prefix_mark)
-                value = value.removeprefix(spacing.prefix_mark)
+                value = spacing.merge_separator + value.removeprefix(spacing.prefix_mark)
             elif self._needs_space(value, spacing):
                 value = SPACE + value
             self.suffix_chars = spacing.suffix_chars
@@ -580,7 +582,7 @@ class PushContext(Generic[BaseT]):  # pylint: disable=too-few-public-methods
         return self.ctx(*self.args, **kwargs)
 
 
-def marked_span(mark: str) -> PushContext:
+def marked_span(mark: str, merge_separator: str = "") -> PushContext:
     """
     An inline span wrapped in `mark`, e.g., emphasis (`*`), strong (`**`) or math (`$`).
     CommonMark only reads an emphasis mark that fits its neighbors (the "flanking" rules). A space between the mark and
@@ -589,13 +591,16 @@ def marked_span(mark: str) -> PushContext:
     token, reads as one span. Inline math (`$`) follows the same rules: touching `$a$$b$` would read as display math.
     """
     chars = r"\w" + re.escape(mark[0])  # a word, or the mark of a touching span
-    params = BaseParams(prefix_chars=chars, suffix_chars=chars, prefix_mark=mark, suffix_mark=mark)
+    params = BaseParams(
+        prefix_chars=chars, suffix_chars=chars, prefix_mark=mark, suffix_mark=mark, merge_separator=merge_separator
+    )
     return PushContext(Wrapped, mark, params=params)
 
 
 ITALIC = marked_span("*")  # _ is more restrictive
 STRONG = marked_span("**")  # _ is more restrictive
-MATH = marked_span("$")
+# TeX ignores spaces in math, and a space ends a control word: merged `\alpha` and `b` make `\alpha b`, not `\alphab`.
+MATH = marked_span("$", merge_separator=" ")
 SUBSCRIPT = PushContext(Wrapped, "<sub>", "</sub>")
 DOC_INFO = PushContext(
     Meta,

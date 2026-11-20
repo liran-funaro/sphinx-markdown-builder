@@ -7,7 +7,8 @@ Formula 1
    :math:`\frac{ \sum_{t=0}^{N}f(t,k) }{N}`.
 
    Some more text related to the definition.
-   Touching math merges, :math:`a`\ :math:`+b`, and math next to a word gets a space: x\ :math:`y`\ z.
+   Touching math merges, :math:`a`\ :math:`+b` and :math:`\alpha`\ :math:`b`, and math next to a word gets a space:
+   x\ :math:`y`\ z.
 
 Formula 2 : float : optional
    A term with classifiers (e.g., numpydoc parameter types).
