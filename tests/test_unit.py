@@ -61,23 +61,24 @@ class FakeNode2(docutils.nodes.General, docutils.nodes.Element):
 
 
 def test_unknown_visit(caplog):
+    """
+    Covers the fallback for a node type without a handler, e.g., from an extension.
+    No test source reaches it, and a source that did would warn, which fails the diff build (-W).
+    """
     logging.getLogger(sphinx.util.logging.NAMESPACE).propagate = True
     mt = make_mock()
 
-    test_nodes = [FakeNode1(), FakeNode2()]
-
+    test_nodes = [FakeNode1("", docutils.nodes.paragraph(text="Kept as is.")), FakeNode2(), FakeNode1()]
     for node in test_nodes:
-        with pytest.raises(docutils.nodes.SkipNode):
-            mt.dispatch_visit(node)
+        node.walkabout(mt)
 
-        with pytest.raises(docutils.nodes.SkipNode):
-            mt.dispatch_visit(node)
+    # The children of an unknown node are rendered as if it were not there
+    assert mt.astext() == "Kept as is.\n"
 
-    # Deduplicate: pytest >= 9.1 may capture the same record multiple times
+    # Warn once per node type. Deduplicate: pytest >= 9.1 may capture the same record multiple times
     unknown_messages = {rec.message for rec in caplog.records if "unknown node" in rec.message}
-    assert len(unknown_messages) == len(test_nodes)
-    for node in test_nodes:
-        assert sum(node.__class__.__name__ in msg for msg in unknown_messages) == 1
+    for node_type in ("FakeNode1", "FakeNode2"):
+        assert sum(node_type in msg for msg in unknown_messages) == 1
 
 
 def test_typed_ctx_mismatch(caplog):
@@ -91,10 +92,14 @@ def test_typed_ctx_mismatch(caplog):
     with pytest.raises(UnknownVisit):
         mt._typed_ctx(contexts.Table)  # pylint: disable=protected-access
 
-    # dispatch_visit() turns UnknownVisit into an "unknown node type" warning and skips the node
+    # dispatch_visit() turns UnknownVisit into an "unknown node type" warning, and skips only the node's departure
     mt.visit_paragraph = lambda node: mt._typed_ctx(contexts.Table)  # pylint: disable=protected-access
-    with pytest.raises(docutils.nodes.SkipNode):
+    with pytest.raises(docutils.nodes.SkipDeparture):
         mt.dispatch_visit(docutils.nodes.paragraph())
+
+    # The children are still rendered, and the departure doesn't pop a context the visit never pushed
+    docutils.nodes.paragraph(text="Kept as is.").walkabout(mt)
+    assert mt.astext() == "Kept as is.\n"
 
     assert any("unknown node type" in rec.message and "paragraph" in rec.message for rec in caplog.records)
 
