@@ -615,3 +615,10 @@ DOC_INFO = PushContext(
 class PushBox:
     title: str
     heading: str | None = None
+
+
+@dataclass(frozen=True)
+class Alias:
+    """Renders an element with the visit and depart handlers of another element"""
+
+    element: str
