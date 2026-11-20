@@ -28,6 +28,7 @@ import posixpath
 import re
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Type, Union
 
+import sphinx
 from docutils import languages, nodes
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.osutil import relative_uri
@@ -80,6 +81,7 @@ PREDEFINED_ELEMENTS: Dict[str, PredefinedAction] = dict(  # pylint: disable=use-
     # container(card) > container(card-body) > container(card-title) > PassthroughTextElement (the title),
     # and container(card) > PassthroughTextElement > reference (the card link).
     PassthroughTextElement=contexts.Alias("paragraph"),
+    productionlist=contexts.Alias("literal_block"),  # A code block of the grammar: its productions are plain text.
     # Doctree elements to skip subtree
     autosummary_toc=SKIP,
     nbplot_epilogue=SKIP,
@@ -420,6 +422,25 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             # So we will add double EOL after the paragraph only if the next element requires it (e.g., code block).
             params = contexts.BaseParams(2, 1)
         self._push_context(contexts.Base(params))
+
+    ################################################################################
+    # Production list (rendered as a code block, see `PREDEFINED_ELEMENTS`)
+    ################################################################################
+    # productionlist
+    #   production (tokenname: the rule name, empty on a continuation line)
+    #     Sphinx >= 8.2: the whole aligned line, e.g., `try_stmt  ::= try1_stmt | try2_stmt\n`:
+    #       literal_strong (the rule name, ids="grammar-token-<name>"), Text "  ::= ",
+    #       reference > literal (token references), Text, ending with "\n"
+    #     Sphinx < 8.2: only the right-hand side, e.g., ` "try" ":" suite`, with no line break
+    ################################################################################
+
+    def visit_production(self, node):
+        if sphinx.version_info < (8, 2):
+            # The rule names are not aligned, as that would need the longest name in the list.
+            self.add(f"{node['tokenname']} ::=" if node["tokenname"] else "   ")
+
+    def depart_production(self, node):
+        self.ensure_eol()
 
     ################################################################################
     # Line block
