@@ -42,71 +42,78 @@ SKIP = contexts.UniqueString("skip")
 
 DOC_INFO_FIELDS = "author", "contact", "copyright", "date", "organization", "revision", "status", "version"
 
-# Defines context items, skip, or None (keep processing sub-tree).
-PREDEFINED_ELEMENTS: Dict[str, Union[contexts.PushContext, contexts.PushBox, contexts.UniqueString, None]] = (
-    dict(  # pylint: disable=use-dict-literal
-        # Doctree elements for which Markdown element is <prefix><content><suffix>
-        emphasis=contexts.ITALIC,
-        strong=contexts.STRONG,
-        subscript=contexts.SUBSCRIPT,
-        superscript=contexts.SUBSCRIPT,
-        desc_annotation=contexts.ITALIC,
-        literal_strong=contexts.STRONG,
-        literal_emphasis=contexts.ITALIC,
-        # Doc info elements
-        docinfo=contexts.DOC_INFO,
-        docinfo_item=contexts.DOC_INFO,
-        **dict.fromkeys(DOC_INFO_FIELDS, contexts.DOC_INFO),
-        authors=None,  # not used: visit_author is called anyway for each author.
-        # Admonitions
-        important=contexts.PushBox("IMPORTANT"),
-        warning=contexts.PushBox("WARNING"),
-        note=contexts.PushBox("NOTE"),
-        seealso=contexts.PushBox("NOTE", "See also"),
-        attention=contexts.PushBox("IMPORTANT"),
-        hint=contexts.PushBox("TIP"),
-        tip=contexts.PushBox("TIP"),
-        caution=contexts.PushBox("CAUTION"),
-        danger=contexts.PushBox("CAUTION"),
-        error=contexts.PushBox("CAUTION"),
-        admonition=contexts.PushBox("NOTE"),
-        sidebar=contexts.PushBox("TIP"),
-        versionmodified=contexts.PushBox("WARNING"),  # “versionadded”, “versionchanged” and “deprecated” directives.
-        # Doctree elements to skip subtree
-        autosummary_toc=SKIP,
-        nbplot_epilogue=SKIP,
-        nbplot_not_rendered=SKIP,
-        nbplot_container=SKIP,
-        code_links=SKIP,
-        index=SKIP,
-        substitution_definition=SKIP,  # the doctree already contains the text with substitutions applied.
-        runrole_reference=SKIP,
-        # Doctree elements to ignore
-        document=None,
-        container=None,
-        inline=None,
-        abbreviation=None,  # e.g., the keyword-only '*' in signatures
-        definition_list=None,
-        definition_list_item=None,
-        glossary=None,
-        field_list_item=None,
-        mpl_hint=None,
-        pending_xref=None,
-        compound=None,
-        desc_addname=None,  # module pre-roll for class/method
-        desc_content=None,  # the description of the class/method
-        desc_name=None,  # name of the class/method
-        title_reference=None,
-        autosummary_table=None,  # Sphinx autosummary
-        # See https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html.
-        # Ignored table elements
-        tabular_col_spec=None,
-        colspec=None,
-        tgroup=None,
-        figure=None,
-        legend=None,
-        desc_signature_line=None,
-    )
+# Defines context items, boxes, aliases of other elements, skip, or None (keep processing sub-tree).
+PredefinedAction = Union[contexts.PushContext, contexts.PushBox, contexts.Alias, contexts.UniqueString, None]
+PREDEFINED_ELEMENTS: Dict[str, PredefinedAction] = dict(  # pylint: disable=use-dict-literal
+    # Doctree elements for which Markdown element is <prefix><content><suffix>
+    emphasis=contexts.ITALIC,
+    strong=contexts.STRONG,
+    subscript=contexts.SUBSCRIPT,
+    superscript=contexts.SUBSCRIPT,
+    desc_annotation=contexts.ITALIC,
+    literal_strong=contexts.STRONG,
+    literal_emphasis=contexts.ITALIC,
+    # Doc info elements
+    docinfo=contexts.DOC_INFO,
+    docinfo_item=contexts.DOC_INFO,
+    **dict.fromkeys(DOC_INFO_FIELDS, contexts.DOC_INFO),
+    authors=None,  # not used: visit_author is called anyway for each author.
+    # Admonitions
+    important=contexts.PushBox("IMPORTANT"),
+    warning=contexts.PushBox("WARNING"),
+    note=contexts.PushBox("NOTE"),
+    seealso=contexts.PushBox("NOTE", "See also"),
+    attention=contexts.PushBox("IMPORTANT"),
+    hint=contexts.PushBox("TIP"),
+    tip=contexts.PushBox("TIP"),
+    caution=contexts.PushBox("CAUTION"),
+    danger=contexts.PushBox("CAUTION"),
+    error=contexts.PushBox("CAUTION"),
+    admonition=contexts.PushBox("NOTE"),
+    sidebar=contexts.PushBox("TIP"),
+    versionmodified=contexts.PushBox("WARNING"),  # “versionadded”, “versionchanged” and “deprecated” directives.
+    # Doctree elements rendered like another element
+    compact_paragraph=contexts.Alias("paragraph"),
+    centered=contexts.Alias("paragraph"),  # Markdown has no centering: ".. centered::" is a plain paragraph.
+    field=contexts.Alias("list_item"),
+    # sphinx-design cards wrap their title and link in this node, outside any paragraph:
+    # container(card) > container(card-body) > container(card-title) > PassthroughTextElement (the title),
+    # and container(card) > PassthroughTextElement > reference (the card link).
+    PassthroughTextElement=contexts.Alias("paragraph"),
+    # Doctree elements to skip subtree
+    autosummary_toc=SKIP,
+    nbplot_epilogue=SKIP,
+    nbplot_not_rendered=SKIP,
+    nbplot_container=SKIP,
+    code_links=SKIP,
+    index=SKIP,
+    substitution_definition=SKIP,  # the doctree already contains the text with substitutions applied.
+    runrole_reference=SKIP,
+    # Doctree elements to ignore
+    document=None,
+    container=None,
+    inline=None,
+    abbreviation=None,  # e.g., the keyword-only '*' in signatures
+    definition_list=None,
+    definition_list_item=None,
+    glossary=None,
+    field_list_item=None,
+    mpl_hint=None,
+    pending_xref=None,
+    compound=None,
+    desc_addname=None,  # module pre-roll for class/method
+    desc_content=None,  # the description of the class/method
+    desc_name=None,  # name of the class/method
+    title_reference=None,
+    autosummary_table=None,  # Sphinx autosummary
+    # See https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html.
+    # Ignored table elements
+    tabular_col_spec=None,
+    colspec=None,
+    tgroup=None,
+    figure=None,
+    legend=None,
+    desc_signature_line=None,
 )
 
 
@@ -269,6 +276,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
                 title, heading = action.title, action.heading
                 return lambda node: self._push_box(title, heading)
             return self._pop_context_and_status
+        if isinstance(action, contexts.Alias):
+            return getattr(self, f"{state}_{action.element}")
         return None
 
     def _push_box(self, title: str, heading: str | None = None):
@@ -406,13 +415,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             # So we will add double EOL after the paragraph only if the next element requires it (e.g., code block).
             params = contexts.BaseParams(2, 1)
         self._push_context(contexts.Base(params))
-
-    visit_compact_paragraph = visit_paragraph
-    visit_centered = visit_paragraph  # Markdown has no centering: Sphinx's ".. centered::" is a plain paragraph.
-    # sphinx-design cards wrap their title and link in this node, outside any paragraph:
-    # container(card) > container(card-body) > container(card-title) > PassthroughTextElement (the title),
-    # and container(card) > PassthroughTextElement > reference (the card link).
-    visit_PassthroughTextElement = visit_paragraph
 
     ################################################################################
     # Line block
@@ -645,13 +647,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         # We need two line breaks to make sure the next paragraph will not merge into the list
         self.ensure_eol(2)
 
-    def _start_list_item(self, _node=None):
-        marker = self.status.list_marker
-        marker.inc()
-        self._push_context(contexts.Indent(marker, only_first=True, params=contexts.BaseParams(1, 1)))
-
-    _end_list_item = _pop_context
-
     def visit_enumerated_list(self, node):
         self._start_list(node.get("start", 1) - 1)
 
@@ -661,8 +656,12 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._start_list(node.attributes.get("bullet", self.config.markdown_bullet))
 
     depart_bullet_list = _end_list
-    visit_list_item = _start_list_item
-    depart_list_item = _end_list_item
+
+    @pushing_context
+    def visit_list_item(self, node):
+        marker = self.status.list_marker
+        marker.inc()
+        self._push_context(contexts.Indent(marker, only_first=True, params=contexts.BaseParams(1, 1)))
 
     ################################################################################
     # desc
@@ -738,8 +737,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._pop_context()
 
     depart_field_list = _end_list
-    visit_field = _start_list_item
-    depart_field = _end_list_item
 
     def visit_desc_returns(self, node):
         self.add(" → ")
