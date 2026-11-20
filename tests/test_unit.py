@@ -7,7 +7,6 @@ from unittest.mock import Mock
 
 import docutils.nodes
 import pytest
-import sphinx.addnodes
 import sphinx.util.logging
 
 from sphinx_markdown_builder import contexts
@@ -114,17 +113,3 @@ def test_problematic():
         mt.dispatch_visit(node)
     mt.add("suffix")
     assert mt.astext() == "prefix\n\n```\ntext\n```\n\nsuffix\n"
-
-
-def test_legacy_productionlist():
-    """
-    Covers the production layout of older Sphinx (e.g., 5.1): the rule name is only in `tokenname`.
-    The diff build runs a recent Sphinx, whose productions also hold the name and the aligned line.
-    """
-    mt = make_mock()
-    grammar = sphinx.addnodes.productionlist()
-    grammar += sphinx.addnodes.production("", ' "a"', tokenname="short")
-    grammar += sphinx.addnodes.production("", ' "b"', tokenname="longer")
-    grammar += sphinx.addnodes.production("", ' | "c"', tokenname="")
-    grammar.walkabout(mt)
-    assert mt.astext() == '```\nshort  ::= "a"\nlonger ::= "b"\n           | "c"\n```\n'

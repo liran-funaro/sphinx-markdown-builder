@@ -29,7 +29,6 @@ import re
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Type, Union
 
 from docutils import languages, nodes
-from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.osutil import relative_uri
@@ -71,12 +70,10 @@ PREDEFINED_ELEMENTS: Dict[str, PredefinedAction] = dict(  # pylint: disable=use-
     sidebar=contexts.PushBox("TIP"),
     versionmodified=contexts.PushBox("WARNING"),  # “versionadded”, “versionchanged” and “deprecated” directives.
     todo_node=contexts.PushBox("NOTE"),  # sphinx.ext.todo; its "Todo" title becomes the box heading.
-    productionlist=contexts.PushContext(contexts.CodeBlock, ""),  # a grammar; each production is a line
     # Doctree elements rendered like another element
     compact_paragraph=contexts.Alias("paragraph"),
     centered=contexts.Alias("paragraph"),  # Markdown has no centering: ".. centered::" is a plain paragraph.
     field=contexts.Alias("list_item"),
-    hlist=contexts.Alias("bullet_list"),  # one list for all of its columns (see visit_bullet_list)
     # sphinx-design cards wrap their title and link in this node, outside any paragraph:
     # container(card) > container(card-body) > container(card-title) > PassthroughTextElement (the title),
     # and container(card) > PassthroughTextElement > reference (the card link).
@@ -523,19 +520,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_status(escape_text=False, preserve_line_breaks=True)
         self._push_context(contexts.CodeBlock("pycon"))
 
-    def visit_production(self, node):
-        # productionlist > production: each production is one rule of the grammar, its rule name in `tokenname`
-        # (empty for a continuation line). Recent Sphinx puts the whole aligned line in its text, with the name in a
-        # literal_strong: "name ::= rhs\n". Older Sphinx (e.g., 5.1) keeps only the right-hand side: " rhs".
-        # Token names (literal_strong) and references (literal) keep only their text in the code block.
-        text = node.astext()
-        if node.parent.next_node(addnodes.literal_strong) is None:  # a continuation line has no name in either layout
-            width = max(len(production["tokenname"]) for production in node.parent)
-            name = node["tokenname"]
-            text = (f"{name.ljust(width)} ::=" if name else " " * (width + 4)) + text + "\n"
-        self.add(text)
-        raise nodes.SkipNode
-
     @pushing_context
     def visit_block_quote(self, node):
         self._push_context(contexts.Indent("> "))
@@ -670,8 +654,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def _end_list(self, _node=None):
         self._pop_status()
-        # We need two line breaks to make sure the next paragraph will not merge into the list
-        self.ensure_eol(2)
+        # We need two line breaks to make sure the next paragraph will not merge into the list.
+        # Joined lists (e.g., hlist columns) continue as one list, so the next one follows on the next line.
+        self.ensure_eol(1 if self.status.join_lists else 2)
 
     def visit_enumerated_list(self, node):
         self._start_list(node.get("start", 1) - 1)
@@ -679,13 +664,14 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     depart_enumerated_list = _end_list
 
     def visit_bullet_list(self, node):
-        # hlist > hlistcol > bullet_list: Sphinx splits one list into a list per column. The hlist starts a single list
-        # (an alias of bullet_list), so a column's list adds only its items.
-        if isinstance(node.parent, addnodes.hlistcol):
-            raise nodes.SkipDeparture
         self._start_list(node.attributes.get("bullet", self.config.markdown_bullet))
 
     depart_bullet_list = _end_list
+
+    @pushing_status
+    def visit_hlist(self, node):
+        # hlist > hlistcol > bullet_list: Sphinx splits one bullet list into a list per column; render them as one.
+        self._push_status(join_lists=True)
 
     @pushing_context
     def visit_list_item(self, node):

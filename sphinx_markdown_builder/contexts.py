@@ -68,6 +68,7 @@ class Status:
     preserve_line_breaks: bool = False  # Whether to preserve line breaks in text nodes
     section_level: int = 0  # Current section heading level
     list_marker: Optional[ListMarker] = None  # Current list marker
+    join_lists: bool = False  # Whether consecutive lists render as one list (the columns of an hlist)
     desc_type: Optional[str] = None  # Current descriptor type
     default_ref_internal: bool = False  # Current default for internal reference
 
