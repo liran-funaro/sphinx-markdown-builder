@@ -7,6 +7,7 @@
         * [Heading 5](ExampleRSTFile.md#heading-5)
           * [Heading 6](ExampleRSTFile.md#heading-6)
   * [Paragraph Text and Commented Text](ExampleRSTFile.md#paragraph-text-and-commented-text)
+  * [Centered Text](ExampleRSTFile.md#centered-text)
   * [Ordered and Unordered Lists](ExampleRSTFile.md#ordered-and-unordered-lists)
     * [Nested Lists or Content](ExampleRSTFile.md#nested-lists-or-content)
       * [Unordered List inside Ordered List](ExampleRSTFile.md#unordered-list-inside-ordered-list)

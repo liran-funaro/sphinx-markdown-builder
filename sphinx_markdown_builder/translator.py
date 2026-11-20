@@ -408,6 +408,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(contexts.Base(params))
 
     visit_compact_paragraph = visit_paragraph
+    visit_centered = visit_paragraph  # Markdown has no centering: Sphinx's ".. centered::" is a plain paragraph.
     # sphinx-design cards wrap their title and link in this node, outside any paragraph:
     # container(card) > container(card-body) > container(card-title) > PassthroughTextElement (the title),
     # and container(card) > PassthroughTextElement > reference (the card link).
