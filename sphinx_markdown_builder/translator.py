@@ -508,6 +508,15 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(contexts.CodeBlock("pycon"))
 
     @pushing_context
+    @pushing_status
+    def visit_mermaid(self, node):
+        """sphinxcontrib-mermaid diagram: the source is in `code`, and the node has no children.
+        A `:caption:` wraps it in a figure with a caption sibling, which the figure handlers render."""
+        self._push_status(escape_text=False, preserve_line_breaks=True)
+        self._push_context(contexts.CodeBlock("mermaid"))
+        self.add(node["code"])
+
+    @pushing_context
     def visit_block_quote(self, node):
         self._push_context(contexts.Indent("> "))
 
