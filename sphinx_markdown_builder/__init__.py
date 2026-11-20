@@ -2,6 +2,8 @@
 A Sphinx extension to add markdown generation support.
 """
 
+from sphinx.config import ENUM
+
 from sphinx_markdown_builder.builder import KeepCitationReferences, MarkdownBuilder
 
 __version__ = "0.6.11"
@@ -22,6 +24,8 @@ def setup(app):
     app.add_config_value("markdown_compact_tables", False, "env", bool)
     app.add_config_value("markdown_suppress_comments", False, "env", bool)
     app.add_config_value("markdown_include_raw_types", ["html", "markdown"], "env", list)
+    app.add_config_value("markdown_abbreviation_first", "inline", "env", ENUM("inline", "footnote"))
+    app.add_config_value("markdown_abbreviation_repeat", "plain", "env", ENUM("plain", "inline", "footnote"))
 
     return {
         "version": __version__,

@@ -42,6 +42,9 @@ SKIP = contexts.UniqueString("skip")
 
 DOC_INFO_FIELDS = "author", "contact", "copyright", "date", "organization", "revision", "status", "version"
 
+# Abbreviation footnote labels get this prefix, to keep them distinct from any other footnote.
+ABBREVIATION_LABEL_PREFIX = "abbr-"
+
 # Defines context items, boxes, aliases of other elements, skip, or None (keep processing sub-tree).
 PredefinedAction = Union[contexts.PushContext, contexts.PushBox, contexts.Alias, contexts.UniqueString, None]
 PREDEFINED_ELEMENTS: Dict[str, PredefinedAction] = dict(  # pylint: disable=use-dict-literal
@@ -156,6 +159,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self.language = languages.get_language(self.settings.language_code, document.reporter)
         # Warn only once per writer about unsupported elements
         self._warned = set()
+        # Abbreviation explanations, by abbreviation text: the first non-empty explanation in the document.
+        self._abbreviations: Dict[str, str] = {}
+        # Footnote numbers, by abbreviation text: only abbreviations written with a footnote marker get one.
+        self._abbreviation_labels: Dict[str, int] = {}
 
         # A stack of nested contexts. Output goes to the last one, which renders into its parent when popped.
         self._ctx_queue: List[contexts.Base] = [contexts.Base()]
@@ -335,6 +342,13 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         ctx = contexts.Base()
         for sub_ctx in (self._doc_info, self._ctx_queue[0]):
             ctx.add(sub_ctx.make().strip(), prefix_eol=2, suffix_eol=1)
+        abbreviation_footnotes = "\n".join(
+            f"[^{ABBREVIATION_LABEL_PREFIX}{index}]: "
+            f"**{escape.markdown_chars(text)}**: "
+            f"{escape.markdown_chars(self._abbreviations[text] or 'no explanation found in document')}"
+            for text, index in self._abbreviation_labels.items()
+        )
+        ctx.add(abbreviation_footnotes, prefix_eol=2, suffix_eol=1)
         ctx.force_eol(1)
         return ctx.make()
 
@@ -373,6 +387,40 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def visit_caption(self, node):
         """Figure caption."""
         self._push_context(contexts.Wrapped("*", params=contexts.BaseParams(2, 2)))
+
+    def depart_abbreviation(self, node):
+        """Abbreviation role, e.g., :abbr:`LLM (Large Language Model)`.
+
+        Markdown has no equivalent of the HTML `title` attribute, so the explanation is written in one of these forms:
+        `markdown_abbreviation_first` sets the form of the first occurrence in the document,
+        and `markdown_abbreviation_repeat` the form of the later ones.
+
+        - plain: `LLM`
+        - inline: `LLM (Large Language Model)`, or `LLM` while no explanation is known yet.
+        - footnote: `LLM[^abbr-1]`, with `[^abbr-1]: **LLM**: Large Language Model` at the end of the document.
+          All the occurrences of an abbreviation share one footnote, which reads "no explanation found in document"
+          if no occurrence explains it.
+
+        The explanation may be given in any occurrence, and the first one wins if they differ.
+        The inline form uses the explanation known so far, so an inline first occurrence without an explanation stays
+        plain, even if a later occurrence explains it. The footnotes are written at the end, so they always have it.
+        A footnote marker can't link where text isn't escaped (e.g., a code block), so the inline form is used there.
+        Signatures keep their abbreviations (e.g., the keyword-only `*`) as plain text.
+        """
+        if self.status.in_signature:
+            return
+
+        text = node.astext()
+        repeated = text in self._abbreviations
+        if not self._abbreviations.get(text):
+            self._abbreviations[text] = node.get("explanation", "")
+        form = self.config.markdown_abbreviation_repeat if repeated else self.config.markdown_abbreviation_first
+        if form == "footnote" and self.status.escape_text:
+            label = self._abbreviation_labels.setdefault(text, len(self._abbreviation_labels) + 1)
+            self.add(f"[^{ABBREVIATION_LABEL_PREFIX}{label}]")
+        elif form != "plain" and self._abbreviations[text]:
+            explanation = f" ({self._abbreviations[text]})"
+            self.add(escape.markdown_chars(explanation) if self.status.escape_text else explanation)
 
     def visit_Text(self, node):  # pylint: disable=invalid-name
         text = node.astext().replace("\r", "")
@@ -690,8 +738,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_status(desc_type=node.attributes.get("desctype", ""))
 
     @pushing_context
+    @pushing_status
     def visit_desc_signature(self, node):
         """the main signature of class/method"""
+        self._push_status(in_signature=True)
 
         # Insert anchors if enabled by the config
         if self.config.markdown_anchor_signatures:

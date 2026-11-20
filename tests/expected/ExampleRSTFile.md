@@ -107,6 +107,12 @@ Inline code right next to inline code: `a` `b`.
 > 
 > Sidebar body.
 
+A sentence with an LLM (Large Language Model) in the middle.
+Repeating an LLM reuses the same footnote, without repeating its explanation,
+while an ANN (Artificial Neural Network) gets a footnote of its own.
+An API may be explained only later, as an API.
+A bare RST, never explained, still gets a footnote.
+
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.
 

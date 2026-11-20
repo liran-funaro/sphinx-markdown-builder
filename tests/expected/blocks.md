@@ -106,6 +106,18 @@ reStructuredText would start a list at these markers, but not on the continuatio
 \+ not a list
 \- 5 degrees overnight, a mid-line - stays.
 
+## Abbreviations
+
+A sentence with an LLM (Large Language Model) in the middle.
+Repeating an LLM doesn’t repeat its explanation, and neither does a third LLM,
+while an ANN (Artificial Neural Network) has an explanation of its own.
+An API may be explained only later, as an API.
+A bare RST, never explained, has no explanation.
+
+```default
+A code block can't link to a footnote: LLM, CPU (Central Processing Unit) and RST.
+```
+
 ## Raw blocks
 
 Before the raw blocks, with inline <b>*bold*</b> HTML.
