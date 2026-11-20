@@ -77,6 +77,7 @@ class Status:
     list_marker: Optional[ListMarker] = None  # Current list marker
     desc_type: Optional[str] = None  # Current descriptor type
     default_ref_internal: bool = False  # Current default for internal reference
+    plain_text: bool = False  # Whether inline markup renders only its text (e.g., in a code block)
 
 
 class Base:
