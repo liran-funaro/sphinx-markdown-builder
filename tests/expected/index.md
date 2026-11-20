@@ -68,6 +68,7 @@
 * [Math Example](blocks.md)
 * [Code Example](blocks.md#code-example)
   * [Multi-line Code Block](blocks.md#multi-line-code-block)
+  * [Mermaid Diagram](blocks.md#mermaid-diagram)
 * [Line Block](blocks.md#line-block)
   * [Other text](blocks.md#other-text)
   * [Text that looks like Markdown](blocks.md#text-that-looks-like-markdown)
