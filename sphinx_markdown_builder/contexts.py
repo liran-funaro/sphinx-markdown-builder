@@ -580,19 +580,22 @@ class PushContext(Generic[BaseT]):  # pylint: disable=too-few-public-methods
         return self.ctx(*self.args, **kwargs)
 
 
-def emphasis(mark: str) -> PushContext:
+def marked_span(mark: str) -> PushContext:
     """
+    An inline span wrapped in `mark`, e.g., emphasis (`*`), strong (`**`) or math (`$`).
     CommonMark only reads an emphasis mark that fits its neighbors (the "flanking" rules). A space between the mark and
     a word or another mark always fits, though it is redundant when the character inside the mark is a word.
     Touching spans with the same mark merge, so a type hint like `Optional[int]`, which Sphinx splits into a node per
-    token, reads as one span.
+    token, reads as one span. Inline math (`$`) follows the same rules: touching `$a$$b$` would read as display math.
     """
-    params = BaseParams(prefix_chars=r"\w*", suffix_chars=r"\w*", prefix_mark=mark, suffix_mark=mark)
+    chars = r"\w" + re.escape(mark[0])  # a word, or the mark of a touching span
+    params = BaseParams(prefix_chars=chars, suffix_chars=chars, prefix_mark=mark, suffix_mark=mark)
     return PushContext(Wrapped, mark, params=params)
 
 
-ITALIC = emphasis("*")  # _ is more restrictive
-STRONG = emphasis("**")  # _ is more restrictive
+ITALIC = marked_span("*")  # _ is more restrictive
+STRONG = marked_span("**")  # _ is more restrictive
+MATH = marked_span("$")
 SUBSCRIPT = PushContext(Wrapped, "<sub>", "</sub>")
 DOC_INFO = PushContext(
     Meta,

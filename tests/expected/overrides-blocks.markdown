@@ -9,7 +9,7 @@
 Formula 1
 : Definition of the formula as inline math: $\frac{ \sum_{t=0}^{N}f(t,k) }{N}$.
   <br/>
-  Some more text related to the definition.
+  Some more text related to the definition. Touching math merges, $a+b$, and math next to a word gets a space: x $y$ z.
 
 Formula 2 : *float* : *optional*
 : A term with classifiers (e.g., numpydoc parameter types).
