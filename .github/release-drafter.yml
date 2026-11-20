@@ -1,0 +1,29 @@
+# Shared by the draft and publish workflows. Publishing replaces "next" with the pushed tag.
+name-template: "Next Release"
+tag-template: "next"
+
+exclude-labels:
+  - "duplicate"
+  - "invalid"
+  - "question"
+  - "wontfix"
+
+categories:
+  - title: "Enhancements"
+    label: "enhancement"
+  - title: "Bug fixes"
+    label: "bug"
+  - title: "Documentation"
+    label: "documentation"
+  - title: "Maintenance"
+    labels:
+      - "code cleanup"
+      - "agents"
+
+change-template: "- $TITLE (#$NUMBER) @$AUTHOR"
+change-title-escapes: "\\<*_&"
+
+template: |
+  ## Changes
+
+  $CHANGES
