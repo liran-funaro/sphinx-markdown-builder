@@ -43,6 +43,7 @@ test-diff:
 	@# Copy just the files for verification
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-summery.markdown" "$(BUILD_DIR)/markdown/overrides-auto-summery.markdown"
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-module.markdown" "$(BUILD_DIR)/markdown/overrides-auto-module.markdown"
+	@cp "$(BUILD_DIR)/overrides/markdown/signature-headings.markdown" "$(BUILD_DIR)/markdown/overrides-signature-headings.markdown"
 	@cp "$(BUILD_DIR)/overrides/markdown/tables.markdown" "$(BUILD_DIR)/markdown/compact-tables.markdown"
 	@cp "$(BUILD_DIR)/overrides/markdown/image-target.markdown" "$(BUILD_DIR)/markdown/overrides-image-target.markdown"
 	@cp "$(BUILD_DIR)/overrides/markdown/blocks.markdown" "$(BUILD_DIR)/markdown/overrides-blocks.markdown"

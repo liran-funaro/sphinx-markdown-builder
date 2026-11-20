@@ -29,6 +29,18 @@ Build markdown files with `sphinx-build` command
 sphinx-build -M markdown ./docs ./build
 ```
 
+Object signatures render as separate bold paragraphs, not section headings. Object-kind labels and qualified
+member names identify classes, methods, and other objects without heading nesting. Identifiers use inline code,
+and signature type references remain links. Titles and rubrics inside object descriptions, such as Attributes
+and Details in docstrings, also render as bold labels. Section headings and rubrics outside object descriptions
+keep their normal document levels. Tables, topics, and admonitions keep their existing structure, with bold
+labels instead of headings when they appear inside object descriptions.
+
+Object signatures and their description labels do not create automatic entries in Markdown viewers' heading-based
+tables of contents. Enable `markdown_anchor_signatures` for explicit object targets and `markdown_anchor_sections`
+for section targets, including sections inside descriptions. Without explicit anchors, cross-references cannot rely
+on automatically generated heading anchors for this content.
+
 ## Configurations
 
 You can add the following configurations to your `conf.py` file:
