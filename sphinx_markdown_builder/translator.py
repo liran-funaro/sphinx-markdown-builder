@@ -507,6 +507,13 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_status(escape_text=False, preserve_line_breaks=True)
         self._push_context(contexts.CodeBlock("pycon"))
 
+    def visit_plantuml(self, node):
+        """sphinxcontrib.plantuml `uml` directive: an empty node whose `uml` attribute holds the diagram source"""
+        self._push_context(contexts.CodeBlock("plantuml"))
+        self.add(node["uml"])
+        self._pop_context()
+        raise nodes.SkipNode
+
     @pushing_context
     def visit_block_quote(self, node):
         self._push_context(contexts.Indent("> "))
