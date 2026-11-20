@@ -330,20 +330,23 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         return ctx.make()
 
     def dispatch_visit(self, node):
-        # A handler raises UnknownVisit when the node is outside the context it supports.
-        # unknown_visit() then raises SkipNode, so the node's children and departure are skipped too.
+        # A handler raises UnknownVisit when the node is outside the context it supports, before it pushes anything.
+        # The node is then treated as unknown: its children are still rendered, but its departure is skipped.
         try:
             super().dispatch_visit(node)
         except UnknownVisit:
             self.unknown_visit(node)
+            raise nodes.SkipDeparture from None
 
     def unknown_visit(self, node):
-        """Warn once per instance for unsupported nodes."""
+        """Warn once per instance for unsupported nodes. Their children are rendered as if the node were not there."""
         node_type = node.__class__.__name__
         if node_type not in self._warned:
             super().unknown_visit(node)
             self._warned.add(node_type)
-        raise nodes.SkipNode
+
+    def unknown_departure(self, node):
+        pass
 
     ################################################################################
     # visit/depart handlers
