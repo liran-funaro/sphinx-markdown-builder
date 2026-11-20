@@ -83,6 +83,16 @@ Inline: ``a`b`` and ```x```.
    x = 1
    ```
 
+Mermaid Diagram
+---------------
+
+.. mermaid::
+   :caption: A login sequence
+
+   sequenceDiagram
+       User->>Server: Login
+       Server-->>User: OK
+
 
 ==========
 Line Block

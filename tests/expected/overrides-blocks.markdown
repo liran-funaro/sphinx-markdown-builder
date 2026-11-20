@@ -87,6 +87,18 @@ x = 1
 ```
 ````
 
+<a id="mermaid-diagram"></a>
+
+## Mermaid Diagram
+
+```mermaid
+sequenceDiagram
+    User->>Server: Login
+    Server-->>User: OK
+```
+
+*A login sequence*
+
 <a id="line-block"></a>
 
 # Line Block
