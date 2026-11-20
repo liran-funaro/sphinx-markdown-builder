@@ -129,6 +129,18 @@ A raw block indented right after a paragraph is a definition
 
 After the raw blocks.
 
+## PlantUML diagrams
+
+```plantuml
+@startuml
+Alice -> Bob: Hi
+@enduml
+```
+
+```plantuml
+Alice -> Bob: Hello
+```
+
 ## Referencing terms from a glossary
 
 Some other text that refers to [Glossary2-Term2](glossaries.md#term-Glossary2-Term2).
