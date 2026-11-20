@@ -127,9 +127,9 @@ self._push_status(escape_text=False, preserve_line_breaks=True)  # one flag, one
 
 ### 6. Single pass
 
-**What:** Collect information while the visitor walks the tree, and build the final output in `astext()`. A separate pass over the tree in `visit_document` adds work the translator doesn't need. The same goes for a handler that walks a subtree by hand (`child.walkabout(self)`, or a loop over the children that renders them): let Sphinx walk the nodes, and handle each one in its own handler when the visitor arrives at it. A handler may read its node's parent or siblings, but it shouldn't render them.
+**What:** Collect information while the visitor walks the tree, and build the final output in `astext()`. A separate pass over the tree in `visit_document` adds work the translator doesn't need. The same goes for a handler that walks a subtree by hand (`child.walkabout(self)`, or a loop over the children that renders them): let Sphinx walk the nodes, and handle each one in its own handler when the visitor arrives at it. A handler also doesn't look around the tree: it doesn't refer to `node.parent` (or siblings) to decide what to do, and doesn't call `astext()` to take a subtree's text instead of visiting it. What a node needs from its surroundings comes from the current context or status, which the enclosing node's handler sets (rule 5). The one exception is a text node's own text in `visit_Text`.
 
-**Why:** A single pass is simpler and matches how the translator already works. A walk by hand skips the handlers, contexts and status of the nodes it renders, and has to be kept in sync with them.
+**Why:** A single pass is simpler and matches how the translator already works. A walk by hand, or text taken with `astext()`, skips the handlers, contexts and status of the nodes it covers, so their markup, escaping and anchors are lost or have to be kept in sync by hand. A check on the parent breaks as soon as Sphinx or an extension nests the node differently.
 
 Not this:
 ```python
@@ -141,7 +141,7 @@ def visit_document(self, node):
 This:
 ```python
 def visit_abbreviation(self, node):
-    self._abbreviations.setdefault(node.astext(), set()).add(node.get("explanation", ""))
+    self._explanations.append(node.get("explanation", ""))  # the node's own attribute
     # footnotes rendered in astext()
 ```
 
@@ -158,13 +158,11 @@ def visit_hlist(self, node):
 
 This:
 ```python
-hlist=contexts.Alias("bullet_list"),  # in PREDEFINED_ELEMENTS
-hlistcol=None,
+hlistcol=None,  # in PREDEFINED_ELEMENTS
 
-def visit_bullet_list(self, node):
-    if isinstance(node.parent, addnodes.hlistcol):  # a column's list adds its items to the hlist's list
-        raise nodes.SkipDeparture
-    ...
+@pushing_status
+def visit_hlist(self, node):
+    self._push_status(join_lists=True)  # the column lists inside render as one list
 ```
 
 ### 7. Tree comments

@@ -80,14 +80,6 @@ x = 1
 ```
 ````
 
-A grammar:
-
-```
-try_stmt  ::= try1_stmt | try2_stmt
-try1_stmt ::= "try" ":" suite
-              ("except" [expression ["," target]] ":" suite)+
-```
-
 # Line Block
 
 text
