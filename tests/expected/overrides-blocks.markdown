@@ -89,6 +89,14 @@ x = 1
 ```
 ````
 
+A grammar:
+
+```
+try_stmt  ::= try1_stmt | try2_stmt
+try1_stmt ::= "try" ":" suite
+              ("except" [expression ["," target]] ":" suite)+
+```
+
 <a id="line-block"></a>
 
 # Line Block
@@ -105,6 +113,17 @@ more text
 ## Other text
 
 other text
+
+A list in columns:
+
+- A
+- B
+- C
+
+Acknowledgements:
+
+* Alice
+* Bob
 
 <a id="text-that-looks-like-markdown"></a>
 

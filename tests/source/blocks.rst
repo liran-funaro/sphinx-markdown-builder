@@ -83,6 +83,13 @@ Inline: ``a`b`` and ```x```.
    x = 1
    ```
 
+A grammar:
+
+.. productionlist::
+   try_stmt: try1_stmt | try2_stmt
+   try1_stmt: "try" ":" `suite`
+            : ("except" [`expression` ["," `target`]] ":" `suite`)+
+
 
 ==========
 Line Block
@@ -99,6 +106,22 @@ Other text
 ----------
 
 other text
+
+A list in columns:
+
+.. hlist::
+   :columns: 2
+
+   * A
+   * B
+   * C
+
+Acknowledgements:
+
+.. acks::
+
+   * Alice
+   * Bob
 
 
 Text that looks like Markdown
