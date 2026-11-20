@@ -494,15 +494,12 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self.add("$$", prefix_eol=1, suffix_eol=2)
         self._pop_status()
 
+    @pushing_context
+    @pushing_status
     def visit_math(self, node):
         """docutils math node"""
         self._push_status(escape_text=False)
-        self.add("$")
-
-    def depart_math(self, node):
-        """docutils math node"""
-        self.add("$")
-        self._pop_status()
+        self._push_context(contexts.MATH.create(node, "math"))
 
     @pushing_context
     @pushing_status
