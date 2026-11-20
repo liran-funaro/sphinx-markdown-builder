@@ -182,10 +182,14 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         raise UnknownVisit
 
     def _push_context(self, ctx: contexts.Base):
+        if self.status.plain_text:
+            # A code block can't hold Markdown: an inline node inside it (emphasis, inline code, a link, ...)
+            # keeps only its text, so its own context is replaced by a plain one.
+            self._ctx_queue.append(contexts.Base())
+            return
         key = ctx.nesting_key
-        if self.status.plain_text or (key is not None and any(outer.nesting_key == key for outer in self._ctx_queue)):
-            # In plain text (e.g., a code block), or if it doesn't nest (see `contexts.Base.nesting_key`),
-            # only its content is kept, and it joins the open context.
+        if key is not None and any(outer.nesting_key == key for outer in self._ctx_queue):
+            # It doesn't nest (see `contexts.Base.nesting_key`), so its content joins the open context.
             ctx = contexts.Base()
         self._ctx_queue.append(ctx)
 
