@@ -192,8 +192,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def _push_context(self, ctx: contexts.Base):
         key = ctx.nesting_key
-        if key is not None and any(outer.nesting_key == key for outer in self._ctx_queue):
-            # It doesn't nest (see `contexts.Base.nesting_key`), so its content joins the open context.
+        if self.status.plain_text or (key is not None and any(outer.nesting_key == key for outer in self._ctx_queue)):
+            # In plain text (e.g., a code block), or if it doesn't nest (see `contexts.Base.nesting_key`),
+            # only its content is kept, and it joins the open context.
             ctx = contexts.Base()
         self._ctx_queue.append(ctx)
 
@@ -506,16 +507,17 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @pushing_context
     @pushing_status
     def visit_literal_block(self, node):
-        self._push_status(escape_text=False, preserve_line_breaks=True)
         # Sphinx sets `language` on every literal_block (the `Code` directive and `HighlightLanguageTransform`).
         # docutils and Sphinx < 2 kept it in `classes` (["code", <lang>]), which no supported Sphinx produces.
         self._push_context(contexts.CodeBlock(node.get("language", "")))
+        # A code block can't hold Markdown: the inline nodes of a parsed-literal keep only their text.
+        self._push_status(escape_text=False, preserve_line_breaks=True, plain_text=True)
 
     @pushing_context
     @pushing_status
     def visit_doctest_block(self, node):
-        self._push_status(escape_text=False, preserve_line_breaks=True)
         self._push_context(contexts.CodeBlock("pycon"))
+        self._push_status(escape_text=False, preserve_line_breaks=True, plain_text=True)
 
     @pushing_context
     def visit_block_quote(self, node):
@@ -615,8 +617,8 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def _add_anchor(self, anchor: str):
         content = f'<a id="{escape.html_quote(anchor)}"></a>'
-        # Prevent adding the same anchor twice in the same context
-        if content not in self.ctx.content:
+        # Prevent adding the same anchor twice in the same context. Plain text (e.g., a code block) has no anchors.
+        if not self.status.plain_text and content not in self.ctx.content:
             self.add(content, prefix_eol=2, suffix_eol=1)
 
     def visit_target(self, node):
