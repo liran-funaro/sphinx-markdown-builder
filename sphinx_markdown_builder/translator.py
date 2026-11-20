@@ -29,6 +29,7 @@ import re
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Type, Union
 
 from docutils import languages, nodes
+from sphinx import addnodes
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.osutil import relative_uri
 
@@ -510,10 +511,21 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_context(contexts.CodeBlock("pycon"))
 
     def visit_productionlist(self, node):
-        # productionlist > production: each production is one line of the grammar, ending with a line break.
-        # Its text keeps the alignment, so token names (literal_strong) and references (literal) keep only their text.
+        # productionlist > production: each production is one rule of the grammar, its rule name in `tokenname`
+        # (empty for a continuation line). Recent Sphinx puts the whole aligned line in its text, with the name in a
+        # literal_strong: "name ::= rhs\n". Older Sphinx (e.g., 5.1) keeps only the right-hand side: " rhs".
+        # Token names (literal_strong) and references (literal) keep only their text.
+        if node.next_node(addnodes.literal_strong) is not None:
+            grammar = "".join(production.astext() for production in node)
+        else:
+            width = max(len(production["tokenname"]) for production in node)
+            lines = []
+            for production in node:
+                name = production["tokenname"]
+                lines.append((f"{name.ljust(width)} ::=" if name else " " * (width + 4)) + production.astext())
+            grammar = "\n".join(lines)
         self._push_context(contexts.CodeBlock(""))
-        self.add("".join(production.astext() for production in node))
+        self.add(grammar)
         self._pop_context()
         raise nodes.SkipNode
 
