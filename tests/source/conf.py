@@ -21,8 +21,10 @@ extensions = [
     "sphinx_inline_tabs",  # Emits `label` nodes outside of footnotes
     "sphinx.ext.napoleon",  # Google-style docstrings
     "sphinx_design",
+    "sphinx.ext.todo",
 ]
 napoleon_numpy_docstring = False  # Keeps the existing NumPy-style sections as they are
+todo_include_todos = True
 
 
 def edx_rtd_url(slug):

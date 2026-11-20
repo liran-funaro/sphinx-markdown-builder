@@ -72,6 +72,7 @@ PREDEFINED_ELEMENTS: Dict[str, PredefinedAction] = dict(  # pylint: disable=use-
     admonition=contexts.PushBox("NOTE"),
     sidebar=contexts.PushBox("TIP"),
     versionmodified=contexts.PushBox("WARNING"),  # “versionadded”, “versionchanged” and “deprecated” directives.
+    todo_node=contexts.PushBox("NOTE"),  # sphinx.ext.todo; its "Todo" title becomes the box heading.
     # Doctree elements rendered like another element
     compact_paragraph=contexts.Alias("paragraph"),
     centered=contexts.Alias("paragraph"),  # Markdown has no centering: ".. centered::" is a plain paragraph.
@@ -114,6 +115,7 @@ PREDEFINED_ELEMENTS: Dict[str, PredefinedAction] = dict(  # pylint: disable=use-
     figure=None,
     legend=None,
     desc_signature_line=None,
+    acks=None,  # wraps a bullet list
 )
 
 
@@ -507,6 +509,14 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_status(escape_text=False, preserve_line_breaks=True)
         self._push_context(contexts.CodeBlock("pycon"))
 
+    def visit_productionlist(self, node):
+        # productionlist > production: each production is one line of the grammar, ending with a line break.
+        # Its text keeps the alignment, so token names (literal_strong) and references (literal) keep only their text.
+        self._push_context(contexts.CodeBlock(""))
+        self.add("".join(production.astext() for production in node))
+        self._pop_context()
+        raise nodes.SkipNode
+
     @pushing_context
     def visit_block_quote(self, node):
         self._push_context(contexts.Indent("> "))
@@ -659,6 +669,15 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         marker = self.status.list_marker
         marker.inc()
         self._push_context(contexts.Indent(marker, only_first=True, params=contexts.BaseParams(1, 1)))
+
+    def visit_hlist(self, node):
+        # hlist > hlistcol > bullet_list: Sphinx splits one bullet list into a list per column. Render a single list.
+        self.visit_bullet_list(node)
+        for column in node:
+            for item in column[0]:
+                item.walkabout(self)
+        self.depart_bullet_list(node)
+        raise nodes.SkipNode
 
     ################################################################################
     # desc
