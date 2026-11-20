@@ -104,6 +104,17 @@ more text
 
 other text
 
+A list in columns:
+
+- A
+- B
+- C
+
+Acknowledgements:
+
+* Alice
+* Bob
+
 <a id="text-that-looks-like-markdown"></a>
 
 ## Text that looks like Markdown

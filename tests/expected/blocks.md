@@ -94,6 +94,17 @@ more text
 
 other text
 
+A list in columns:
+
+* A
+* B
+* C
+
+Acknowledgements:
+
+* Alice
+* Bob
+
 ## Text that looks like Markdown
 
 \# not a heading
