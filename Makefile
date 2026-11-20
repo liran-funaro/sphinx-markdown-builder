@@ -47,7 +47,6 @@ test-diff:
 	@cp "$(BUILD_DIR)/overrides/markdown/tables.markdown" "$(BUILD_DIR)/markdown/compact-tables.markdown"
 	@cp "$(BUILD_DIR)/overrides/markdown/image-target.markdown" "$(BUILD_DIR)/markdown/overrides-image-target.markdown"
 	@cp "$(BUILD_DIR)/overrides/markdown/blocks.markdown" "$(BUILD_DIR)/markdown/overrides-blocks.markdown"
-	@cp "$(BUILD_DIR)/overrides/markdown/ExampleRSTFile.markdown" "$(BUILD_DIR)/markdown/overrides-ExampleRSTFile.markdown"
 
 	@echo "Verifies outputs..."
 	@diff --recursive --color=always --side-by-side --text --suppress-common-lines \
