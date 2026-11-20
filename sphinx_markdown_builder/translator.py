@@ -26,11 +26,12 @@ https://github.com/docutils/docutils/blob/master/docutils/docutils/writers/html5
 import dataclasses
 import posixpath
 import re
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Type, Union
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Set, Type, Union
 
 from docutils import languages, nodes
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.osutil import relative_uri
+import yaml
 
 from sphinx_markdown_builder import contexts, escape
 
@@ -53,11 +54,6 @@ PREDEFINED_ELEMENTS: Dict[str, PredefinedAction] = dict(  # pylint: disable=use-
     desc_annotation=contexts.ITALIC,
     literal_strong=contexts.STRONG,
     literal_emphasis=contexts.ITALIC,
-    # Doc info elements
-    docinfo=contexts.DOC_INFO,
-    docinfo_item=contexts.DOC_INFO,
-    **dict.fromkeys(DOC_INFO_FIELDS, contexts.DOC_INFO),
-    authors=None,  # not used: visit_author is called anyway for each author.
     # Admonitions
     important=contexts.PushBox("IMPORTANT"),
     warning=contexts.PushBox("WARNING"),
@@ -159,16 +155,17 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
         # A stack of nested contexts. Output goes to the last one, which renders into its parent when popped.
         self._ctx_queue: List[contexts.Base] = [contexts.Base()]
-        self._doc_info: contexts.Base = contexts.Base()
         self._status_queue: List[contexts.Status] = [contexts.Status()]
 
+        # The YAML frontmatter fields, written in `astext()`. A field repeated in the document holds a list of values.
+        self._doc_info: Dict[str, Union[str, List[str]]] = {}
         if self.config.markdown_docinfo:
             for key in DOC_INFO_FIELDS:
                 value = getattr(self.config, key, "")
-                if isinstance(value, str):
-                    self._push_context(contexts.Meta(key))
-                    self.ctx.add(value)
-                    self._pop_context()
+                if isinstance(value, str) and value.strip():
+                    self._doc_info[key] = value.strip()
+        # Fields that still hold their conf.py value. The document's own value replaces it instead of adding to it.
+        self._doc_info_from_config: Set[str] = set(self._doc_info)
 
     @property
     def ctx(self) -> contexts.Base:
@@ -194,8 +191,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
                 break
 
             last_ctx = self._ctx_queue.pop()
-            ctx = self.ctx if last_ctx.params.target == "body" else self._doc_info
-            ctx.add(last_ctx.make(), last_ctx.params)
+            self.ctx.add(last_ctx.make(), last_ctx.params)
 
     @property
     def status(self) -> contexts.Status:
@@ -333,8 +329,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         assert len(self._ctx_queue) == 1
 
         ctx = contexts.Base()
-        for sub_ctx in (self._doc_info, self._ctx_queue[0]):
-            ctx.add(sub_ctx.make().strip(), prefix_eol=2, suffix_eol=1)
+        if self._doc_info:
+            metadata = yaml.safe_dump(self._doc_info, allow_unicode=True, sort_keys=False)
+            ctx.add(f"---\n{metadata}---", suffix_eol=2)
+        ctx.add(self._ctx_queue[0].make().strip(), prefix_eol=2, suffix_eol=1)
         ctx.force_eol(1)
         return ctx.make()
 
@@ -360,6 +358,22 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     ################################################################################
     # visit/depart handlers
     ################################################################################
+
+    def visit_docinfo(self, node):
+        # docinfo: the bibliographic fields of the document's first field list. A known field is its own element
+        # (e.g. `author`, `version`), `authors` holds an `author` per name, and any other name is a generic `field`,
+        # which is left out. Note: Sphinx moves the docinfo into `env.metadata` and removes it before writing.
+        fields = node.findall(lambda n: n.tagname in DOC_INFO_FIELDS) if self.config.markdown_docinfo else ()
+        for field in fields:
+            # docutils keeps an empty field as a generic `field`, so the value is never empty.
+            name, value = field.tagname, field.astext().strip()
+            if name in self._doc_info_from_config or name not in self._doc_info:
+                self._doc_info_from_config.discard(name)
+                self._doc_info[name] = value
+            else:
+                values = self._doc_info[name]
+                self._doc_info[name] = [*values, value] if isinstance(values, list) else [values, value]
+        raise nodes.SkipNode
 
     def visit_image(self, node):
         """Image directive."""

@@ -6,11 +6,13 @@ import logging
 from unittest.mock import Mock
 
 import docutils.nodes
+from docutils.utils import new_document
 import pytest
 import sphinx.util.logging
+import yaml
 
 from sphinx_markdown_builder import contexts
-from sphinx_markdown_builder.translator import MarkdownTranslator, UnknownVisit
+from sphinx_markdown_builder.translator import DOC_INFO_FIELDS, MarkdownTranslator, UnknownVisit
 
 
 def make_mock():
@@ -50,6 +52,42 @@ def test_parameter_list_drops_the_items_space():
         params.enter_parameter(is_required)
         params.add(text, prefix_chars=r"\w", suffix_chars=r"\w")
     assert params.make() == "[a, ][*(b)*, ]*(c)*, *(d)*[, *(e)*]"
+
+
+# No fixture reaches this: Sphinx moves the docinfo into `env.metadata` and removes it before writing.
+def test_multiple_authors_are_serialized_as_list():
+    document = new_document("test")
+    document += docutils.nodes.docinfo(
+        "",
+        docutils.nodes.author("", "Alice"),
+        docutils.nodes.author("", "Bob"),
+    )
+    builder = Mock(name="builder")
+    translator = MarkdownTranslator(document, builder)
+    document.walkabout(translator)
+
+    markdown = translator.astext()
+    assert markdown.startswith("---\n")
+    assert yaml.safe_load(markdown.split("---", 2)[1]) == {"author": ["Alice", "Bob"]}
+    assert markdown.endswith("---\n\n")
+
+
+# No fixture reaches this: Sphinx moves the docinfo into `env.metadata` and removes it before writing.
+@pytest.mark.parametrize("field", DOC_INFO_FIELDS)
+def test_docinfo_fields_override_config(field):
+    document = new_document("test")
+    value = 'Example *text*: "quotes" #1 \\ docs\nSecond line'
+    node = getattr(docutils.nodes, field)("", value)
+    document += docutils.nodes.docinfo("", node)
+    builder = Mock(name="builder")
+    builder.config.markdown_docinfo = True
+    setattr(builder.config, field, "Config value")
+    translator = MarkdownTranslator(document, builder)
+    document.walkabout(translator)
+
+    markdown = translator.astext()
+    assert markdown.startswith("---\n")
+    assert yaml.safe_load(markdown.split("---")[1]) == {field: value}
 
 
 class FakeNode1(docutils.nodes.General, docutils.nodes.Element):

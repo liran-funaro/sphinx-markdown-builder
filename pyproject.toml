@@ -20,7 +20,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 keywords = ["sphinx", "sphinx-extension", "markdown", "docs", "documentation", "builder"]
-dependencies = ["sphinx>=5.1.0", "tabulate", "docutils"]
+dependencies = ["sphinx>=5.1.0", "tabulate", "docutils", "PyYAML>=5.1"]
 requires-python = ">=3.11"
 
 [project.entry-points."sphinx.builders"]
@@ -65,13 +65,13 @@ push = false
     "^version = \"{version}\"$",
     "copyright = \"Copyright (c) 2023-YYYY, Liran Funaro.\"",
 ]
-"tests/expected/overrides-auto-summery.md" = [
-    "<meta name=\"version\" content=\"{version}\"/>",
-    "<meta name=\"copyright\" content=\"Copyright (c) 2023-YYYY, Liran Funaro.\"/>",
+"tests/expected/overrides-auto-summery.markdown" = [
+    "version: {version}",
+    "copyright: Copyright (c) 2023-YYYY, Liran Funaro.",
 ]
-"tests/expected/overrides-auto-module.md" = [
-    "<meta name=\"version\" content=\"{version}\"/>",
-    "<meta name=\"copyright\" content=\"Copyright (c) 2023-YYYY, Liran Funaro.\"/>",
+"tests/expected/overrides-auto-module.markdown" = [
+    "version: {version}",
+    "copyright: Copyright (c) 2023-YYYY, Liran Funaro.",
 ]
 
 [tool.black]
