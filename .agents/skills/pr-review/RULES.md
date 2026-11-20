@@ -127,9 +127,9 @@ self._push_status(escape_text=False, preserve_line_breaks=True)  # one flag, one
 
 ### 6. Single pass
 
-**What:** Collect information while the visitor walks the tree, and build the final output in `astext()`. A separate pass over the tree in `visit_document` adds work the translator doesn't need.
+**What:** Collect information while the visitor walks the tree, and build the final output in `astext()`. A separate pass over the tree in `visit_document` adds work the translator doesn't need. The same goes for a handler that walks a subtree by hand (`child.walkabout(self)`, or a loop over the children that renders them): let Sphinx walk the nodes, and handle each one in its own handler when the visitor arrives at it. A handler may read its node's parent or siblings, but it shouldn't render them.
 
-**Why:** A single pass is simpler and matches how the translator already works.
+**Why:** A single pass is simpler and matches how the translator already works. A walk by hand skips the handlers, contexts and status of the nodes it renders, and has to be kept in sync with them.
 
 Not this:
 ```python
@@ -143,6 +143,28 @@ This:
 def visit_abbreviation(self, node):
     self._abbreviations.setdefault(node.astext(), set()).add(node.get("explanation", ""))
     # footnotes rendered in astext()
+```
+
+Not this:
+```python
+def visit_hlist(self, node):
+    self.visit_bullet_list(node)
+    for column in node:
+        for item in column[0]:
+            item.walkabout(self)
+    self.depart_bullet_list(node)
+    raise nodes.SkipNode
+```
+
+This:
+```python
+hlist=contexts.Alias("bullet_list"),  # in PREDEFINED_ELEMENTS
+hlistcol=None,
+
+def visit_bullet_list(self, node):
+    if isinstance(node.parent, addnodes.hlistcol):  # a column's list adds its items to the hlist's list
+        raise nodes.SkipDeparture
+    ...
 ```
 
 ### 7. Tree comments

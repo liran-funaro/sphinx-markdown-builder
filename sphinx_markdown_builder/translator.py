@@ -74,10 +74,12 @@ PREDEFINED_ELEMENTS: Dict[str, PredefinedAction] = dict(  # pylint: disable=use-
     sidebar=contexts.PushBox("TIP"),
     versionmodified=contexts.PushBox("WARNING"),  # “versionadded”, “versionchanged” and “deprecated” directives.
     todo_node=contexts.PushBox("NOTE"),  # sphinx.ext.todo; its "Todo" title becomes the box heading.
+    productionlist=contexts.PushContext(contexts.CodeBlock, ""),  # a grammar; each production is a line
     # Doctree elements rendered like another element
     compact_paragraph=contexts.Alias("paragraph"),
     centered=contexts.Alias("paragraph"),  # Markdown has no centering: ".. centered::" is a plain paragraph.
     field=contexts.Alias("list_item"),
+    hlist=contexts.Alias("bullet_list"),  # one list for all of its columns (see visit_bullet_list)
     # sphinx-design cards wrap their title and link in this node, outside any paragraph:
     # container(card) > container(card-body) > container(card-title) > PassthroughTextElement (the title),
     # and container(card) > PassthroughTextElement > reference (the card link).
@@ -117,6 +119,7 @@ PREDEFINED_ELEMENTS: Dict[str, PredefinedAction] = dict(  # pylint: disable=use-
     legend=None,
     desc_signature_line=None,
     acks=None,  # wraps a bullet list
+    hlistcol=None,
 )
 
 
@@ -510,23 +513,17 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._push_status(escape_text=False, preserve_line_breaks=True)
         self._push_context(contexts.CodeBlock("pycon"))
 
-    def visit_productionlist(self, node):
+    def visit_production(self, node):
         # productionlist > production: each production is one rule of the grammar, its rule name in `tokenname`
         # (empty for a continuation line). Recent Sphinx puts the whole aligned line in its text, with the name in a
         # literal_strong: "name ::= rhs\n". Older Sphinx (e.g., 5.1) keeps only the right-hand side: " rhs".
-        # Token names (literal_strong) and references (literal) keep only their text.
-        if node.next_node(addnodes.literal_strong) is not None:
-            grammar = "".join(production.astext() for production in node)
-        else:
-            width = max(len(production["tokenname"]) for production in node)
-            lines = []
-            for production in node:
-                name = production["tokenname"]
-                lines.append((f"{name.ljust(width)} ::=" if name else " " * (width + 4)) + production.astext())
-            grammar = "\n".join(lines)
-        self._push_context(contexts.CodeBlock(""))
-        self.add(grammar)
-        self._pop_context()
+        # Token names (literal_strong) and references (literal) keep only their text in the code block.
+        text = node.astext()
+        if node.parent.next_node(addnodes.literal_strong) is None:  # a continuation line has no name in either layout
+            width = max(len(production["tokenname"]) for production in node.parent)
+            name = node["tokenname"]
+            text = (f"{name.ljust(width)} ::=" if name else " " * (width + 4)) + text + "\n"
+        self.add(text)
         raise nodes.SkipNode
 
     @pushing_context
@@ -672,6 +669,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     depart_enumerated_list = _end_list
 
     def visit_bullet_list(self, node):
+        # hlist > hlistcol > bullet_list: Sphinx splits one list into a list per column. The hlist starts a single list
+        # (an alias of bullet_list), so a column's list adds only its items.
+        if isinstance(node.parent, addnodes.hlistcol):
+            raise nodes.SkipDeparture
         self._start_list(node.attributes.get("bullet", self.config.markdown_bullet))
 
     depart_bullet_list = _end_list
@@ -681,15 +682,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         marker = self.status.list_marker
         marker.inc()
         self._push_context(contexts.Indent(marker, only_first=True, params=contexts.BaseParams(1, 1)))
-
-    def visit_hlist(self, node):
-        # hlist > hlistcol > bullet_list: Sphinx splits one bullet list into a list per column. Render a single list.
-        self.visit_bullet_list(node)
-        for column in node:
-            for item in column[0]:
-                item.walkabout(self)
-        self.depart_bullet_list(node)
-        raise nodes.SkipNode
 
     ################################################################################
     # desc
