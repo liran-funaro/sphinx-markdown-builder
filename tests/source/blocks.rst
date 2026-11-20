@@ -83,6 +83,13 @@ Inline: ``a`b`` and ```x```.
    x = 1
    ```
 
+A parsed literal block keeps only the text of its inline markup:
+
+.. parsed-literal::
+
+   a **bold** and ``lit`` and *em* and `Same-page references`_ and :doc:`glossaries` x_y*z
+   H\ :sub:`2`\ O, :math:`x^2`, [#target-note]_, [CIT2002]_ and an _`inline target`
+
 
 ==========
 Line Block
