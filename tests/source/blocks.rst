@@ -258,6 +258,19 @@ Inline tabs
 
 :**Bold** and *italic* name: A field name is bold too, so the bold inside it does nothing, and the italic stays.
 
+Sphinx Design
+-------------
+
+.. card:: A card title
+   :link: https://example.com
+
+   Body text.
+
+.. card:: Second card
+   :link: https://example.org
+
+   Second body.
+
 Same-page references
 --------------------
 

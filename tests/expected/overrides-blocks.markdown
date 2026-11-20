@@ -277,6 +277,22 @@ A label in bold, like the tab labels themselves.
 * **Bold and *italic* name:**
   A field name is bold too, so the bold inside it does nothing, and the italic stays.
 
+<a id="sphinx-design"></a>
+
+## Sphinx Design
+
+A card title
+
+Body text.
+
+[https://example.com](https://example.com)
+
+Second card
+
+Second body.
+
+[https://example.org](https://example.org)
+
 <a id="same-page-references"></a>
 
 ## Same-page references
