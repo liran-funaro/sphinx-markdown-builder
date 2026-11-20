@@ -107,11 +107,15 @@ Inline code right next to inline code: `a` `b`.
 > 
 > Sidebar body.
 
-A sentence with an LLM[^abbr-1] in the middle.
-Repeating an LLM[^abbr-1] reuses the same footnote, without repeating its explanation,
-while an ANN[^abbr-2] gets a footnote of its own.
-An API[^abbr-3] may be explained only later, as an API[^abbr-3].
-A bare RST[^abbr-4], never explained, still gets a footnote.
+A sentence with an LLM (Large Language Model) in the middle.
+Repeating an LLM doesn’t repeat its explanation, and neither does a third LLM,
+while an ANN (Artificial Neural Network) has an explanation of its own.
+An API may be explained only later, as an API.
+A bare RST, never explained, has no explanation.
+
+```default
+A code block can't link to a footnote: LLM, CPU (Central Processing Unit) and RST.
+```
 
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.
@@ -698,8 +702,3 @@ print("hello")
 <!-- Browsers -->
 <!-- Peer Instruction -->
 <!-- Video Catalog -->
-
-[^abbr-1]: **LLM**: Large Language Model
-[^abbr-2]: **ANN**: Artificial Neural Network
-[^abbr-3]: **API**: Application Programming Interface
-[^abbr-4]: **RST**: no explanation found in document

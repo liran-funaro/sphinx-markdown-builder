@@ -107,10 +107,14 @@ Inline code right next to inline code: ``a``\ ``b``.
    Sidebar body.
 
 A sentence with an :abbr:`LLM (Large Language Model)` in the middle.
-Repeating an :abbr:`LLM` reuses the same footnote, without repeating its explanation,
-while an :abbr:`ANN (Artificial Neural Network)` gets a footnote of its own.
+Repeating an :abbr:`LLM` doesn't repeat its explanation, and neither does a third :abbr:`LLM`,
+while an :abbr:`ANN (Artificial Neural Network)` has an explanation of its own.
 An :abbr:`API` may be explained only later, as an :abbr:`API (Application Programming Interface)`.
-A bare :abbr:`RST`, never explained, still gets a footnote.
+A bare :abbr:`RST`, never explained, has no explanation.
+
+.. parsed-literal::
+
+   A code block can't link to a footnote: :abbr:`LLM`, :abbr:`CPU (Central Processing Unit)` and :abbr:`RST`.
 
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.

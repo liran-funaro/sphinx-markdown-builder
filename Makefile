@@ -38,7 +38,8 @@ test-diff:
 			-D markdown_http_base="https://localhost" -D markdown_uri_doc_suffix=".html" \
 			-D markdown_docinfo=1 -D markdown_anchor_sections=1 -D markdown_anchor_signatures=1 \
 			-D autodoc_typehints=signature -D markdown_bullet=- -D markdown_file_suffix=".markdown" \
-			-D markdown_flavor=github -D markdown_compact_tables=1 -D markdown_suppress_comments=1 -D markdown_include_raw_types=markdown
+			-D markdown_flavor=github -D markdown_compact_tables=1 -D markdown_suppress_comments=1 -D markdown_include_raw_types=markdown \
+			-D markdown_abbreviation_first=footnote -D markdown_abbreviation_repeat=footnote
 
 	@# Copy just the files for verification
 	@cp "$(BUILD_DIR)/overrides/markdown/auto-summery.markdown" "$(BUILD_DIR)/markdown/overrides-auto-summery.markdown"
@@ -46,6 +47,7 @@ test-diff:
 	@cp "$(BUILD_DIR)/overrides/markdown/tables.markdown" "$(BUILD_DIR)/markdown/compact-tables.markdown"
 	@cp "$(BUILD_DIR)/overrides/markdown/image-target.markdown" "$(BUILD_DIR)/markdown/overrides-image-target.markdown"
 	@cp "$(BUILD_DIR)/overrides/markdown/blocks.markdown" "$(BUILD_DIR)/markdown/overrides-blocks.markdown"
+	@cp "$(BUILD_DIR)/overrides/markdown/ExampleRSTFile.markdown" "$(BUILD_DIR)/markdown/overrides-ExampleRSTFile.markdown"
 
 	@echo "Verifies outputs..."
 	@diff --recursive --color=always --side-by-side --text --suppress-common-lines \
