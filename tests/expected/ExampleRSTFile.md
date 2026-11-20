@@ -16,6 +16,7 @@ This file covers the following topics.
 > 
 > * [Heading Levels](#heading-levels)
 > * [Paragraph Text and Commented Text](#paragraph-text-and-commented-text)
+> * [Centered Text](#centered-text)
 > * [Ordered and Unordered Lists](#ordered-and-unordered-lists)
 > * [Conditional Text](#conditional-text)
 > * [Notes and Warnings](#notes-and-warnings)
@@ -117,6 +118,10 @@ Italics are rarely used. Text surrounded by single asterisks is rendered in
 
 Monospace text is used for `code examples`. Text surrounded by double grave
 accent characters is rendered in monospace font.
+
+## Centered Text
+
+Centered text here
 
 <!-- comments can be added in a file by starting a line with 2 periods and a space. -->
 <!-- a comment can contain - -> or - -!> without ending early. -->
@@ -669,6 +674,14 @@ being displayed in different colors.
     <p>PLACEHOLDER: Detailed explanation of solution</p>
   </solution>
 </problem>
+```
+
+The following code block uses a `:caption:` to label the file name.
+
+*example.py*
+
+```python
+print("hello")
 ```
 
 <!-- Taken from https://github.com/openedx/edx-documentation/blob/master/en_us/links/links.rst -->

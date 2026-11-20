@@ -118,6 +118,12 @@ Italics are rarely used. Text surrounded by single asterisks is rendered in
 Monospace text is used for ``code examples``. Text surrounded by double grave
 accent characters is rendered in monospace font.
 
+*****************
+Centered Text
+*****************
+
+.. centered:: Centered text here
+
 .. comments can be added in a file by starting a line with 2 periods and a space.
 
 .. a comment can contain --> or --!> without ending early.
@@ -853,5 +859,12 @@ being displayed in different colors.
         <p>PLACEHOLDER: Detailed explanation of solution</p>
       </solution>
     </problem>
+
+The following code block uses a ``:caption:`` to label the file name.
+
+.. code-block:: python
+   :caption: example.py
+
+   print("hello")
 
 .. include:: links.rst
