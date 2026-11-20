@@ -79,6 +79,10 @@ PREDEFINED_ELEMENTS: Dict[str, PredefinedAction] = dict(  # pylint: disable=use-
     compact_paragraph=contexts.Alias("paragraph"),
     centered=contexts.Alias("paragraph"),  # Markdown has no centering: ".. centered::" is a plain paragraph.
     field=contexts.Alias("list_item"),
+    # sphinx-design cards wrap their title and link in this node, outside any paragraph:
+    # container(card) > container(card-body) > container(card-title) > PassthroughTextElement (the title),
+    # and container(card) > PassthroughTextElement > reference (the card link).
+    PassthroughTextElement=contexts.Alias("paragraph"),
     # Doctree elements to skip subtree
     autosummary_toc=SKIP,
     nbplot_epilogue=SKIP,

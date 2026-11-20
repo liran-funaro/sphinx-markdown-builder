@@ -94,6 +94,7 @@
     * [`two_groups()`](blocks.md#two_groups)
     * [`unbalanced()`](blocks.md#unbalanced)
   * [Inline tabs](blocks.md#inline-tabs)
+  * [Sphinx Design](blocks.md#sphinx-design)
   * [Same-page references](blocks.md#same-page-references)
   * [Targets](blocks.md#targets)
   * [Citations](blocks.md#citations)
