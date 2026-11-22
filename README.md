@@ -38,7 +38,9 @@ You can add the following configurations to your `conf.py` file:
   This allows references to a specific anchor in the document.
 * `markdown_docinfo`: If set to `True`, adds YAML frontmatter at the beginning of each document
   containing available author, contact, copyright, date, organization, revision, status, and version
-  metadata (default: `False`).
+  metadata (default: `False`). A field in the document's
+  [file-wide metadata](https://www.sphinx-doc.org/en/master/usage/restructuredtext/field-lists.html#file-wide-metadata)
+  replaces the `conf.py` value, and `:authors:` gives a list. Other fields are left out.
 * `markdown_http_base`: If set, all references will link to this prefix address
 * `markdown_uri_doc_suffix`: If set, all references will link to documents with this suffix.
 * `markdown_file_suffix`: Sets the file extension for generated markdown files (default: `.md`).

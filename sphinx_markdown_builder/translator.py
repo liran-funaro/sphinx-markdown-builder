@@ -26,7 +26,7 @@ https://github.com/docutils/docutils/blob/master/docutils/docutils/writers/html5
 import dataclasses
 import posixpath
 import re
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Set, Type, Union
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Type, Union
 
 from docutils import languages, nodes
 from sphinx.util.docutils import SphinxTranslator
@@ -157,15 +157,20 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._ctx_queue: List[contexts.Base] = [contexts.Base()]
         self._status_queue: List[contexts.Status] = [contexts.Status()]
 
-        # The YAML frontmatter fields, written in `astext()`. A field repeated in the document holds a list of values.
+        # The YAML frontmatter fields, written in `astext()`. Sphinx moves the document's docinfo into `env.metadata`
+        # and removes it before writing, so the document's fields are read there. They replace the conf.py values.
         self._doc_info: Dict[str, Union[str, List[str]]] = {}
         if self.config.markdown_docinfo:
+            doc_metadata = dict(self.builder.env.metadata.get(self.builder.current_doc_name, {}))
+            # Sphinx keeps several authors (`:authors:`) as a list under `authors`.
+            if "authors" in doc_metadata:
+                doc_metadata["author"] = doc_metadata.pop("authors")
             for key in DOC_INFO_FIELDS:
-                value = getattr(self.config, key, "")
-                if isinstance(value, str) and value.strip():
-                    self._doc_info[key] = value.strip()
-        # Fields that still hold their conf.py value. The document's own value replaces it instead of adding to it.
-        self._doc_info_from_config: Set[str] = set(self._doc_info)
+                value = doc_metadata.get(key) or getattr(self.config, key, "")
+                if isinstance(value, str):
+                    value = value.strip()
+                if value and isinstance(value, (str, list)):
+                    self._doc_info[key] = value
 
     @property
     def ctx(self) -> contexts.Base:
@@ -358,22 +363,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     ################################################################################
     # visit/depart handlers
     ################################################################################
-
-    def visit_docinfo(self, node):
-        # docinfo: the bibliographic fields of the document's first field list. A known field is its own element
-        # (e.g. `author`, `version`), `authors` holds an `author` per name, and any other name is a generic `field`,
-        # which is left out. Note: Sphinx moves the docinfo into `env.metadata` and removes it before writing.
-        fields = node.findall(lambda n: n.tagname in DOC_INFO_FIELDS) if self.config.markdown_docinfo else ()
-        for field in fields:
-            # docutils keeps an empty field as a generic `field`, so the value is never empty.
-            name, value = field.tagname, field.astext().strip()
-            if name in self._doc_info_from_config or name not in self._doc_info:
-                self._doc_info_from_config.discard(name)
-                self._doc_info[name] = value
-            else:
-                values = self._doc_info[name]
-                self._doc_info[name] = [*values, value] if isinstance(values, list) else [values, value]
-        raise nodes.SkipNode
 
     def visit_image(self, node):
         """Image directive."""
