@@ -36,6 +36,7 @@ You can add the following configurations to your `conf.py` file:
 * `markdown_anchor_sections`/`markdown_anchor_signatures`: If set to `True`, 
   then anchors will be added before each section/function/class signature. 
   This allows references to a specific anchor in the document.
+  Without them, a section or a signature gets an anchor only if a link in the documentation points to it.
 * `markdown_docinfo`: If set to `True`, adds YAML frontmatter at the beginning of each document
   containing available author, contact, copyright, date, organization, revision, status, and version
   metadata (default: `False`). A field in the document's

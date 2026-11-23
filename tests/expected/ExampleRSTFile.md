@@ -26,17 +26,29 @@ This file covers the following topics.
 > * [Code Formatting](#code-formatting)
 > * [Links](#links)
 
+<a id="heading-levels"></a>
+
 ## Heading Levels
 
 The top of the document is heading 1, and this section is heading 2. The following are the rest of the headers.
 
+<a id="heading-3"></a>
+
 ### Heading 3
+
+<a id="heading-4"></a>
 
 #### Heading 4
 
+<a id="heading-5"></a>
+
 ##### Heading 5
 
+<a id="heading-6"></a>
+
 ###### Heading 6
+
+<a id="paragraph-text-and-commented-text"></a>
 
 ## Paragraph Text and Commented Text
 
@@ -113,6 +125,8 @@ Italics are rarely used. Text surrounded by single asterisks is rendered in
 Monospace text is used for `code examples`. Text surrounded by double grave
 accent characters is rendered in monospace font.
 
+<a id="centered-text"></a>
+
 ## Centered Text
 
 Centered text here
@@ -125,6 +139,8 @@ In English source files, look for comments addressed to translators from writers
 `.. Translators:  In this code example, do not translate such and such.`
 
 <!-- Translators:  In this code example, do not translate such and such. -->
+
+<a id="ordered-and-unordered-lists"></a>
 
 ## Ordered and Unordered Lists
 
@@ -150,10 +166,14 @@ Use asterisks for unordered (bulleted) lists.
 * What topics and concepts are covered in your course?
 * Why should a learner enroll in your course?
 
+<a id="nested-lists-or-content"></a>
+
 ### Nested Lists or Content
 
 You can include content including additional lists and code examples inside
 lists.
+
+<a id="unordered-list-inside-ordered-list"></a>
 
 #### Unordered List inside Ordered List
 
@@ -171,6 +191,8 @@ text in the ordered list.
 2. Select **Save Changes**.
 
 ![An unordered (bulleted) list inside an ordered (numbered) list.](static/markdown.png)
+
+<a id="ordered-list-inside-unordered-list"></a>
 
 #### Ordered List inside Unordered List
 
@@ -191,6 +213,8 @@ the text in the unordered list.
 <!-- render correctly locally, and searching for an example in the built docs -->
 <!-- online was taking too much time. -->
 
+<a id="unordered-list-inside-unordered-list"></a>
+
 #### Unordered List inside Unordered List
 
 To include an unordered list inside another unordered list, indent the second
@@ -207,6 +231,8 @@ be flush with the text in the unordered list.
 * Select **Save Changes**.
 
 ![An ordered (numbered) list inside an unordered (bulleted) list.](static/markdown.png)
+
+<a id="ordered-list-inside-ordered-list"></a>
 
 #### Ordered List inside Ordered List
 
@@ -228,6 +254,8 @@ uses letters.
 <!-- render correctly locally, and searching for an example in the built docs -->
 <!-- online was taking too much time. -->
 
+<a id="code-images-and-other-content-inside-lists"></a>
+
 #### Code, Images, and Other Content inside Lists
 
 To include content such as code or an image inside a list, position the code or
@@ -245,6 +273,8 @@ for ordered lists and two spaces for unordered lists.
    ```
 2. Save the `lms.yml` and `studio.yml` files.
 
+<a id="conditional-text"></a>
+
 ## Conditional Text
 
 To conditionalize a single paragraph, use either the `only:: Partners` or
@@ -261,6 +291,8 @@ more information, see [Using edX Insights](http://edx.readthedocs.io/projects/ed
 To conditionalize more than a paragraph, use either the `only:: Partners` or
 the `only:: Open_edX` directive, and then use an `include::` directive
 indented under the only directive.
+
+<a id="notes-and-warnings"></a>
 
 ## Notes and Warnings
 
@@ -292,6 +324,8 @@ indented under the only directive.
 > Warnings are formatted in the same way as notes. In the same way, lines must
 > be broken and indented under the warning tag.
 
+<a id="cross-references"></a>
+
 ## Cross-References
 
 In edX documents, you can include cross-references to other locations in the
@@ -303,6 +337,8 @@ guides and tutorials, that are listed on docs.edx.org.
 
 For more information about creating cross-references using RST and Sphinx, see
 [Cross-referencing arbitrary locations](http://www.sphinx-doc.org/en/stable/markup/inline.html#cross-referencing-arbitrary-locations) in the online Sphinx documentation.
+
+<a id="cross-references-to-locations-in-the-same-document"></a>
 
 ### Cross-References to Locations in the Same Document
 
@@ -320,12 +356,16 @@ for that section. `SFD SN Keyboard Shortcuts` is the anchor text.
 
 <a id="sfd-sn-keyboard-shortcuts"></a>
 
+<a id="keyboard-shortcuts-for-notes"></a>
+
 #### Keyboard Shortcuts for Notes
 
 To create cross-references to locations in the same document, you can use the
 anchor only, or you can use your own text. The anchor text is never visible in
 output. It is replaced by the text of the heading that follows the anchor or
 the text that you specify.
+
+<a id="cross-references-using-the-anchor-only"></a>
 
 #### Cross-References Using the Anchor Only
 
@@ -343,6 +383,8 @@ text, and “Keyboard Shortcuts for Notes” will be an active link.
 For more information about using keyboard shortcuts, see Keyboard Shortcuts
 for Notes.
 ```
+
+<a id="cross-references-using-specified-link-text"></a>
 
 #### Cross-References Using Specified Link Text
 
@@ -365,6 +407,8 @@ be an active link.
 If you want to, you can use keyboard shortcuts to create, edit, and view your
 notes.
 ```
+
+<a id="cross-references-to-locations-in-different-edx-documents"></a>
 
 ### Cross-References to Locations in Different edX Documents
 
@@ -409,6 +453,8 @@ The following intersphinx map IDs are the most frequently used.
 | `openreleasenotes`    | Open edX release notes                                       |
 
 <a id="anchor-for-cross-reference"></a>
+
+<a id="cross-references-to-external-web-pages"></a>
 
 ### Cross-References to External Web Pages
 
@@ -464,6 +510,8 @@ The edX engineering wiki [Release Pages](https://openedx.atlassian.net/wiki/page
 information about every change made to the edx-platform GitHub
 repository.
 
+<a id="image-references"></a>
+
 ## Image References
 
 Image references look like this.
@@ -490,11 +538,15 @@ Figure legend paragraph.
 
 <a id="examples-of-tables"></a>
 
+<a id="tables"></a>
+
 ## Tables
 
 Each example in this section shows the raw formatting for the table followed
 by the table as it would render (if you are viewing this file as part of the
 Style Guide).
+
+<a id="example-of-a-table-with-an-empty-cell"></a>
 
 ### Example of a table with an empty cell
 
@@ -529,6 +581,8 @@ The empty cell is the second column in the first row of this table.
 | Example Poll               | Conditional Module | You can create a conditional module to control versions of content that<br/>groups of students see. For example, students who answer “Yes” to a<br/>poll question then see a different block of text from the students who<br/>answer “No” to that question.       |
 | Exampel JavaScript Problem | Custom JavaScript  | Custom JavaScript display and grading problems (also called *custom<br/>JavaScript problems* or *JS input problems*) allow you to create a<br/>custom problem or tool that uses JavaScript and then add the problem or<br/>tool directly into Studio.              |
 
+<a id="example-of-a-table-with-a-header-row"></a>
+
 ### Example of a table with a header row
 
 ```default
@@ -552,6 +606,8 @@ The empty cell is the second column in the first row of this table.
 | Elizabeth    | Bennett     | Longbourne  |
 | Fitzwilliam  | Darcy       | Pemberley   |
 
+<a id="example-of-a-table-with-a-boldface-first-column"></a>
+
 ### Example of a table with a boldface first column
 
 ```default
@@ -574,6 +630,8 @@ The empty cell is the second column in the first row of this table.
 |--------------|-------------|---------------|
 | Last Name    | Bennett     | Darcy         |
 | Residence    | Longboure   | Pemberley     |
+
+<a id="example-of-a-table-with-a-cell-that-includes-an-unordered-list"></a>
 
 ### Example of a table with a cell that includes an unordered list
 
@@ -615,7 +673,11 @@ to render correctly.
 | `grade`       | integer | Current grade value.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `max_grade`   | integer | Maximum possible grade value.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
+<a id="code-formatting"></a>
+
 ## Code Formatting
+
+<a id="inline-code"></a>
 
 ### Inline code
 
@@ -623,6 +685,8 @@ In inline text, any text can be formatted as code (monospace font) by
 enclosing the selection within a pair of double “grave accent” characters (\`).
 For example, ``` ``these words`` ``` are formatted in a monospace font when the
 documentation is output as PDF or HTML.
+
+<a id="code-blocks"></a>
 
 ### Code blocks
 
@@ -680,6 +744,8 @@ print("hello")
 
 <!-- Taken from https://github.com/openedx/edx-documentation/blob/master/en_us/links/links.rst -->
 <!-- Include this file in any file that includes a non-doc link. -->
+
+<a id="links"></a>
 
 ## Links
 

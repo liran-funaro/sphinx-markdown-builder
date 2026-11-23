@@ -3,6 +3,7 @@ Custom docutils builder for Markdown.
 """
 
 import os
+import posixpath
 import shutil
 from contextlib import contextmanager
 
@@ -36,6 +37,7 @@ class MarkdownBuilder(Builder):
     def __init__(self, app: Sphinx, env: BuildEnvironment):
         super().__init__(app, env)
         self.current_doc_name = None
+        self.linked_ids: set[tuple[str, str]] = set()
 
     def init(self):
         self.out_suffix = self.config.markdown_file_suffix
@@ -68,7 +70,20 @@ class MarkdownBuilder(Builder):
         return f"{docname}{self.config.markdown_uri_doc_suffix}"
 
     def prepare_writing(self, docnames):
-        """Nothing to prepare. Sphinx < 8.1 requires this override (its default raises NotImplementedError)."""
+        """
+        Collects the ids that internal links point to, so the translator writes their anchors even when
+        `markdown_anchor_sections` or `markdown_anchor_signatures` is off.
+        A link to any page may come from any page, so this resolves every page, not only the pages to write.
+        It silences logging, because writing the pages resolves them again and logs the same warnings.
+        """
+        self.linked_ids = set()
+        if self.config.markdown_anchor_sections and self.config.markdown_anchor_signatures:
+            return
+        # A page that is not rewritten keeps its anchors, even when a new link points to it. A full build (-E) adds it.
+        with logging.suppress_logging():
+            for doc_name in self.env.found_docs:
+                doctree = self.env.get_and_resolve_doctree(doc_name, self)
+                self.linked_ids.update(link_ids(doctree, self.get_target_uri(doc_name)))
 
     def write_doc(self, docname: str, doctree: nodes.document):
         self.current_doc_name = docname
@@ -88,6 +103,19 @@ class MarkdownBuilder(Builder):
             ensuredir(os.path.dirname(destination))
             with io_handler(source_path):
                 shutil.copyfile(source_path, destination)
+
+
+def link_ids(doctree: nodes.document, page_uri: str):
+    """Yields the page URI and the id that each internal link in the document, on the page `page_uri`, points to"""
+    for node in doctree.findall(nodes.reference):
+        ref_id = node.get("refid")
+        if ref_id:
+            yield posixpath.normpath(page_uri), ref_id
+        elif node.get("internal"):
+            # An internal link's URI is relative to the page it is on.
+            uri, _, ref_id = node.get("refuri", "").partition("#")
+            if ref_id:
+                yield posixpath.normpath(posixpath.join(posixpath.dirname(page_uri), uri) if uri else page_uri), ref_id
 
 
 def get_mod_time_if_exists(file_path, log_error=True):

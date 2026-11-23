@@ -1,3 +1,5 @@
+<a id="module-my_module.submodule"></a>
+
 # my_module.submodule
 
 Example sub-module

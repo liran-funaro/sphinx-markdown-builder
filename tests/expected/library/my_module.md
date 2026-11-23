@@ -1,3 +1,5 @@
+<a id="module-my_module"></a>
+
 # my_module
 
 Example module
@@ -9,6 +11,8 @@ Example module
 | [`submodule`](my_module.submodule.md#module-my_module.submodule)            | Example sub-module     |
 
 ### Classes and Functions
+
+<a id="my_module.Point"></a>
 
 ### *class* Point(x, y)
 
@@ -22,9 +26,13 @@ x: int
 y: str
 : The y value
 
+<a id="my_module.Point.x"></a>
+
 #### x *: [int](https://docs.python.org/3/library/functions.html#int)*
 
 X value
+
+<a id="my_module.Point.y"></a>
 
 #### y *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
 
@@ -34,6 +42,8 @@ Y value
   * **x** ([*int*](https://docs.python.org/3/library/functions.html#int))
   * **y** ([*str*](https://docs.python.org/3/library/stdtypes.html#str))
 
+<a id="my_module.deprecated_function"></a>
+
 ### deprecated_function()
 
 Some old function.
@@ -41,17 +51,25 @@ Some old function.
 > [!WARNING]
 > Deprecated since version 3.1: Use `other()` instead.
 
+<a id="my_module.span"></a>
+
 ### span([start, ]stop[, step])
 
 Return the numbers from start (default 0) up to stop, by step (default 1).
+
+<a id="my_module.defaults"></a>
 
 ### defaults(a, b=None, \*args, c=1, \*\*kwargs)
 
 Optional parameters in a real signature: rendered with their defaults, with no brackets.
 
+<a id="my_module.clock"></a>
+
 ### clock([hour[, minute[, second]]])
 
 Format a time of day as `HH:MM:SS`; missing parts are zero.
+
+<a id="my_module.func1"></a>
 
 ### func1(param1)
 
@@ -63,6 +81,8 @@ Thanks to github.com/remiconnesson.
 * **Return type:**
   [int](https://docs.python.org/3/library/functions.html#int)
 
+<a id="my_module.get_option"></a>
+
 ### get_option(options, name)
 
 Get an option by name.
@@ -71,6 +91,8 @@ Get an option by name.
   * **options** (*Optional\[Mapping\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*,* [*int*](https://docs.python.org/3/library/functions.html#int)*\]\]*) – The options, if any.
   * **name** (*None* *or* [*str*](https://docs.python.org/3/library/stdtypes.html#str)) – The option name.
 
+<a id="my_module.get_query"></a>
+
 ### get_query(name, params=None)
 
 Get a query, with a Google-style docstring.
@@ -78,6 +100,8 @@ Get a query, with a Google-style docstring.
 * **Parameters:**
   * **name** (*Optional\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*\]*) – Optional name parameter.
   * **params** (*Optional\[Mapping\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*,* *Any\]\]*) – Optional query params.
+
+<a id="my_module.func2"></a>
 
 ### func2(param1, param2)
 
@@ -88,6 +112,8 @@ This is a function with two parameters.
   * **param2** ([*int*](https://docs.python.org/3/library/functions.html#int)) – This is the second parameter.
 * **Return type:**
   [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+<a id="my_module.downside_risk"></a>
 
 ### downside_risk(returns, min_acceptable_return=0.0)
 

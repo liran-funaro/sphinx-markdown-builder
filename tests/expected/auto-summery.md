@@ -6,6 +6,8 @@ contain the root `toctree` directive. -->
 
 # Welcome to Sphinx-Markdown-Builder TocTree Test’s documentation!
 
+<a id="documentation"></a>
+
 ## Documentation
 
 | [`my_module`](library/my_module.md#module-my_module)   | Example module   |
@@ -16,6 +18,8 @@ Some link to a class [`my_module.module_class.ModuleClass`](library/my_module.mo
 Some link to this page [Welcome to Sphinx-Markdown-Builder TocTree Test’s documentation!]()
 
 ---
+
+<a id="indices-and-tables"></a>
 
 # Indices and tables
 
