@@ -148,6 +148,12 @@ Some other text that refers to [Glossary2-Term2](https://localhost/glossaries.ht
 
 ### GET /users/(*int:* user_id)/posts/(tag)
 
+<a id="post--users-(int-user_id)-posts"></a>
+
+### POST /users/(*int:* user_id)/posts
+
+An HTTP signature has no table-of-contents entry, so only these links give it an anchor: a cross-reference to [`GET /users/(int:user_id)/posts/(tag)`](#get--users-(int-user_id)-posts-(tag)) on the same page, and a link written by hand to [the post endpoint](#post--users-(int-user_id)-posts).
+
 <a id="c-domain"></a>
 
 ## C domain

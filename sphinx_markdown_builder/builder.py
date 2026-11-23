@@ -37,6 +37,7 @@ class MarkdownBuilder(Builder):
     def __init__(self, app: Sphinx, env: BuildEnvironment):
         super().__init__(app, env)
         self.current_doc_name = None
+        # (page URI, id) pairs that links point to. The translator writes an anchor for each.
         self.linked_ids: set[tuple[str, str]] = set()
 
     def init(self):
@@ -71,19 +72,43 @@ class MarkdownBuilder(Builder):
 
     def prepare_writing(self, docnames):
         """
-        Collects the ids that internal links point to, so the translator writes their anchors even when
-        `markdown_anchor_sections` or `markdown_anchor_signatures` is off.
-        A link to any page may come from any page, so this resolves every page, not only the pages to write.
-        It silences logging, because writing the pages resolves them again and logs the same warnings.
+        Collects the ids that links point to, so the translator writes their anchors even when
+        `markdown_anchor_sections` or `markdown_anchor_signatures` is off. Without it, a table-of-contents entry or a
+        cross-reference to an object or a section links to an anchor the page doesn't have.
+
+        Why this resolves every page before writing any:
+        - The translator writes a page's anchors as it writes the page, but the links to that page can be on any page,
+          including the pages written after it. Only the links already on this page are known at that point.
+        - Every page, not only the pages to write: a page that is rewritten still needs the anchors that links on the
+          unchanged pages point to.
+        - Resolved, not as read: before resolution, a cross-reference is a `pending_xref` that only its domain knows
+          how to resolve, and a table of contents is a `toctree` node with no links yet.
+
+        Writing the pages then resolves each one again, which costs build time. The alternatives avoid it at another
+        cost:
+        - Anchor every id, as the HTML builder does with its `id` attributes. That is what the two options do, and it
+          adds an anchor line for every section and signature, even those nothing links to.
+        - Fix the anchors in each written file after all pages are written, as the Texinfo builder does in its single
+          file. That rewrites every file, and needs the links of the unchanged pages saved between builds.
+        Logging is silenced here, because writing the pages logs the same warnings again.
         """
         self.linked_ids = set()
-        if self.config.markdown_anchor_sections and self.config.markdown_anchor_signatures:
+        if not docnames or (self.config.markdown_anchor_sections and self.config.markdown_anchor_signatures):
             return
-        # A page that is not rewritten keeps its anchors, even when a new link points to it. A full build (-E) adds it.
+        # An incremental build rewrites only changed pages. A page that is not rewritten keeps the anchors it had, even
+        # when a changed page adds a link to it. A full build (-E) adds the anchor.
         with logging.suppress_logging():
             for doc_name in self.env.found_docs:
-                doctree = self.env.get_and_resolve_doctree(doc_name, self)
-                self.linked_ids.update(link_ids(doctree, self.get_target_uri(doc_name)))
+                page_uri = posixpath.normpath(self.get_target_uri(doc_name))
+                for node in self.env.get_and_resolve_doctree(doc_name, self).findall(nodes.reference):
+                    # A link to the same page has `refid` (see Sphinx's `make_refnode`). Any other link has `refuri`,
+                    # relative to the page the link is on, with the id after `#`. An external URL matches no page.
+                    uri, _, ref_id = node.get("refuri", "").partition("#")
+                    if node.get("refid"):
+                        self.linked_ids.add((page_uri, node["refid"]))
+                    elif ref_id:
+                        target_uri = posixpath.join(posixpath.dirname(page_uri), uri) if uri else page_uri
+                        self.linked_ids.add((posixpath.normpath(target_uri), ref_id))
 
     def write_doc(self, docname: str, doctree: nodes.document):
         self.current_doc_name = docname
@@ -103,19 +128,6 @@ class MarkdownBuilder(Builder):
             ensuredir(os.path.dirname(destination))
             with io_handler(source_path):
                 shutil.copyfile(source_path, destination)
-
-
-def link_ids(doctree: nodes.document, page_uri: str):
-    """Yields the page URI and the id that each internal link in the document, on the page `page_uri`, points to"""
-    for node in doctree.findall(nodes.reference):
-        ref_id = node.get("refid")
-        if ref_id:
-            yield posixpath.normpath(page_uri), ref_id
-        elif node.get("internal"):
-            # An internal link's URI is relative to the page it is on.
-            uri, _, ref_id = node.get("refuri", "").partition("#")
-            if ref_id:
-                yield posixpath.normpath(posixpath.join(posixpath.dirname(page_uri), uri) if uri else page_uri), ref_id
 
 
 def get_mod_time_if_exists(file_path, log_error=True):
