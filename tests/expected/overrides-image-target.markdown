@@ -1,6 +1,11 @@
-<meta name="author" content="Liran Funaro"/>
-<meta name="copyright" content="Copyright (c) 2023-2026, Liran Funaro."/>
-<meta name="version" content="0.6.11"/>
+---
+author:
+- Alice
+- Bob
+copyright: Copyright (c) 2023-2026, Liran Funaro.
+date: '2026-10-03'
+version: 0.6.11
+---
 
 <a id="test-image-with-target"></a>
 

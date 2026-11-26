@@ -4,22 +4,16 @@ Custom context handlers for markdown.
 
 import re
 import textwrap
-import typing
 from dataclasses import dataclass, replace
 from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Tuple, Type, TypeVar, Union
 
 from tabulate import tabulate
-
-from sphinx_markdown_builder import escape
 
 
 class UniqueString(str):
     pass
 
 
-Target = typing.Literal["body", "head"]
-
-DEFAULT_TARGET = "body"
 CONTENT_START = UniqueString("content start")
 EOL = "\n"
 SPACE = " "
@@ -51,7 +45,6 @@ class Spacing:
 
 @dataclass(frozen=True)
 class BaseParams(Spacing):
-    target: Target = DEFAULT_TARGET
     include_empty_values: bool = False
 
 
@@ -518,19 +511,6 @@ class Title(NoLineBreak):
         return "#" * self.level
 
 
-class Meta(NoLineBreak):
-    def __init__(self, name: str, params=BaseParams(1, 1, target="head")):
-        super().__init__("<br/>", params)
-        assert name, "Empty meta name"
-        self.name = name
-
-    def make(self):
-        content = super().make()
-        if not content:
-            return ""
-        return f'<meta name="{escape.html_quote(self.name)}" content="{escape.html_quote(content)}"/>'
-
-
 class FootNote(NoLineBreak):
     def __init__(self, ids, names, params=BaseParams(1, 1)):
         super().__init__(" ", params)
@@ -602,10 +582,6 @@ STRONG = marked_span("**")  # _ is more restrictive
 # TeX ignores spaces in math, and a space ends a control word: merged `\alpha` and `b` make `\alpha b`, not `\alphab`.
 MATH = marked_span("$", merge_separator=" ")
 SUBSCRIPT = PushContext(Wrapped, "<sub>", "</sub>")
-DOC_INFO = PushContext(
-    Meta,
-    translator=lambda _node, elem: {"name": f"{elem}: "},
-)
 
 
 @dataclass(frozen=True)
