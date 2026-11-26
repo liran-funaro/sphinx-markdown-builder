@@ -20,7 +20,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 keywords = ["sphinx", "sphinx-extension", "markdown", "docs", "documentation", "builder"]
-dependencies = ["sphinx>=5.1.0", "tabulate", "docutils"]
+dependencies = ["sphinx>=5.1.0", "tabulate", "docutils", "PyYAML>=5.1"]
 requires-python = ">=3.11"
 
 [project.entry-points."sphinx.builders"]
@@ -30,7 +30,7 @@ requires-python = ">=3.11"
 dev = [
     "sphinx>=9.0.4", # For development, we need a higher version for the tests' outputs to be identical.
     "bumpver", "black", "isort", "flake8", "pylint", "pip-tools", "pytest", "pytest-cov",
-    "sphinxcontrib-plantuml", "sphinxcontrib.httpdomain", "sphinx-inline-tabs", "numpydoc",
+    "sphinxcontrib-plantuml", "sphinxcontrib.httpdomain", "sphinx-inline-tabs", "numpydoc", "sphinx-design",
 ]
 
 [project.urls]
@@ -65,13 +65,9 @@ push = false
     "^version = \"{version}\"$",
     "copyright = \"Copyright (c) 2023-YYYY, Liran Funaro.\"",
 ]
-"tests/expected/overrides-auto-summery.md" = [
-    "<meta name=\"version\" content=\"{version}\"/>",
-    "<meta name=\"copyright\" content=\"Copyright (c) 2023-YYYY, Liran Funaro.\"/>",
-]
-"tests/expected/overrides-auto-module.md" = [
-    "<meta name=\"version\" content=\"{version}\"/>",
-    "<meta name=\"copyright\" content=\"Copyright (c) 2023-YYYY, Liran Funaro.\"/>",
+"tests/expected/*.markdown" = [
+    "version: {version}",
+    "copyright: Copyright (c) 2023-YYYY, Liran Funaro.",
 ]
 
 [tool.black]

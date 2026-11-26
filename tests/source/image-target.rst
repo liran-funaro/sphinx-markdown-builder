@@ -1,3 +1,6 @@
+:authors: Alice; Bob
+:date: 2026-10-03
+:hide: toc
 
 ======================
 Test Image With Target

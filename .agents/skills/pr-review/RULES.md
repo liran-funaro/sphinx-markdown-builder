@@ -83,7 +83,7 @@ Also add this flag to `tests/test_builder.py` to ensure all paths are covered in
 
 ### 4. Declare simple nodes in `PREDEFINED_ELEMENTS`
 
-**What:** A node that renders as a standard wrapper, an admonition box, a skipped subtree (`SKIP`), or a transparent container (`None`, which keeps processing its children) gets one entry in `PREDEFINED_ELEMENTS` in `translator.py`. A `visit_`/`depart_` method is for nodes that need real logic.
+**What:** A node that renders as a standard wrapper, an admonition box, another node (`contexts.Alias`, which uses that node's visit and depart handlers), a skipped subtree (`SKIP`), or a transparent container (`None`, which keeps processing its children) gets one entry in `PREDEFINED_ELEMENTS` in `translator.py`. A `visit_`/`depart_` method is for nodes that need real logic.
 
 **Why:** Simple node handling stays in one table that can be read at a glance.
 
@@ -101,6 +101,7 @@ This:
 PREDEFINED_ELEMENTS = dict(
     ...
     figure=None,
+    centered=contexts.Alias("paragraph"),  # not `visit_centered = visit_paragraph`
 )
 ```
 
@@ -176,17 +177,19 @@ This:
 
 Not this:
 ```python
-def _visit_doc_info(self, node):
-    self._add_doc_info_value(name, value)
+def visit_target(self, node):
+    self._add_id_anchors(node)
 
-def _add_doc_info_value(self, name, value):
-    self._doc_info[name] = value
+def _add_id_anchors(self, node):
+    for anchor in node.get("ids", ()):
+        self._add_anchor(anchor)
 ```
 
 This:
 ```python
-def _visit_doc_info(self, node):
-    self._doc_info[name] = value
+def visit_target(self, node):
+    for anchor in node.get("ids", ()):
+        self._add_anchor(anchor)
 ```
 
 ### 9. Callers before helpers
@@ -246,13 +249,13 @@ for src, (_, dst) in self.env.dlfiles.items():
 
 Not this:
 ```python
-self._doc_info_configured: Set[str] = set()
+self._seen: Set[str] = set()
 ```
 
 This:
 ```python
-# Fields set from conf.py; these take priority over fields set in the document.
-self._doc_info_from_config: Set[str] = set()
+# Abbreviations whose explanation was already written, so a later use can leave it out.
+self._explained_abbreviations: Set[str] = set()
 ```
 
 ## Scope and design

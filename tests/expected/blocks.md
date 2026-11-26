@@ -5,6 +5,8 @@ Formula 1
   $\frac{ \sum_{t=0}^{N}f(t,k) }{N}$.
   <br/>
   Some more text related to the definition.
+  Touching math merges, $a +b$ and $\alpha b$, and math next to a word gets a space:
+  x $y$ z.
 
 Formula 2 : *float* : *optional*
 : A term with classifiers (e.g., numpydoc parameter types).
@@ -225,6 +227,20 @@ A label in bold, like the tab labels themselves.
 
 * **Bold and *italic* name:**
   A field name is bold too, so the bold inside it does nothing, and the italic stays.
+
+## Sphinx Design
+
+A card title
+
+Body text.
+
+[https://example.com](https://example.com)
+
+Second card
+
+Second body.
+
+[https://example.org](https://example.org)
 
 ## Same-page references
 

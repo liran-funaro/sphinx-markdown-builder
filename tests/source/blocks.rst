@@ -7,6 +7,8 @@ Formula 1
    :math:`\frac{ \sum_{t=0}^{N}f(t,k) }{N}`.
 
    Some more text related to the definition.
+   Touching math merges, :math:`a`\ :math:`+b` and :math:`\alpha`\ :math:`b`, and math next to a word gets a space:
+   x\ :math:`y`\ z.
 
 Formula 2 : float : optional
    A term with classifiers (e.g., numpydoc parameter types).
@@ -257,6 +259,19 @@ Inline tabs
    A label in bold, like the tab labels themselves.
 
 :**Bold** and *italic* name: A field name is bold too, so the bold inside it does nothing, and the italic stays.
+
+Sphinx Design
+-------------
+
+.. card:: A card title
+   :link: https://example.com
+
+   Body text.
+
+.. card:: Second card
+   :link: https://example.org
+
+   Second body.
 
 Same-page references
 --------------------
