@@ -87,6 +87,14 @@ a bold and lit and em and Same-page references and Glossary test for multiple gl
 H2O, x^2, 1, [CIT2002] and an inline target
 ```
 
+A production list is a code block of its grammar:
+
+```
+try_stmt  ::= try1_stmt | try2_stmt
+try1_stmt ::= "try" ":" suite
+              ("except" [expression ["," target]] ":" suite)+
+```
+
 # Line Block
 
 text

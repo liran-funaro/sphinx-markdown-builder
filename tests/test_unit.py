@@ -8,6 +8,7 @@ from unittest.mock import Mock
 import docutils.nodes
 import pytest
 import sphinx.util.logging
+from sphinx import addnodes
 
 from sphinx_markdown_builder import contexts
 from sphinx_markdown_builder.translator import MarkdownTranslator, UnknownVisit
@@ -113,3 +114,18 @@ def test_problematic():
         mt.dispatch_visit(node)
     mt.add("suffix")
     assert mt.astext() == "prefix\n\n```\ntext\n```\n\nsuffix\n"
+
+
+def test_production_before_sphinx_8_2(monkeypatch):
+    """
+    Covers Sphinx < 8.2, where a production keeps its rule name only in `tokenname`, and its children are only the
+    right-hand side. The test sources build with a newer Sphinx.
+    """
+    monkeypatch.setattr(sphinx, "version_info", (8, 1, 3, "final", 0))
+    mt = make_mock()
+    productions = [
+        addnodes.production("", ' "try" ":" suite', tokenname="try1_stmt"),
+        addnodes.production("", " handlers", tokenname=""),
+    ]
+    addnodes.productionlist("", *productions).walkabout(mt)
+    assert mt.astext() == '```\ntry1_stmt ::= "try" ":" suite\n    handlers\n```\n'
