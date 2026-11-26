@@ -77,6 +77,7 @@ line-length = 120
 max-line-length = 120
 max-args = 6
 max-positional-arguments = 6
+max-attributes = 8
 
 [tool.pylint.variables]
 ignored-argument-names = "_.*|^ignored_|^unused_|node"

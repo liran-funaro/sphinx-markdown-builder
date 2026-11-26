@@ -53,6 +53,13 @@ You can add the following configurations to your `conf.py` file:
 * `markdown_include_raw_types`: The `raw` directive formats to write to the output, verbatim
   (default: `["html", "markdown"]`). Raw content of any other format (e.g., `latex`) is left out.
   Set it to `["markdown"]` to leave out raw HTML as well.
+* `markdown_abbreviation_first`: How the first occurrence of an abbreviation (`:abbr:`) in a document is written:
+  `"inline"` (default) writes `LLM (Large Language Model)`, and `"footnote"` writes `LLM[^abbr-1]`,
+  with `[^abbr-1]: **LLM**: Large Language Model` at the end of the document.
+* `markdown_abbreviation_repeat`: How the later occurrences of an abbreviation are written:
+  `"plain"` (default) writes `LLM`, `"inline"` writes `LLM (Large Language Model)`,
+  and `"footnote"` writes `LLM[^abbr-1]`, sharing the footnote of the other occurrences.
+  Inside code blocks, where a footnote can't link, the inline form is written instead of a footnote.
 
 For example, if your `conf.py` file have the following configuration:
 

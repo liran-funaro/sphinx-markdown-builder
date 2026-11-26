@@ -118,6 +118,16 @@ Text with \[brackets\](not a link) and List\<int>.
 
 reStructuredText would start a list at these markers, but not on the continuation lines of a paragraph: 1. not a list 2) not a list + not a list - 5 degrees overnight, a mid-line - stays.
 
+<a id="abbreviations"></a>
+
+## Abbreviations
+
+A sentence with an LLM[^abbr-1] in the middle. Repeating an LLM[^abbr-1] doesn’t repeat its explanation, and neither does a third LLM[^abbr-1], while an ANN[^abbr-2] has an explanation of its own. An API[^abbr-3] may be explained only later, as an API[^abbr-3]. A bare RST[^abbr-4], never explained, has no explanation.
+
+```default
+A code block can't link to a footnote: LLM (Large Language Model), CPU (Central Processing Unit) and RST.
+```
+
 <a id="raw-blocks"></a>
 
 ## Raw blocks
@@ -330,3 +340,8 @@ A link to [the citation alias](#the-citation-alias), a target right before the c
 
 <a id="the-citation-alias"></a>
 * <a id='cit2002'>**[CIT2002]**</a> A citation definition.
+
+[^abbr-1]: **LLM**: Large Language Model
+[^abbr-2]: **ANN**: Artificial Neural Network
+[^abbr-3]: **API**: Application Programming Interface
+[^abbr-4]: **RST**: no explanation found in document

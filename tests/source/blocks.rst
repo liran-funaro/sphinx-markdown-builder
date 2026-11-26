@@ -117,6 +117,20 @@ reStructuredText would start a list at these markers, but not on the continuatio
 - 5 degrees overnight, a mid-line - stays.
 
 
+Abbreviations
+-------------
+
+A sentence with an :abbr:`LLM (Large Language Model)` in the middle.
+Repeating an :abbr:`LLM` doesn't repeat its explanation, and neither does a third :abbr:`LLM`,
+while an :abbr:`ANN (Artificial Neural Network)` has an explanation of its own.
+An :abbr:`API` may be explained only later, as an :abbr:`API (Application Programming Interface)`.
+A bare :abbr:`RST`, never explained, has no explanation.
+
+.. parsed-literal::
+
+   A code block can't link to a footnote: :abbr:`LLM`, :abbr:`CPU (Central Processing Unit)` and :abbr:`RST`.
+
+
 Raw blocks
 ----------
 
