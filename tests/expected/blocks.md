@@ -80,6 +80,16 @@ x = 1
 ```
 ````
 
+## Mermaid Diagram
+
+```mermaid
+sequenceDiagram
+    User->>Server: Login
+    Server-->>User: OK
+```
+
+*A login sequence*
+
 # Line Block
 
 text
