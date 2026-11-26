@@ -29,8 +29,10 @@ import re
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Type, Union
 
 from docutils import languages, nodes
+from sphinx.config import Config
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.osutil import relative_uri
+import yaml
 
 from sphinx_markdown_builder import contexts, escape
 
@@ -52,11 +54,6 @@ PREDEFINED_ELEMENTS: Dict[str, PredefinedAction] = dict(  # pylint: disable=use-
     superscript=contexts.SUBSCRIPT,
     literal_strong=contexts.STRONG,
     literal_emphasis=contexts.ITALIC,
-    # Doc info elements
-    docinfo=contexts.DOC_INFO,
-    docinfo_item=contexts.DOC_INFO,
-    **dict.fromkeys(DOC_INFO_FIELDS, contexts.DOC_INFO),
-    authors=None,  # not used: visit_author is called anyway for each author.
     # Admonitions
     important=contexts.PushBox("IMPORTANT"),
     warning=contexts.PushBox("WARNING"),
@@ -157,16 +154,28 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
         # A stack of nested contexts. Output goes to the last one, which renders into its parent when popped.
         self._ctx_queue: List[contexts.Base] = [contexts.Base()]
-        self._doc_info: contexts.Base = contexts.Base()
         self._status_queue: List[contexts.Status] = [contexts.Status()]
 
+        # The YAML frontmatter fields, written in `astext()`. Sphinx moves the document's docinfo into `env.metadata`
+        # and removes it before writing, so the document's fields are read there. They replace the conf.py values.
+        self._doc_info: Dict[str, Union[str, List[str]]] = {}
         if self.config.markdown_docinfo:
+            doc_metadata = dict(self.builder.env.metadata.get(self.builder.current_doc_name, {}))
+            # Sphinx keeps several authors (`:authors:`) as a list under `authors`.
+            if "authors" in doc_metadata:
+                doc_metadata["author"] = doc_metadata.pop("authors")
+            # An option the project didn't set holds Sphinx's default (e.g., `author` is "Author name not set").
+            sphinx_defaults = Config()
             for key in DOC_INFO_FIELDS:
-                value = getattr(self.config, key, "")
+                config_value = getattr(self.config, key, "")
+                if config_value == getattr(sphinx_defaults, key, ""):
+                    config_value = ""
+                value = doc_metadata.get(key) or config_value
                 if isinstance(value, str):
-                    self._push_context(contexts.Meta(key))
-                    self.ctx.add(value)
-                    self._pop_context()
+                    value = value.strip()
+                # `copyright` may be a sequence of lines.
+                if value and isinstance(value, (str, list, tuple)):
+                    self._doc_info[key] = value if isinstance(value, str) else list(value)
 
     @property
     def ctx(self) -> contexts.Base:
@@ -192,8 +201,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
                 break
 
             last_ctx = self._ctx_queue.pop()
-            ctx = self.ctx if last_ctx.params.target == "body" else self._doc_info
-            ctx.add(last_ctx.make(), last_ctx.params)
+            self.ctx.add(last_ctx.make(), last_ctx.params)
 
     @property
     def status(self) -> contexts.Status:
@@ -331,8 +339,10 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         assert len(self._ctx_queue) == 1
 
         ctx = contexts.Base()
-        for sub_ctx in (self._doc_info, self._ctx_queue[0]):
-            ctx.add(sub_ctx.make().strip(), prefix_eol=2, suffix_eol=1)
+        if self._doc_info:
+            metadata = yaml.safe_dump(self._doc_info, allow_unicode=True, sort_keys=False)
+            ctx.add(f"---\n{metadata}---", suffix_eol=2)
+        ctx.add(self._ctx_queue[0].make().strip(), prefix_eol=2, suffix_eol=1)
         ctx.force_eol(1)
         return ctx.make()
 
