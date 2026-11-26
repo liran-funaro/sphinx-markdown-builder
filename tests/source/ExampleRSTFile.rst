@@ -106,6 +106,10 @@ Inline code right next to inline code: ``a``\ ``b``.
 
    Sidebar body.
 
+.. todo::
+
+   Todo body.
+
 
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.

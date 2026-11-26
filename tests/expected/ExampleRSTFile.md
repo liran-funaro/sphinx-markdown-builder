@@ -107,6 +107,11 @@ Inline code right next to inline code: `a` `b`.
 > 
 > Sidebar body.
 
+> [!NOTE]
+> ### Todo
+> 
+> Todo body.
+
 Italics are rarely used. Text surrounded by single asterisks is rendered in
 *italics*.
 

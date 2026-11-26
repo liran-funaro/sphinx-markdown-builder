@@ -100,6 +100,22 @@ Other text
 
 other text
 
+A list in columns:
+
+.. hlist::
+   :columns: 2
+
+   * A
+   * B
+   * C
+
+Acknowledgements:
+
+.. acks::
+
+   * Alice
+   * Bob
+
 
 Text that looks like Markdown
 -----------------------------

@@ -69,6 +69,7 @@ PREDEFINED_ELEMENTS: Dict[str, PredefinedAction] = dict(  # pylint: disable=use-
     admonition=contexts.PushBox("NOTE"),
     sidebar=contexts.PushBox("TIP"),
     versionmodified=contexts.PushBox("WARNING"),  # “versionadded”, “versionchanged” and “deprecated” directives.
+    todo_node=contexts.PushBox("NOTE"),  # sphinx.ext.todo; its "Todo" title becomes the box heading.
     # Doctree elements rendered like another element
     compact_paragraph=contexts.Alias("paragraph"),
     centered=contexts.Alias("paragraph"),  # Markdown has no centering: ".. centered::" is a plain paragraph.
@@ -111,6 +112,8 @@ PREDEFINED_ELEMENTS: Dict[str, PredefinedAction] = dict(  # pylint: disable=use-
     figure=None,
     legend=None,
     desc_signature_line=None,
+    acks=None,  # wraps a bullet list
+    hlistcol=None,
 )
 
 
@@ -651,8 +654,9 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
 
     def _end_list(self, _node=None):
         self._pop_status()
-        # We need two line breaks to make sure the next paragraph will not merge into the list
-        self.ensure_eol(2)
+        # We need two line breaks to make sure the next paragraph will not merge into the list.
+        # Joined lists (e.g., hlist columns) continue as one list, so the next one follows on the next line.
+        self.ensure_eol(1 if self.status.join_lists else 2)
 
     def visit_enumerated_list(self, node):
         self._start_list(node.get("start", 1) - 1)
@@ -663,6 +667,11 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         self._start_list(node.attributes.get("bullet", self.config.markdown_bullet))
 
     depart_bullet_list = _end_list
+
+    @pushing_status
+    def visit_hlist(self, node):
+        # hlist > hlistcol > bullet_list: Sphinx splits one bullet list into a list per column; render them as one.
+        self._push_status(join_lists=True)
 
     @pushing_context
     def visit_list_item(self, node):
