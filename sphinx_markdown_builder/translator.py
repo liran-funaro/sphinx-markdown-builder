@@ -29,6 +29,7 @@ import re
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Type, Union
 
 from docutils import languages, nodes
+from sphinx.config import Config
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.osutil import relative_uri
 import yaml
@@ -165,12 +166,18 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
             # Sphinx keeps several authors (`:authors:`) as a list under `authors`.
             if "authors" in doc_metadata:
                 doc_metadata["author"] = doc_metadata.pop("authors")
+            # An option the project didn't set holds Sphinx's default (e.g., `author` is "Author name not set").
+            sphinx_defaults = Config()
             for key in DOC_INFO_FIELDS:
-                value = doc_metadata.get(key) or getattr(self.config, key, "")
+                config_value = getattr(self.config, key, "")
+                if config_value == getattr(sphinx_defaults, key, ""):
+                    config_value = ""
+                value = doc_metadata.get(key) or config_value
                 if isinstance(value, str):
                     value = value.strip()
-                if value and isinstance(value, (str, list)):
-                    self._doc_info[key] = value
+                # `copyright` may be a sequence of lines.
+                if value and isinstance(value, (str, list, tuple)):
+                    self._doc_info[key] = value if isinstance(value, str) else list(value)
 
     @property
     def ctx(self) -> contexts.Base:
