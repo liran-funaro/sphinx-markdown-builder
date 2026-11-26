@@ -528,11 +528,22 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     @pushing_status
     def visit_section(self, node):
         self.ensure_eol(2)
-        if self.config.markdown_anchor_sections:
-            for anchor in node.get("ids", []):
-                self._add_anchor(anchor)
+        self._add_anchors(node, self.config.markdown_anchor_sections)
 
         self._push_status(section_level=self.status.section_level + 1)
+
+    def _add_anchors(self, node, enabled: bool):
+        """Adds an anchor for each id of the node, if `enabled` by the config, or if a link points to it"""
+        page_uri = posixpath.normpath(self.builder.get_target_uri(self.builder.current_doc_name))
+        for anchor in node.get("ids", ()):
+            if enabled or (page_uri, anchor) in self.builder.linked_ids:
+                self._add_anchor(anchor)
+
+    def _add_anchor(self, anchor: str):
+        content = f'<a id="{escape.html_quote(anchor)}"></a>'
+        # Prevent adding the same anchor twice in the same context
+        if content not in self.ctx.content:
+            self.add(content, prefix_eol=2, suffix_eol=1)
 
     @pushing_context
     def visit_title(self, node):
@@ -612,12 +623,6 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
         else:
             target = self._adjust_url(node.get("reftarget", ""))
         self._push_context(contexts.Wrapped("[", f"]({escape.link_destination(target)})"))
-
-    def _add_anchor(self, anchor: str):
-        content = f'<a id="{escape.html_quote(anchor)}"></a>'
-        # Prevent adding the same anchor twice in the same context
-        if content not in self.ctx.content:
-            self.add(content, prefix_eol=2, suffix_eol=1)
 
     def visit_target(self, node):
         # A target moves its id onto the element after it (`refid`), except before a footnote or a citation, where it
@@ -700,10 +705,7 @@ class MarkdownTranslator(SphinxTranslator):  # pylint: disable=too-many-public-m
     def visit_desc_signature(self, node):
         """the main signature of class/method"""
 
-        # Insert anchors if enabled by the config
-        if self.config.markdown_anchor_signatures:
-            for anchor in node.get("ids", []):
-                self._add_anchor(anchor)
+        self._add_anchors(node, self.config.markdown_anchor_signatures)
 
         # We don't want methods to be at the same level as classes,
         # If signature has a non-null class, that's means it is a signature

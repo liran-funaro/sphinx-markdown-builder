@@ -21,7 +21,11 @@ summarize activity during the previous week (Monday through Sunday).
 >   * [Report Columns](#report-columns)
 > * [Download the Learner Engagement Report](#download-the-learner-engagement-report)
 
+<a id="understanding-the-learner-engagement-report"></a>
+
 ## Understanding the Learner Engagement Report
+
+<a id="reported-problem-types"></a>
 
 ### Reported Problem Types
 
@@ -43,6 +47,8 @@ components.
 
 For more information about the problem types that you can add to courses, see
 [Adding Exercises and Tools](https://edx.readthedocs.io/projects/edx-partner-course-staff/en/latest/exercises_tools/index.html#exercises-and-tools-index).
+
+<a id="report-columns"></a>
 
 ### Report Columns
 
@@ -67,6 +73,8 @@ The learner engagement report .csv files contain the following columns.
 | Discussion Comments           | The number of comments the learner made on responses in the course<br/>discussions.                                                                |
 | Textbook Pages Viewed         | The number of pages in a .pdf textbook that the learner viewed.                                                                                    |
 | URL of Last Subsection Viewed | The URL of the last subsection the learner visited.                                                                                                |
+
+<a id="download-the-learner-engagement-report"></a>
 
 ## Download the Learner Engagement Report
 

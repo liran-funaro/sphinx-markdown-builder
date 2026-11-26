@@ -166,6 +166,12 @@ Http domain directive
 
 .. http:get:: /users/(int:user_id)/posts/(tag)
 
+.. http:post:: /users/(int:user_id)/posts
+
+An HTTP signature has no table-of-contents entry, so only these links give it an anchor:
+a cross-reference to :http:get:`/users/(int:user_id)/posts/(tag)` on the same page,
+and a link written by hand to `the post endpoint <#post--users-(int-user_id)-posts>`_.
+
 
 C domain
 --------
