@@ -10,11 +10,11 @@ Example module
 
 ### Classes and Functions
 
-### *class* Point(x, y)
+**Class `my_module.Point`(x, y)**
 
 A Point
 
-## Attributes
+**Attributes**
 
 x: int
 : The x value
@@ -22,11 +22,11 @@ x: int
 y: str
 : The y value
 
-#### x *: [int](https://docs.python.org/3/library/functions.html#int)*
+**Attribute `my_module.Point.x`*: [int](https://docs.python.org/3/library/functions.html#int)***
 
 X value
 
-#### y *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
+**Attribute `my_module.Point.y`*: [str](https://docs.python.org/3/library/stdtypes.html#str)***
 
 Y value
 
@@ -34,26 +34,26 @@ Y value
   * **x** ([*int*](https://docs.python.org/3/library/functions.html#int))
   * **y** ([*str*](https://docs.python.org/3/library/stdtypes.html#str))
 
-### deprecated_function()
+**Function `my_module.deprecated_function`()**
 
 Some old function.
 
 > [!WARNING]
 > Deprecated since version 3.1: Use `other()` instead.
 
-### span([start, ]stop[, step])
+**Function `my_module.span`([start, ]stop[, step])**
 
 Return the numbers from start (default 0) up to stop, by step (default 1).
 
-### defaults(a, b=None, \*args, c=1, \*\*kwargs)
+**Function `my_module.defaults`(a, b=None, \*args, c=1, \*\*kwargs)**
 
 Optional parameters in a real signature: rendered with their defaults, with no brackets.
 
-### clock([hour[, minute[, second]]])
+**Function `my_module.clock`([hour[, minute[, second]]])**
 
 Format a time of day as `HH:MM:SS`; missing parts are zero.
 
-### func1(param1)
+**Function `my_module.func1`(param1)**
 
 This is a function with a single parameter.
 Thanks to github.com/remiconnesson.
@@ -63,7 +63,15 @@ Thanks to github.com/remiconnesson.
 * **Return type:**
   [int](https://docs.python.org/3/library/functions.html#int)
 
-### get_option(options, name)
+**Details**
+
+Details about this function.
+
+**More details**
+
+More information about this function.
+
+**Function `my_module.get_option`(options, name)**
 
 Get an option by name.
 
@@ -71,7 +79,7 @@ Get an option by name.
   * **options** (*Optional\[Mapping\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*,* [*int*](https://docs.python.org/3/library/functions.html#int)*\]\]*) – The options, if any.
   * **name** (*None* *or* [*str*](https://docs.python.org/3/library/stdtypes.html#str)) – The option name.
 
-### get_query(name, params=None)
+**Function `my_module.get_query`(name, params=None)**
 
 Get a query, with a Google-style docstring.
 
@@ -79,7 +87,7 @@ Get a query, with a Google-style docstring.
   * **name** (*Optional\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*\]*) – Optional name parameter.
   * **params** (*Optional\[Mapping\[*[*str*](https://docs.python.org/3/library/stdtypes.html#str)*,* *Any\]\]*) – Optional query params.
 
-### func2(param1, param2)
+**Function `my_module.func2`(param1, param2)**
 
 This is a function with two parameters.
 
@@ -89,11 +97,11 @@ This is a function with two parameters.
 * **Return type:**
   [str](https://docs.python.org/3/library/stdtypes.html#str)
 
-### downside_risk(returns, min_acceptable_return=0.0)
+**Function `my_module.downside_risk`(returns, min_acceptable_return=0.0)**
 
 Compute the downside risk of a series of returns.
 
-## Parameters
+**Parameters**
 
 returns : *ndarray of shape (n_observations,)*
 : The observed returns, at least one.
@@ -101,7 +109,7 @@ returns : *ndarray of shape (n_observations,)*
 min_acceptable_return : *float, optional*
 : Returns below this value count as downside.
 
-## Returns
+**Returns**
 
 risk : *float*
 : The downside risk.
