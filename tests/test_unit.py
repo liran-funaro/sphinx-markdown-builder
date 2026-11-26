@@ -17,6 +17,7 @@ def make_mock():
     document = Mock(name="document")
     document.settings.language_code = "en"
     builder = Mock(name="builder")
+    builder.config.markdown_docinfo = False
     return MarkdownTranslator(document, builder)
 
 
