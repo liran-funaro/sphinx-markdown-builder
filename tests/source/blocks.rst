@@ -155,6 +155,16 @@ A raw block indented right after a paragraph is a definition
 After the raw blocks.
 
 
+PlantUML diagrams
+-----------------
+
+.. uml:: static/diagram.puml
+
+.. uml::
+
+   Alice -> Bob: Hello
+
+
 Referencing terms from a glossary
 ---------------------------------
 
