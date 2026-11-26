@@ -80,6 +80,13 @@ x = 1
 ```
 ````
 
+A parsed literal block keeps only the text of its inline markup:
+
+```default
+a bold and lit and em and Same-page references and Glossary test for multiple glossaries x_y*z
+H2O, x^2, 1, [CIT2002] and an inline target
+```
+
 # Line Block
 
 text
